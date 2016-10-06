@@ -15,17 +15,23 @@ class PipedriveClient:
 
     def get_resource_by_id(self, resource_name, resource_id):
         class_ = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
-        instance = class_(self)
+        resource = class_(self)
         data = self.get_resource_data(resource_name, resource_id)
         for key in data:
-            setattr(instance, key, data[key])
-        return instance
+            setattr(resource, key, data[key])
+        return resource
 
     def get_resource_data(self, resource_name, resource_id):
-        return self._fetch_data(resource_name.lower() + "s", resource_id)  # takes an 's' at the end of the resource name
+        return self._fetch_data(resource_name + "s", resource_id)  # takes an 's' at the end of the resource name
+
+    def add_resource(self, resource):  # TODO: here not sure if I should pass resource object or name + data
+        data = self._push_data(resource.resource_name + "s", resource.resource_data)
+        for key in data:
+            setattr(resource, key, data[key])
+        return resource
 
     def _fetch_data(self, r_name, r_id=None):
-        self._logger.debug("Fetching resource %s with id %s", r_name, str(r_id) or "None")
+        self._logger.debug("Fetching resource %s%s", r_name, " with id %s" % str(r_id) or "")
 
         url = self._build_url(r_name, r_id)
 
@@ -38,8 +44,34 @@ class PipedriveClient:
             if "success" in data and data["success"]:
                 if "data" in data:
                     return data["data"]
+        else:
+            if "error" in data and data["error"]:
+                logging.error(data["error"])
 
-        return None  # TODO: Exception handling
+        return None  # TODO: Better exception handling
+
+    def _push_data(self, r_name, r_data, r_id=None):
+        self._logger.debug("Pushing resource %s%s", r_name, " with id %s" % str(r_id) or "")
+
+        url = self._build_url(r_name)
+
+        if r_id is None:  # id not authorized in post request
+            r_data.pop("id")
+
+        r = self._session.post(url, data=r_data)
+        data = r.json()
+
+        self._logger.info("URL=%s", r.url)
+
+        if r.status_code == 201:
+            if "success" in data and data["success"]:
+                if "data" in data:
+                    return data["data"]
+        else:
+            if "error" in data and data["error"]:
+                logging.error(data["error"])
+
+        return None  # TODO: Better exception handling
 
     def _build_url(self, r_name, r_id=None):
         url = self.API_ENDPOINT + "/" + r_name
@@ -48,4 +80,4 @@ class PipedriveClient:
         return url
 
     def get_resource_fields(self, resource_name):
-        return self._fetch_data(resource_name.lower() + "Fields")
+        return self._fetch_data(resource_name + "Fields")

@@ -39,13 +39,37 @@ class PipedriveTestCase(unittest.TestCase):
     def test_get_person_undefined_field(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
-        self.assertIsNone(person.fake_field)
+        with self.assertRaises(AttributeError):
+            person.fake_field
 
     def test_get_person_related_organization(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertIsNotNone(person.organization)
         self.assertEqual(person.organization.name, "MyCompany")
+
+    def test_person_no_attribute_name_equal_key(self):
+        person = pipedrive.Person(self.pd)
+        with self.assertRaises(AttributeError):
+            person.name
+
+    def test_add_person_from_client(self):
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        with self.assertRaises(AttributeError):
+            person.id
+        self.pd.add_resource(person)
+        self.assertIsNotNone(person.id)
+
+    def test_add_person(self):
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 2"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        with self.assertRaises(AttributeError):
+            person.id
+        person.save()
+        self.assertIsNotNone(person.id)
 
 if __name__ == '__main__':
     logging.basicConfig()
