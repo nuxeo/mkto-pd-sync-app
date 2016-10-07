@@ -2,7 +2,6 @@ import unittest
 from .context import marketo
 from .context import secret
 import logging
-import requests
 
 
 class MarketoTestCase(unittest.TestCase):
@@ -38,45 +37,58 @@ class MarketoTestCase(unittest.TestCase):
         with self.assertRaises(AttributeError):
             lead.fake_field
 
-    # def test_get_person_related_organization(self):
-    #     person = pipedrive.Person(self.mkto, 63080)
-    #     self.assertIsNotNone(person)
-    #     self.assertIsNotNone(person.organization)
-    #     self.assertEqual(person.organization.name, "MyCompany")
+    def test_dump_lead_from_client(self):
+        lead = marketo.Lead(self.mkto)
+        lead.firstName = "Test"
+        lead.lastName = "Lead"
+        lead.email = "lead@test.com"
+        self.assertIsNone(lead.id)
+        lead = self.mkto.add_resource("lead", lead.resource_data_to_update)
+        self.assertIsNotNone(lead.id)
+        self.assertEquals(lead.firstName, "Test")
+        self.assertEquals(lead.lastName, "Lead")
+        self.assertEquals(lead.email, "lead@test.com")
+        # TODO: delete at tear down
 
-    # def test_add_person_from_client(self):
-    #     person = pipedrive.Person(self.mkto)
-    #     person.name = "Test Person"
-    #     person.owner_id = 1628545  # my (Helene Jonin) owner id
-    #     self.assertIsNone(person.id)
-    #     person = self.mkto.add_resource("person", person.resource_data_to_update)
-    #     self.assertIsNotNone(person.id)
-    #     self.assertEquals(person.name, "Test Person")
-    #     # TODO: delete at tear down
-    #
-    # def test_add_person(self):
-    #     person = pipedrive.Person(self.mkto)
-    #     person.name = "Test Person 2"
-    #     person.owner_id = 1628545  # my (Helene Jonin) owner id
-    #     self.assertIsNone(person.id)
-    #     person.save()
-    #     self.assertIsNotNone(person.id)
-    #     self.assertEquals(person.name, "Test Person 2")
-    #     # TODO: delete at tear down
+    def test_add_lead(self):
+        lead = marketo.Lead(self.mkto)
+        lead.firstName = "Test"
+        lead.lastName = "Lead 2"
+        lead.email = "lead@test2.com"
+        self.assertIsNone(lead.id)
+        lead.save()
+        self.assertIsNotNone(lead.id)
+        self.assertEquals(lead.firstName, "Test")
+        self.assertEquals(lead.lastName, "Lead 2")
+        self.assertEquals(lead.email, "lead@test2.com")
+        # TODO: delete at tear down
 
     def test_get_lead_undefined(self):
         lead = marketo.Lead(self.mkto, -1)
         self.assertIsNotNone(lead)
-    #
-    # def test_update_person(self):
-    #     person = pipedrive.Person(self.mkto, 63194)
-    #     self.assertEquals(person.name, "Test LN")
-    #     person.name = "Test LN 2"
-    #     person.save()
-    #     self.assertEquals(person.name, "Test LN 2")
+        self.assertIsNone(lead.id)
+
+    # Update call does not seem to work for now - sent an E-mail to support
+    # def test_update_lead(self):
+    #     # Create a lead first
+    #     lead = marketo.Lead(self.mkto)
+    #     lead.firstName = "Test"
+    #     lead.lastName = "Lead 3"
+    #     lead.email = "lead@test3.com"
+    #     self.assertIsNone(lead.id)
+    #     lead.save()
+    #     self.assertIsNotNone(lead.id)
+    #     lead_id = lead.id  # Save id for later
+    #     self.assertEquals(lead.firstName, "Test")
+    #     # Then update
+    #     lead.firstName = "Test 2"
+    #     lead.save()
+    #     lead = marketo.Lead(self.mkto, lead_id)
+    #     self.assertEquals(lead.firstName, "Test 2")
     #     # Reset value
-    #     person.name = "Test LN"
-    #     person.save()
+    #     lead.firstName = "Test"
+    #     lead.save()
+    #     # TODO: delete at tear down
 
 
 if __name__ == '__main__':

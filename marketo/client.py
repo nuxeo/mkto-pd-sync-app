@@ -51,16 +51,28 @@ class MarketoClient:
             return data_array[0]
         return {}
 
-    # def add_resource(self, resource_name, resource_data):
-    #     class_ = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
-    #     resource = class_(self)
-    #     data = self.set_resource_data(resource_name, resource_data)
-    #     for key in data:
-    #         setattr(resource, key, data[key])
-    #     return resource
-    #
-    # def set_resource_data(self, resource_name, resource_data, resource_id=None):
-    #     return self._push_data(resource_name + "s", resource_data, resource_id)
+    def add_resource(self, resource_name, resource_data):
+        class_ = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
+        resource = class_(self)
+        data = self.set_resource_data(resource_name, resource_data)
+        for key in resource_data:
+            setattr(resource, key, resource_data[key])
+        if "id" in data:
+            setattr(resource, "id", data["id"])
+        return resource
+
+    def set_resource_data(self, resource_name, resource_data, resource_id=None):
+        r_data = {
+            "action": "createOrUpdate",
+            "input": [resource_data]
+        }
+        if resource_id is not None:
+            resource_data["id"] = resource_id
+            r_data["lookupField"] = "id"
+        data_array = self._push_data(resource_name, r_data, resource_id)
+        if data_array:
+            return data_array[0]
+        return {}
 
     def _fetch_data(self, r_name, r_id=None, r_fields=None):
         self._logger.debug("Fetching resource %s%s", r_name, " with id %s" % str(r_id) or "")
@@ -84,46 +96,48 @@ class MarketoClient:
         else:
             if "errors" in data and data["errors"]:
                 error = data["errors"][0]
-                if error["code"] in ("601", "602"):
-                    self._logger.debug("Token expired or invalid, fetching new token to replay request")
+                if error["code"] == "602":
+                    self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
+                    return self._fetch_data(r_name, r_id, r_fields)
                 else:
                     logging.error(error["message"])
 
         return {}  # TODO: Better exception handling
 
-    # def _push_data(self, r_name, r_data, r_id=None):
-    #     self._logger.debug("Pushing resource %s%s", r_name, " with id %s" % str(r_id) or "")
-    #
-    #     url = self._build_url(r_name, r_id)
-    #
-    #     if r_id is None:  # Add
-    #         r = self._session.post(url, data=r_data)
-    #     else:             # Update
-    #         r = self._session.put(url, json=r_data)
-    #
-    #     data = r.json()
-    #
-    #     self._logger.info("URL=%s", r.url)
-    #
-    #     if r.status_code == 201:
-    #         if "success" in data and data["success"]:
-    #             if "data" in data:
-    #                 return data["data"]
-    #     else:
-    #         if "error" in data and data["error"]:
-    #             logging.error(data["error"])
-    #
-    #     return {}  # TODO: Better exception handling
+    def _push_data(self, r_name, r_data, r_id=None):
+        self._logger.debug("Pushing resource %s%s", r_name, " with id %s" % str(r_id) or "")
+
+        url = self._build_url(r_name)
+
+        headers = {"Authorization": "Bearer %s" % self._auth_token}
+        r = self._session.post(url, headers=headers, json=r_data)  # POST to add and update
+        self._logger.info("Called %s", r.url)
+        r.raise_for_status()
+
+        data = r.json()
+
+        if "success" in data and data["success"]:
+            if "result" in data:
+                return data["result"]
+        else:
+            if "errors" in data and data["errors"]:
+                error = data["errors"][0]
+                if error["code"] == "602":
+                    self._logger.debug("Token expired, fetching new token to replay request")
+                    self._auth_token = self._get_auth_token()
+                    return self._push_data(r_name, r_data, r_id)
+                else:
+                    logging.error(error["message"])
+
+        return {}  # TODO: Better exception handling
 
     def _build_url(self, r_name, r_id=None):
-        url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION, r_name)
+        url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION, r_name + "s")  # takes an 's' at the end of the resource name
         if r_id is not None:
             url += "/" + str(r_id)
-        else:
-            url += "s"
         url += ".json"
         return url
 
     def get_resource_fields(self, resource_name):
-        return self._fetch_data(resource_name + "s", "describe")  # takes an 's' at the end of the resource name
+        return self._fetch_data(resource_name, "describe")

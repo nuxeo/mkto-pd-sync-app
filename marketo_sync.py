@@ -14,7 +14,7 @@ mkto = marketo.MarketoClient(
 
 pd = pipedrive.PipedriveClient(PD_API_TOKEN)
 
-mapping = {
+mapping = {  # From Marketo to Pipedrive
     "name": ["firstName", "lastName"],
     "email": ["email"]
 }

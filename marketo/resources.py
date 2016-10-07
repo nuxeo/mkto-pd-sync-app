@@ -5,14 +5,12 @@ import logging
 class Resource:
     __metaclass__ = ABCMeta
 
-    # FIELD_TO_UPDATE = {  # Has to be keys for now TODO names?
-    #     "name": False,
-    #     "owner_id": True,  # Boolean that indicates if the field should be converted to a number (bc related resource)
-    #     "org_id": True,
-    #     "email": False,
-    #     "phone": False,
-    #     "visible_to": False
-    # }
+    FIELD_TO_UPDATE = [
+        "firstName",
+        "lastName",
+        "email",
+        "pipedriveId"
+    ]
 
     def __init__(self, client, id_=None):
         self._logger = logging.getLogger(__name__)
@@ -31,14 +29,11 @@ class Resource:
     @property
     def resource_data_to_update(self):
         data = {}
-        # for key in self.FIELD_TO_UPDATE:
-        #     try:
-        #         data[key] = getattr(self, key)
-        #         if (self.FIELD_TO_UPDATE[key]  # Field has to be "flattened"
-        #                 and type(data[key]) is dict and "value" in data[key]):
-        #             data[key] = data[key]["value"]
-        #     except AttributeError:
-        #         data[key] = None
+        for key in self.FIELD_TO_UPDATE:
+            try:
+                data[key] = getattr(self, key)
+            except AttributeError:
+                data[key] = None
         return data
 
     @abstractproperty
@@ -53,7 +48,9 @@ class Resource:
 
     def _load_data(self):
         self._logger.debug("Loading resource with id %d", self.id)
-        data = self._client.get_resource_data(self.resource_name, self.id, self._fields)
+        # Don't fetch all fields, only those to update
+        fields_intersect = [field for field in self._fields if field in self.FIELD_TO_UPDATE]
+        data = self._client.get_resource_data(self.resource_name, self.id, fields_intersect)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -62,9 +59,9 @@ class Resource:
 
     def save(self):
         self._logger.debug("Saving resource")
-        # data = self._client.set_resource_data(self.resource_name, self.resource_data_to_update, self.id)
-        # for key in data:
-        #     setattr(self, key, data[key])
+        data = self._client.set_resource_data(self.resource_name, self.resource_data_to_update, self.id)
+        if "id" in data:
+            setattr(self, "id", data["id"])
 
 
 class Lead(Resource):
