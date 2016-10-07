@@ -41,17 +41,14 @@ class PipedriveClient:
         url = self._build_url(r_name, r_id)
 
         r = self._session.get(url)
+        self._logger.info("Called %s", r.url)
+        r.raise_for_status()
+
         data = r.json()
 
-        self._logger.info("URL=%s", r.url)
-
-        if r.status_code == requests.codes.ok:
-            if "success" in data and data["success"]:
-                if "data" in data:
-                    return data["data"]
-        else:
-            if "error" in data and data["error"]:
-                logging.error(data["error"])
+        if "success" in data and data["success"]:
+            if "data" in data:
+                return data["data"]
 
         return {}  # TODO: Better exception handling
 
@@ -64,18 +61,14 @@ class PipedriveClient:
             r = self._session.post(url, data=r_data)
         else:             # Update
             r = self._session.put(url, json=r_data)
+        self._logger.info("Called %s", r.url)
+        r.raise_for_status()
 
         data = r.json()
 
-        self._logger.info("URL=%s", r.url)
-
-        if r.status_code == 201:
-            if "success" in data and data["success"]:
-                if "data" in data:
-                    return data["data"]
-        else:
-            if "error" in data and data["error"]:
-                logging.error(data["error"])
+        if "success" in data and data["success"]:
+            if "data" in data:
+                return data["data"]
 
         return {}  # TODO: Better exception handling
 

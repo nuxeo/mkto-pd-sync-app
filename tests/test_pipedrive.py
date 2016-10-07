@@ -2,6 +2,7 @@ import unittest
 from .context import pipedrive
 from .context import secret
 import logging
+import requests
 
 
 class PipedriveTestCase(unittest.TestCase):
@@ -53,7 +54,7 @@ class PipedriveTestCase(unittest.TestCase):
         with self.assertRaises(AttributeError):
             person.name
 
-    def test_add_person_from_client(self):
+    def test_dump_person_from_client(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
@@ -61,7 +62,7 @@ class PipedriveTestCase(unittest.TestCase):
         person = self.pd.add_resource("person", person.resource_data_to_update)
         self.assertIsNotNone(person.id)
         self.assertEquals(person.name, "Test Person")
-        # TODO: delete at the end
+        # TODO: delete at tear down
 
     def test_add_person(self):
         person = pipedrive.Person(self.pd)
@@ -71,12 +72,11 @@ class PipedriveTestCase(unittest.TestCase):
         person.save()
         self.assertIsNotNone(person.id)
         self.assertEquals(person.name, "Test Person 2")
-        # TODO: delete at the end
+        # TODO: delete at tear down
 
     def test_get_person_undefined(self):
-        person = pipedrive.Person(self.pd, -1)
-        self.assertIsNotNone(person)
-        self.assertIsNone(person.id)
+        with self.assertRaises(requests.HTTPError):
+            pipedrive.Person(self.pd, -1)
 
     def test_update_person(self):
         person = pipedrive.Person(self.pd, 63194)
