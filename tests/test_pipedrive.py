@@ -48,7 +48,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.organization)
         self.assertEqual(person.organization.name, "MyCompany")
 
-    def test_person_no_attribute_name_equal_key(self):
+    def test_empty_person_with_field_name_equals_key(self):
         person = pipedrive.Person(self.pd)
         with self.assertRaises(AttributeError):
             person.name
@@ -57,19 +57,37 @@ class PipedriveTestCase(unittest.TestCase):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
-        with self.assertRaises(AttributeError):
-            person.id
-        self.pd.add_resource(person)
+        self.assertIsNone(person.id)
+        person = self.pd.add_resource("person", person.resource_data_to_update)
         self.assertIsNotNone(person.id)
+        self.assertEquals(person.name, "Test Person")
+        # TODO: delete at the end
 
     def test_add_person(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person 2"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
-        with self.assertRaises(AttributeError):
-            person.id
+        self.assertIsNone(person.id)
         person.save()
         self.assertIsNotNone(person.id)
+        self.assertEquals(person.name, "Test Person 2")
+        # TODO: delete at the end
+
+    def test_get_person_undefined(self):
+        person = pipedrive.Person(self.pd, -1)
+        self.assertIsNotNone(person)
+        self.assertIsNone(person.id)
+
+    def test_update_person(self):
+        person = pipedrive.Person(self.pd, 63194)
+        self.assertEquals(person.name, "Test LN")
+        person.name = "Test LN 2"
+        person.save()
+        self.assertEquals(person.name, "Test LN 2")
+        # Reset value
+        person.name = "Test LN"
+        person.save()
+
 
 if __name__ == '__main__':
     logging.basicConfig()
