@@ -5,11 +5,23 @@ import logging
 class Resource:
     __metaclass__ = ABCMeta
 
+    # Marketo won't let us update all fields so pick the one we want in a list
     FIELD_TO_UPDATE = [
         "firstName",
         "lastName",
         "email",
-        "pipedriveId"
+        "title",
+        "phone",
+        "country",
+        "leadSource",
+        "leadStatus",
+        "conversicaLeadOwnerEmail",
+        "conversicaLeadOwnerFirstName",
+        "conversicaLeadOwnerLastName",
+        "pipedriveId",
+        "state",
+        "city",
+        "noofEmployeesRange"
     ]
 
     def __init__(self, client, id_=None):
@@ -27,9 +39,9 @@ class Resource:
         return self.__class__.__name__.lower()
 
     @property
-    def resource_data_to_update(self):
+    def resource_data(self):
         data = {}
-        for key in self.FIELD_TO_UPDATE:
+        for key in self._fields:
             try:
                 data[key] = getattr(self, key)
             except AttributeError:
@@ -44,13 +56,13 @@ class Resource:
         fields = self._client.get_resource_fields(self.resource_name)
         self._fields = []
         for field in fields:
-            self._fields.append(field["rest"]["name"])
+            name = field["rest"]["name"]
+            if name in self.FIELD_TO_UPDATE and not field["rest"]["readOnly"]:
+                self._fields.append(name)
 
     def _load_data(self):
         self._logger.debug("Loading resource with id %d", self.id)
-        # Don't fetch all fields, only those to update
-        fields_intersect = [field for field in self._fields if field in self.FIELD_TO_UPDATE]
-        data = self._client.get_resource_data(self.resource_name, self.id, fields_intersect)
+        data = self._client.get_resource_data(self.resource_name, self.id, self._fields)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -59,7 +71,7 @@ class Resource:
 
     def save(self):
         self._logger.debug("Saving resource")
-        data = self._client.set_resource_data(self.resource_name, self.resource_data_to_update, self.id)
+        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         if "id" in data:
             setattr(self, "id", data["id"])
 

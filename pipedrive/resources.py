@@ -6,15 +6,6 @@ import helpers
 class Resource:
     __metaclass__ = ABCMeta
 
-    FIELD_TO_UPDATE = {  # Has to be keys for now TODO names?
-        "name": False,
-        "owner_id": True,  # Boolean that indicates if the field should be converted to a number (bc related resource)
-        "org_id": True,
-        "email": False,
-        "phone": False,
-        "visible_to": False
-    }
-
     def __init__(self, client, id_=None):
         self._logger = logging.getLogger(__name__)
         self._client = client
@@ -53,13 +44,13 @@ class Resource:
         return self.__class__.__name__.lower()
 
     @property
-    def resource_data_to_update(self):
+    def resource_data(self):
         data = {}
-        for key in self.FIELD_TO_UPDATE:
+        for name in self._field_keys:
             try:
+                key = self._field_keys[name]
                 data[key] = getattr(self, key)
-                if (self.FIELD_TO_UPDATE[key]  # Field has to be "flattened"
-                        and type(data[key]) is dict and "value" in data[key]):
+                if type(data[key]) is dict and "value" in data[key]:  # Field has to be "flattened"
                     data[key] = data[key]["value"]
             except AttributeError:
                 data[key] = None
@@ -75,7 +66,8 @@ class Resource:
         self._field_types = {}
         for field in fields:
             key = field["key"]
-            self._field_keys[helpers.to_snake_case(field["name"])] = key
+            name = helpers.to_snake_case(field["name"])
+            self._field_keys[name] = key
             self._field_types[key] = field["field_type"]
 
     def _load_data(self):
@@ -89,7 +81,7 @@ class Resource:
 
     def save(self):
         self._logger.debug("Saving resource")
-        data = self._client.set_resource_data(self.resource_name, self.resource_data_to_update, self.id)
+        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         for key in data:
             setattr(self, key, data[key])
 

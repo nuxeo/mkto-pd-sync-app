@@ -30,12 +30,12 @@ class PipedriveTestCase(unittest.TestCase):
     def test_get_person_custom_field(self):  # i.e. hash field
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
-        self.assertEqual(getattr(person, "49f0c687b7617aa2e449353f9f5263434f6725d7"), "2016-01-23")
+        self.assertEqual(getattr(person, "88ec7b3fd70f2fbdabe9aded639e316ff29174ce"), 0)  # Lead score
 
     def test_get_person_custom_field_nice_name(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
-        self.assertEqual(person.created_date, "2016-01-23")
+        self.assertEqual(person.lead_score, 0)
 
     def test_get_person_undefined_field(self):
         person = pipedrive.Person(self.pd, 63080)
@@ -59,7 +59,7 @@ class PipedriveTestCase(unittest.TestCase):
         person.name = "Test Person"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
         self.assertIsNone(person.id)
-        person = self.pd.add_resource("person", person.resource_data_to_update)
+        person = self.pd.add_resource("person", person.resource_data)
         self.assertIsNotNone(person.id)
         self.assertEquals(person.name, "Test Person")
         # TODO: delete at tear down
@@ -79,14 +79,21 @@ class PipedriveTestCase(unittest.TestCase):
             pipedrive.Person(self.pd, -1)
 
     def test_update_person(self):
-        person = pipedrive.Person(self.pd, 63194)
-        self.assertEquals(person.name, "Test LN")
-        person.name = "Test LN 2"
+        # Create a person first
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 3"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
         person.save()
-        self.assertEquals(person.name, "Test LN 2")
-        # Reset value
-        person.name = "Test LN"
+        self.assertIsNotNone(person.id)
+        person_id = person.id  # Save id for later
+        self.assertEquals(person.name, "Test Person 3")
+        # Then update
+        person.name = "Test Person 4"
         person.save()
+        person = pipedrive.Person(self.pd, person_id)
+        self.assertEquals(person.name, "Test Person 4")
+        # TODO: delete at tear down
 
 
 if __name__ == '__main__':

@@ -43,7 +43,7 @@ class MarketoTestCase(unittest.TestCase):
         lead.lastName = "Lead"
         lead.email = "lead@test.com"
         self.assertIsNone(lead.id)
-        lead = self.mkto.add_resource("lead", lead.resource_data_to_update)
+        lead = self.mkto.add_resource("lead", lead.resource_data)
         self.assertIsNotNone(lead.id)
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, "Lead")
@@ -85,9 +85,6 @@ class MarketoTestCase(unittest.TestCase):
     #     lead.save()
     #     lead = marketo.Lead(self.mkto, lead_id)
     #     self.assertEquals(lead.firstName, "Test 2")
-    #     # Reset value
-    #     lead.firstName = "Test"
-    #     lead.save()
     #     # TODO: delete at tear down
 
 
