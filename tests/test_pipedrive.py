@@ -20,7 +20,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.email)
         self.assertEqual(person.email[0]["value"], "emeamarco@gmail.com")
 
-    def test_load_person_from_resource(self):
+    def test_load_person(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(person.name, "Marco Antonio")
@@ -54,25 +54,29 @@ class PipedriveTestCase(unittest.TestCase):
         with self.assertRaises(AttributeError):
             person.name
 
-    def test_dump_person_from_client(self):
+    def test_add_person_from_client(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
         self.assertIsNone(person.id)
         person = self.pd.add_resource("person", person.resource_data)
-        self.assertIsNotNone(person.id)
+        person_id = person.id
+        self.assertIsNotNone(person_id)
         self.assertEquals(person.name, "Test Person")
-        # TODO: delete at tear down
+        # Delete created person
+        self.pd.delete_resource("person", person_id)
 
-    def test_add_person(self):
+    def test_save_person(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person 2"
         person.owner_id = 1628545  # my (Helene Jonin) owner id
         self.assertIsNone(person.id)
         person.save()
-        self.assertIsNotNone(person.id)
+        person_id = person.id
+        self.assertIsNotNone(person_id)
         self.assertEquals(person.name, "Test Person 2")
-        # TODO: delete at tear down
+        # Delete created person
+        self.pd.delete_resource("person", person_id)
 
     def test_get_person_undefined(self):
         with self.assertRaises(requests.HTTPError):
@@ -86,15 +90,15 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNone(person.id)
         person.save()
         self.assertIsNotNone(person.id)
-        person_id = person.id  # Save id for later
+        person_id = person.id
         self.assertEquals(person.name, "Test Person 3")
         # Then update
         person.name = "Test Person 4"
         person.save()
         person = pipedrive.Person(self.pd, person_id)
         self.assertEquals(person.name, "Test Person 4")
-        # TODO: delete at tear down
-
+        # And delete
+        self.pd.delete_resource("person", person_id)
 
 if __name__ == '__main__':
     logging.basicConfig()

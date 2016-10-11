@@ -18,26 +18,27 @@ class Resource:
 
     def __getattr__(self, name):
         if name in self._field_keys\
-                and name != self._field_keys[name]:  # Prevent from overflowing when no attribute and name = key
-            self._logger.debug("Looking for custom attribute %s in loaded fields", name)
+                and name != self._field_keys[name]:  # Prevent from overflowing when attribute not found and name = key
+            self._logger.debug("Looking for custom attribute with name %s in loaded fields", name)
 
             key = self._field_keys[name]
 
             attr = getattr(self, key)
 
+            # Check related resource
             if key in self._field_types and self._field_types[key] in self.related_resources():
-                class_ = self.related_resources()[self._field_types[key]]
+                resource_class = self.related_resources()[self._field_types[key]]
 
-                if type(class_) != type(attr):  # Related resource already loaded
-                    related_name = class_.__name__.lower()
+                if type(resource_class) != type(attr):  # Related resource already loaded
+                    related_name = resource_class.__name__.lower()
                     related_id = attr["value"]
                     self._logger.debug("Loading related resource %s with id %s", related_name, related_id)
                     attr = self._client.get_resource_by_id(related_name, related_id)
-                    setattr(self, name, attr)
 
+            setattr(self, name, attr)  # Cache attribute value for name
             return attr
         else:
-            raise AttributeError("No attribute named %s" % name)
+            raise AttributeError("No attribute found with name %s" % name)
 
     @property
     def resource_name(self):
@@ -50,7 +51,7 @@ class Resource:
             try:
                 key = self._field_keys[name]
                 data[key] = getattr(self, key)
-                if type(data[key]) is dict and "value" in data[key]:  # Field has to be "flattened"
+                if type(data[key]) is dict and "value" in data[key]:  # Field has to be "flattened" as parameter
                     data[key] = data[key]["value"]
             except AttributeError:
                 data[key] = None
@@ -71,7 +72,6 @@ class Resource:
             self._field_types[key] = field["field_type"]
 
     def _load_data(self):
-        self._logger.debug("Loading resource with id %d", self.id)
         data = self._client.get_resource_data(self.resource_name, self.id)
         if data:
             for key in data:
@@ -80,7 +80,6 @@ class Resource:
             self.id = None  # Reset id case given id not found
 
     def save(self):
-        self._logger.debug("Saving resource")
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         for key in data:
             setattr(self, key, data[key])
