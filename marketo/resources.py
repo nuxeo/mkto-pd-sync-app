@@ -21,7 +21,9 @@ class Resource:
         "pipedriveId",
         "state",
         "city",
-        "noofEmployeesRange"
+        "noofEmployeesRange",
+        "company",
+        "leadScore"
     ]
 
     def __init__(self, client, id_=None):

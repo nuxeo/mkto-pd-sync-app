@@ -24,8 +24,8 @@ class PipedriveClient:
             setattr(resource, key, data[key])
         return resource
 
-    def get_resource_data(self, resource_name, resource_id):
-        return self._fetch_data(resource_name + "s", resource_id)  # Takes an 's' at the end of the resource name
+    def get_resource_data(self, resource_name, resource_id, resource_fields=None):
+        return self._fetch_data(resource_name + "s", resource_id, resource_fields)  # Takes an 's' at the end of the resource name
 
     def add_resource(self, resource_name, resource_data):
         resources_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
@@ -38,12 +38,23 @@ class PipedriveClient:
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
         return self._push_data(resource_name + "s", resource_data, resource_id)  # Takes an 's' at the end of the resource name
 
-    def _fetch_data(self, r_name, r_id=None):
-        self._logger.debug("Fetching resource %s%s", r_name, " with id %s" % str(r_id) or "")
+    def find_resource_by_name(self, resource_name, resource_term):
+        resource_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
+        resource = resource_class(self)
+        data_array = self.get_resource_data(resource_name, "find", {"term": resource_term})
+        if data_array:
+            data = data_array[0]  # Consider first result is the right one
+            for key in data:
+                setattr(resource, key, data[key])
+        return resource
 
-        url = self._build_url(r_name, r_id)
+    def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
+        self._logger.debug("Fetching resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
 
-        r = self._session.get(url)
+        url = self._build_url(r_name, r_id_or_action)
+
+        payload = r_fields or {}
+        r = self._session.get(url, params=payload)
         self._logger.info("Called %s", r.url)
         r.raise_for_status()
 
@@ -58,12 +69,12 @@ class PipedriveClient:
 
         return ret
 
-    def _push_data(self, r_name, r_data, r_id=None):
-        self._logger.debug("Pushing resource %s%s", r_name, " with id %s" % str(r_id) or "")
+    def _push_data(self, r_name, r_data, r_id_or_action=None):
+        self._logger.debug("Pushing resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
 
-        url = self._build_url(r_name, r_id)
+        url = self._build_url(r_name, r_id_or_action)
 
-        if r_id is None:  # Add
+        if r_id_or_action is None:  # Add
             r = self._session.post(url, data=r_data)
         else:             # Update
             r = self._session.put(url, json=r_data)
@@ -81,10 +92,10 @@ class PipedriveClient:
 
         return ret
 
-    def _build_url(self, r_name, r_id=None):
+    def _build_url(self, r_name, r_id_or_action=None):
         url = self.API_ENDPOINT + "/" + r_name
-        if r_id is not None:
-            url += "/" + str(r_id)
+        if r_id_or_action is not None:
+            url += "/" + str(r_id_or_action)
         return url
 
     # Play carefully with this method!

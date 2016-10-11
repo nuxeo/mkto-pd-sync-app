@@ -129,6 +129,12 @@ class PipedriveTestCase(unittest.TestCase):
         # And delete
         self.pd.delete_resource("person", person_id)
 
+    def test_get_organization_with_name(self):
+        organization = self.pd.find_resource_by_name("organization", "MyCompany")
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.name, "MyCompany")
+
 if __name__ == '__main__':
     logging.basicConfig()
     logging.getLogger("pipedrive").setLevel(logging.DEBUG)

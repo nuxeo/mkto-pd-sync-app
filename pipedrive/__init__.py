@@ -1,5 +1,6 @@
 from .client import PipedriveClient
 from .resources import Person
+from .resources import Organization
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
