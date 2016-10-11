@@ -41,3 +41,51 @@ PIPEDRIVE_TO_MARKETO = {
         "fields": ["leadScore"]
     }
 }
+
+
+def split_name_get_first(name, client):
+    split = name.split()
+    return " ".join(split[:-1]) if len(split) > 1 else ""
+
+
+def split_name_get_last(name, client):
+    split = name.split()
+    return split[-1] if split else ""
+
+
+def get_primary_email(emails, client):
+    ret = ""
+    for email in emails:
+        if email["primary"]:
+            ret = email["value"]
+    return ret
+
+
+def country_name_to_iso(country, client):
+    ret = country
+    if country is not None:
+        ret = countries.get(name=country).alpha2
+    return ret
+
+# To send from Pipedrive to Marketo
+MARKETO_TO_PIPEDRIVE = {
+    "firstName": {
+        "fields": ["name"],
+        "adapter": split_name_get_first
+    },
+    "lastName": {
+        "fields": ["name"],
+        "adapter": split_name_get_last
+    },
+    "email": {
+        "fields": ["email"],
+        "adapter": get_primary_email
+    },
+    "country": {
+        "fields": ["inferred_country"],
+        "adapter": country_name_to_iso
+    },
+    "leadScore": {
+        "fields": ["lead_score"]
+    }
+}

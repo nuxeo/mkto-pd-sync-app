@@ -36,12 +36,37 @@ def create_or_update_lead_in_pipedrive(lead_id):
     app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(lead.pipedriveId) or "")
     person.save()
 
-    if lead.pipedriveId is None:
+    if lead.pipedriveId is None or lead.id != person.marketoid:
         app.logger.debug("Updating Pipedrive ID in Marketo")
         lead.pipedriveId = person.id
         lead.save()
 
-    return 'OK'
+    return 'OK'  # TODO
+
+
+@app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
+def create_or_update_lead_in_marketo(person_id):
+
+    app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
+    person = pipedrive.Person(pd, person_id)
+
+    lead = marketo.Lead(mkto, person.marketoid)
+    for mkto_field in mappings.MARKETO_TO_PIPEDRIVE:
+        app.logger.debug("Updating field %s", mkto_field)
+        mapping = mappings.MARKETO_TO_PIPEDRIVE[mkto_field]
+        pd_fields = mapping["fields"]
+        setattr(lead, mkto_field, " ".join(map(
+            lambda pd_field: adapt_field(getattr(person, pd_field), mapping, mkto), pd_fields)))
+
+    app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.marketoid) or "")
+    lead.save()
+
+    if person.marketoid is None or person.marketoid != lead.id:
+        app.logger.debug("Updating Marketo ID in Pipedrive")
+        person.marketoid = lead.id
+        person.save()
+
+    return 'OK'  # TODO
 
 
 def adapt_field(attr, mapping, client):
