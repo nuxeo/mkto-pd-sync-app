@@ -95,8 +95,37 @@ class PipedriveTestCase(unittest.TestCase):
         # Then update
         person.name = "Test Person 4"
         person.save()
-        person = pipedrive.Person(self.pd, person_id)
         self.assertEquals(person.name, "Test Person 4")
+        # And delete
+        self.pd.delete_resource("person", person_id)
+
+    def test_add_person_custom_field(self):
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 5"
+        person.lead_score = 10
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
+        person.save()
+        self.assertIsNotNone(person.id)
+        person_id = person.id
+        self.assertEquals(person.lead_score, 10)
+        # Delete created person
+        self.pd.delete_resource("person", person_id)
+
+    def test_update_person_custom_field(self):
+        # Create a person first
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 6"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
+        person.save()
+        self.assertIsNotNone(person.id)
+        person_id = person.id
+        self.assertIsNone(person.lead_score)
+        # Then update
+        person.lead_score = 10
+        person.save()
+        self.assertEquals(person.lead_score, 10)
         # And delete
         self.pd.delete_resource("person", person_id)
 

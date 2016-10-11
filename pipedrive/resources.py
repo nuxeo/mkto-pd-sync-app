@@ -17,7 +17,7 @@ class Resource:
             self._load_data()
 
     def __getattr__(self, name):
-        if name in self._field_keys\
+        if hasattr(self, "_field_keys") and name in self._field_keys\
                 and name != self._field_keys[name]:  # Prevent from overflowing when attribute not found and name = key
             self._logger.debug("Looking for custom attribute with name %s in loaded fields", name)
 
@@ -29,7 +29,8 @@ class Resource:
             if key in self._field_types and self._field_types[key] in self.related_resources():
                 resource_class = self.related_resources()[self._field_types[key]]
 
-                if type(resource_class) != type(attr):  # Related resource already loaded
+                if attr is not None\
+                        and type(resource_class) != type(attr):  # Related resource already loaded
                     related_name = resource_class.__name__.lower()
                     related_id = attr["value"]
                     self._logger.debug("Loading related resource %s with id %s", related_name, related_id)
@@ -39,6 +40,13 @@ class Resource:
             return attr
         else:
             raise AttributeError("No attribute found with name %s" % name)
+
+    def __setattr__(self, name, value):
+        object.__setattr__(self, name, value)
+        # If trying to set value for name, set value for key as well
+        if hasattr(self, "_field_keys") and self._field_keys and name in self._field_keys\
+                and name != self._field_keys[name]:
+            object.__setattr__(self, self._field_keys[name], value)
 
     @property
     def resource_name(self):
