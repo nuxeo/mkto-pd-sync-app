@@ -61,7 +61,6 @@ class Resource:
                 self._fields.append(name)
 
     def _load_data(self):
-        self._logger.debug("Loading resource with id %d", self.id)
         data = self._client.get_resource_data(self.resource_name, self.id, self._fields)
         if data:
             for key in data:
@@ -70,8 +69,8 @@ class Resource:
             self.id = None  # Reset id case given id not found
 
     def save(self):
-        self._logger.debug("Saving resource")
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
+        # Only id is returned
         if "id" in data:
             setattr(self, "id", data["id"])
 
