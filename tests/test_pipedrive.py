@@ -17,15 +17,13 @@ class PipedriveTestCase(unittest.TestCase):
         person = self.pd.get_resource_by_id("person", 63080)
         self.assertIsNotNone(person)
         self.assertEqual(person.name, "Marco Antonio")
-        self.assertIsNotNone(person.email)
-        self.assertEqual(person.email[0]["value"], "emeamarco@gmail.com")
+        self.assertEqual(person.email, "emeamarco@gmail.com")  # Test email was "flattened"
 
     def test_load_person(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(person.name, "Marco Antonio")
-        self.assertIsNotNone(person.email)
-        self.assertEqual(person.email[0]["value"], "emeamarco@gmail.com")
+        self.assertEqual(person.email, "emeamarco@gmail.com")
 
     def test_get_person_custom_field(self):  # i.e. hash field
         person = pipedrive.Person(self.pd, 63080)
@@ -134,6 +132,13 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(organization)
         self.assertIsNotNone(organization.id)
         self.assertEqual(organization.name, "MyCompany")
+
+    def test_save_person_related_organization(self):
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.organization)
+        self.assertEqual(person.organization.name, "MyCompany")
+        person.save()
 
 if __name__ == '__main__':
     logging.basicConfig()

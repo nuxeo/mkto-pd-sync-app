@@ -21,7 +21,15 @@ class PipedriveClient:
         resource = resource_class(self)
         data = self.get_resource_data(resource_name, resource_id)
         for key in data:
-            setattr(resource, key, data[key])
+            value = data[key]
+            new_value = value
+            if type(value) is dict and "value" in value:  # Field has to be "flattened" as parameter
+                new_value = value["value"]
+            elif type(value) is list:  # In case of list keep only primary value
+                for v in value:
+                    if v["primary"]:
+                        new_value = v["value"]
+            setattr(resource, key, new_value)
         return resource
 
     def get_resource_data(self, resource_name, resource_id, resource_fields=None):
@@ -76,7 +84,7 @@ class PipedriveClient:
 
         if r_id_or_action is None:  # Add
             r = self._session.post(url, data=r_data)
-        else:             # Update
+        else:  # Update
             r = self._session.put(url, json=r_data)
         self._logger.info("Called %s", r.url)
         r.raise_for_status()
