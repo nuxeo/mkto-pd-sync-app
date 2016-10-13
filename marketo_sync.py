@@ -1,31 +1,51 @@
-from flask import Flask, url_for, request, jsonify
+from flask import Flask, g
 import marketo
 import pipedrive
 import mappings
 from secret import *
-import logging
-
-# logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-mkto = marketo.MarketoClient(
-    IDENTITY_ENDPOINT, CLIENT_ID, CLIENT_SECRET, API_ENDPOINT)  # TODO: Add possibility to refresh access token!
 
-pd = pipedrive.PipedriveClient(PD_API_TOKEN)
+def create_marketo_client():
+    """Creates the Marketo client."""
+    return marketo.MarketoClient(IDENTITY_ENDPOINT, CLIENT_ID, CLIENT_SECRET, API_ENDPOINT)
+
+
+def create_pipedrive_client():
+    """Creates the Pipedrive client."""
+    return pipedrive.PipedriveClient(PD_API_TOKEN)
+
+
+def get_marketo_client():
+    """Creates a new Marketo client if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'marketo_client'):
+        g.marketo_client = create_marketo_client()
+    return g.marketo_client
+
+
+def get_pipedrive_client():
+    """Creates a new Pipedrive client if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'pipedrive_client'):
+        g.pipedrive_client = create_pipedrive_client()
+    return g.pipedrive_client
 
 
 @app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
 def create_or_update_person_in_pipedrive(lead_id):
 
     app.logger.debug("Getting lead data from Marketo with id %s", str(lead_id))
-    lead = marketo.Lead(mkto, lead_id)
+    lead = marketo.Lead(get_marketo_client(), lead_id)
 
-    person = pipedrive.Person(pd, lead.pipedriveId)
+    person = pipedrive.Person(get_pipedrive_client(), lead.pipedriveId)
     updated = False
     for pd_field in mappings.PIPEDRIVE_TO_MARKETO:
-        updated = update_field(lead, person, pd_field, mappings.PIPEDRIVE_TO_MARKETO[pd_field], pd) or updated
+        updated = update_field(lead, person, pd_field, mappings.PIPEDRIVE_TO_MARKETO[pd_field], get_pipedrive_client()) or updated
 
     # FIXME for test purpose, set owner_id
     person.owner_id = 1628545  # my (Helene Jonin) owner id
@@ -48,12 +68,12 @@ def create_or_update_person_in_pipedrive(lead_id):
 def create_or_update_lead_in_marketo(person_id):
 
     app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
-    person = pipedrive.Person(pd, person_id)
+    person = pipedrive.Person(get_pipedrive_client(), person_id)
 
-    lead = marketo.Lead(mkto, person.marketoid)
+    lead = marketo.Lead(get_marketo_client(), person.marketoid)
     updated = False
     for mkto_field in mappings.MARKETO_TO_PIPEDRIVE:
-        updated = update_field(person, lead, mkto_field, mappings.MARKETO_TO_PIPEDRIVE[mkto_field], mkto) or updated
+        updated = update_field(person, lead, mkto_field, mappings.MARKETO_TO_PIPEDRIVE[mkto_field], get_marketo_client()) or updated
 
     if updated:
         app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.marketoid) or "")
