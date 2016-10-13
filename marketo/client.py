@@ -50,10 +50,17 @@ class MarketoClient:
         return resource
 
     def get_resource_data(self, resource_name, resource_id, resource_fields):
+        """
+        Load resource data as a dictionary from request to Marketo result.
+        :param resource_name: The resource name (should be the same as class name)
+        :param resource_id: The resource id
+        :param resource_fields: The resource fields to consider retrieving
+        :return: A dictionary of fields
+        """
         data_array = self._fetch_data(resource_name, resource_id, resource_fields)
         ret = {}
         if data_array:
-            ret = data_array[0]
+            ret = data_array[0]  # Only one resource handled at a time for now
         return ret
 
     def add_resource(self, resource_name, resource_data):
@@ -68,6 +75,13 @@ class MarketoClient:
         return resource
 
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
+        """
+        Dump resource data to Marketo.
+        :param resource_name: The resource name (should be the same as class name)
+        :param resource_data: The resource data
+        :param resource_id: The resource id
+        :return: The dumped data as a dictionary of field
+        """
         r_data = {
             "action": "createOrUpdate",
             "input": [resource_data]
@@ -76,11 +90,12 @@ class MarketoClient:
             resource_data["id"] = resource_id
             r_data["lookupField"] = "id"
         data_array = self._push_data(resource_name, r_data)
+
         ret = {}
         if data_array:
-            ret = data_array[0]
+            ret = data_array[0]  # Only one resource handled at a time for now
         if ret["status"] == "skipped":
-            reason = ret["reasons"][0]
+            reason = ret["reasons"][0]  # Only one resource handled at a time for now
             self._logger.warning(reason["message"])
         else:
             self._logger.info("Resource has been %s", ret["status"])
@@ -91,7 +106,7 @@ class MarketoClient:
 
         url = self._build_url(r_name, r_id_or_action)
 
-        # Fields to retrieve have to be specified because not all loaded by default
+        # Fields to retrieve have to be specified otherwise not all will be by default
         payload = {}
         if r_fields is not None:
             payload["fields"] = r_fields
@@ -108,7 +123,7 @@ class MarketoClient:
             if data["success"]:
                 ret = data["result"]
             else:
-                error = data["errors"][0]
+                error = data["errors"][0]  # Only one resource handled at a time for now
                 if error["code"] == "602":
                     self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
@@ -124,7 +139,7 @@ class MarketoClient:
         url = self._build_url(r_name, r_id_or_action)
 
         headers = {"Authorization": "Bearer %s" % self._auth_token}
-        r = self._session.post(url, headers=headers, json=r_data)  # POST to add and update
+        r = self._session.post(url, headers=headers, json=r_data)  # POST request for adding and updating
         self._logger.info("Called %s", r.url)
         r.raise_for_status()
 
@@ -135,7 +150,7 @@ class MarketoClient:
             if data["success"]:
                 ret = data["result"]
             else:
-                error = data["errors"][0]
+                error = data["errors"][0]  # Only one resource handled at a time for now
                 if error["code"] == "602":
                     self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
@@ -162,5 +177,5 @@ class MarketoClient:
         data_array = self._push_data(r_name, r_data, "delete")
         ret = {}
         if data_array:
-            ret = data_array[0]
+            ret = data_array[0]  # Only one resource handled at a time for now
         return ret

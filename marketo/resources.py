@@ -5,7 +5,7 @@ import logging
 class Resource:
     __metaclass__ = ABCMeta
 
-    # Marketo won't let us update all fields so pick the one we want in a list
+    # Marketo won't let us update all fields so pick the one we need in a list
     FIELD_TO_UPDATE = [
         "firstName",
         "lastName",
@@ -42,6 +42,10 @@ class Resource:
 
     @property
     def resource_data(self):
+        """
+        Get resource data as a dictionary to pass as parameter for create/update request.
+        :return: A dictionary of fields
+        """
         data = {}
         for key in self._fields:
             try:
@@ -52,6 +56,10 @@ class Resource:
 
     @abstractproperty
     def related_resources(self):
+        """
+        Get related resources as a dictionary if any.
+        :return: A dictionary of related resources
+        """
         pass
 
     def _load_fields(self):
@@ -68,9 +76,12 @@ class Resource:
             for key in data:
                 setattr(self, key, data[key])
         else:
-            self.id = None  # Reset id case given id not found
+            self.id = None  # Reset id case given id is not found
 
     def save(self):
+        """
+        Save (i.e. create or update) resource.
+        """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         # Only id is returned
         if "id" in data:

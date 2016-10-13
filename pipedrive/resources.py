@@ -19,7 +19,7 @@ class Resource:
     def __getattr__(self, name):
         if name != "_field_keys":
             if name in self._field_keys\
-                    and name != self._field_keys[name]:  # Prevent from overflowing when attribute not found and name = key
+                    and name != self._field_keys[name]:  # Prevent from infinite recursion when name = key
                 self._logger.debug("Looking for custom attribute with name %s in loaded fields", name)
 
                 key = self._field_keys[name]
@@ -36,13 +36,14 @@ class Resource:
                         related_id = attr
                         self._logger.debug("Loading related resource %s with id %s", related_name, related_id)
                         attr = self._client.get_resource_by_id(related_name, related_id)
-                        setattr(self, key, attr)  # Cache attribute value for related object
+                        setattr(self, key, attr)  # Cache value for related resource
 
                 return attr
             else:
                 raise AttributeError("No attribute found with name %s" % name)
         else:
-            return {}  # _field_keys not initialized but return an empty dict to make the whole thing work
+            # "_field_keys" not initialized yet but return an empty dict to make the whole thing work
+            return {}
 
     def __setattr__(self, key_or_name, value):
         key = key_or_name
@@ -57,6 +58,10 @@ class Resource:
 
     @property
     def resource_data(self):
+        """
+        Get resource data as a dictionary to pass as parameter for create/update request.
+        :return: A dictionary of fields
+        """
         data = {}
         for name in self._field_keys:
             try:
@@ -64,8 +69,8 @@ class Resource:
                 attr = getattr(self, key)
                 value = attr
                 if isinstance(attr, Resource):
-                    value = getattr(attr, "id")  # Convert related resource to id as parameter
-                elif type(attr) is dict and "id" in attr:
+                    value = getattr(attr, "id")  # "Flatten" related resources - keep id only
+                elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only too
                     value = attr["id"]
                 data[key] = value
             except AttributeError:
@@ -74,6 +79,10 @@ class Resource:
 
     @abstractproperty
     def related_resources(self):
+        """
+        Get related resources as a dictionary if any.
+        :return: A dictionary of related resources
+        """
         pass
 
     def _load_fields(self):
@@ -92,18 +101,21 @@ class Resource:
             for key in data:
                 setattr(self, key, self._get_data_value(data[key]))
         else:
-            self.id = None  # Reset id case given id not found
+            self.id = None  # Reset id case given id is not found
 
     def save(self):
+        """
+        Save (i.e. create or update) resource.
+        """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         for key in data:
             setattr(self, key, self._get_data_value(data[key]))
 
     def _get_data_value(self, value):
         new_value = value
-        if type(value) is dict and "value" in value:  # Field has to be "flattened" as parameter
+        if type(value) is dict and "value" in value:  # "Flatten" complex field value such as org_id
             new_value = value["value"]
-        elif type(value) is list:  # In case of list/array keep only primary value
+        elif type(value) is list:  # In case of list, keep only primary value and "flatten" field value
             for v in value:
                 if v["primary"]:
                     new_value = v["value"]
