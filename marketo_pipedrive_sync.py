@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, jsonify
 import marketo
 import pipedrive
 import mappings
@@ -38,9 +38,12 @@ def get_pipedrive_client():
 
 @app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
 def create_or_update_person_in_pipedrive(lead_id):
+    ret = {}
 
     app.logger.debug("Getting lead data from Marketo with id %s", str(lead_id))
     lead = marketo.Lead(get_marketo_client(), lead_id)
+
+    ret["status"] = "created" if lead.pipedriveId is None else "updated"
 
     person = pipedrive.Person(get_pipedrive_client(), lead.pipedriveId)
     updated = False
@@ -60,15 +63,21 @@ def create_or_update_person_in_pipedrive(lead_id):
             lead.save()
     else:
         app.logger.debug("Nothing to do")
+        ret["status"] = "skipped"
 
-    return 'OK'  # TODO
+    ret["id"] = person.id
+
+    return jsonify(**ret)
 
 
 @app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
 def create_or_update_lead_in_marketo(person_id):
+    ret = {}
 
     app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
     person = pipedrive.Person(get_pipedrive_client(), person_id)
+
+    ret["status"] = "created" if person.marketoid is None else "updated"
 
     lead = marketo.Lead(get_marketo_client(), person.marketoid)
     updated = False
@@ -85,8 +94,11 @@ def create_or_update_lead_in_marketo(person_id):
             person.save()
     else:
         app.logger.debug("Nothing to do")
+        ret["status"] = "skipped"
 
-    return 'OK'  # TODO
+    ret["id"] = lead.id
+
+    return jsonify(**ret)
 
 
 def update_field(from_resource, to_resource, to_field, mapping, to_client):
@@ -97,7 +109,7 @@ def update_field(from_resource, to_resource, to_field, mapping, to_client):
         from_attr = getattr(from_resource, from_field)
         if "adapter" in mapping and callable(mapping["adapter"]):
             app.logger.debug("Using adapter")
-            from_attr = mapping["adapter"](from_attr, to_client)  # TODO: Better parameters passing
+            from_attr = mapping["adapter"](value=from_attr, client=to_client)
         from_values.append(str(from_attr) if from_attr is not None else "")
     new_attr = " ".join(from_values)
     if hasattr(to_resource, to_field):

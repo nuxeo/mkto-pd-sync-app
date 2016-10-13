@@ -4,6 +4,7 @@ from .context import marketo
 from .context import pipedrive
 import logging
 from flask import g
+import json
 
 
 class SyncTestCase(unittest.TestCase):
@@ -74,6 +75,11 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(person.name, "Test Flask Lead")
             self.assertEquals(person.email, "lead@testflask.com")
 
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "created")
+            self.assertEquals(data["id"], person.id)
+
     def test_update_person_in_pipedrive(self):
         # Update lead in Marketo
         self.linked_lead.firstName = "Foo Flask"
@@ -82,6 +88,26 @@ class SyncTestCase(unittest.TestCase):
             rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
             person = g.pipedrive_client.get_resource_by_id("person", self.linked_person.id)
             self.assertEquals(person.name, "Foo Flask Lead")  # Person has been updated
+
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "updated")
+            self.assertEquals(data["id"], person.id)
+        # Reset updated values
+        self.linked_lead.firstName = "Test Linked Flask"
+        self.linked_lead.save()
+
+    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
+    def test_update_person_in_pipedrive_no_change(self):
+        with marketo_pipedrive_sync.app.test_client() as c:
+            rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
+            person = g.pipedrive_client.get_resource_by_id("person", self.linked_person.id)
+            self.assertEquals(person.name, "Test Linked Flask Lead")
+
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "skipped")
+            self.assertEquals(data["id"], person.id)
 
     @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_create_lead_in_marketo(self):
@@ -96,6 +122,11 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(lead.lastName, "Person")
             self.assertEquals(lead.email, "person@testflask.com")
 
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "created")
+            self.assertEquals(data["id"], lead.id)
+
     def test_update_lead_in_marketo(self):
         # Update person in Pipedrive
         self.linked_person.name = "Bar Flask Lead"
@@ -105,7 +136,23 @@ class SyncTestCase(unittest.TestCase):
             lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
             self.assertEquals(lead.firstName, "Bar Flask")  # Lead has been updated
 
-    # TODO: test "Nothing to do"
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "updated")
+            self.assertEquals(data["id"], lead.id)
+
+    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
+    def test_update_lead_in_marketo_no_change(self):
+        with marketo_pipedrive_sync.app.test_client() as c:
+            rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
+            lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
+            self.assertEquals(lead.firstName, "Test Linked Flask")  # Lead has been updated
+
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "skipped")
+            self.assertEquals(data["id"], lead.id)
+
 
 if __name__ == '__main__':
     logging.basicConfig()
