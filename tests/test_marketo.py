@@ -6,15 +6,14 @@ import logging
 
 class MarketoTestCase(unittest.TestCase):
 
-    def setUp(self):
-        self.mkto = marketo.MarketoClient(secret.IDENTITY_ENDPOINT, secret.CLIENT_ID, secret.CLIENT_SECRET, secret.API_ENDPOINT)
-
-    def tearDown(self):
-        self.mkto = None
+    @classmethod
+    def setUpClass(cls):
+        cls.mkto = marketo.MarketoClient(secret.IDENTITY_ENDPOINT, secret.CLIENT_ID, secret.CLIENT_SECRET, secret.API_ENDPOINT)
 
     def test_get_lead_from_client(self):
         lead = self.mkto.get_resource_by_id("lead", 7591021)
         self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
         self.assertEqual(lead.firstName, "Marco")
         self.assertEqual(lead.lastName, "Antonio")
         self.assertEqual(lead.email, "emeamarco@gmail.com")
@@ -22,6 +21,7 @@ class MarketoTestCase(unittest.TestCase):
     def test_load_lead(self):
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
         self.assertEqual(lead.firstName, "Marco")
         self.assertEqual(lead.lastName, "Antonio")
         self.assertEqual(lead.email, "emeamarco@gmail.com")
@@ -44,13 +44,13 @@ class MarketoTestCase(unittest.TestCase):
         lead.email = "lead@test.com"
         self.assertIsNone(lead.id)
         lead = self.mkto.add_resource("lead", lead.resource_data)
-        lead_id = lead.id
-        self.assertIsNotNone(lead_id)
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, "Lead")
         self.assertEquals(lead.email, "lead@test.com")
         # Delete created person
-        self.mkto.delete_resource("lead", lead_id)
+        self.mkto.delete_resource("lead", lead.id)
 
     def test_save_lead(self):
         lead = marketo.Lead(self.mkto)
@@ -59,13 +59,13 @@ class MarketoTestCase(unittest.TestCase):
         lead.email = "lead@test2.com"
         self.assertIsNone(lead.id)
         lead.save()
-        lead_id = lead.id
-        self.assertIsNotNone(lead_id)
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, "Lead 2")
         self.assertEquals(lead.email, "lead@test2.com")
         # Delete created person
-        self.mkto.delete_resource("lead", lead_id)
+        self.mkto.delete_resource("lead", lead.id)
 
     def test_get_lead_undefined(self):
         lead = marketo.Lead(self.mkto, -1)
@@ -73,26 +73,20 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNone(lead.id)
 
     def test_update_lead(self):
-        # Create a lead first
-        lead = marketo.Lead(self.mkto)
-        lead.firstName = "Test"
-        lead.lastName = "Lead 3"
-        lead.email = "lead@test3.com"
-        self.assertIsNone(lead.id)
-        lead.save()
-        self.assertIsNotNone(lead.id)
-        lead_id = lead.id
-        self.assertEquals(lead.firstName, "Test")
+        # Get person first
+        lead = marketo.Lead(self.mkto, 7591021)
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.firstName, "Marco")
         # Then update
         # NB: For the update to work, field should not block updates from WS API
         # Go to Admin -> Field Management -> search for the field
         # Field Actions ->  Block Field Updates -> disable Web service API
-        lead.firstName = "Test 2"
+        lead.firstName = "Test 3"
         lead.save()
-        lead = marketo.Lead(self.mkto, lead_id)
-        self.assertEquals(lead.firstName, "Test 2")
-        # And delete
-        self.mkto.delete_resource("lead", lead_id)
+        self.assertEquals(lead.firstName, "Test 3")
+        # Reset updated value
+        lead.firstName = "Marco"
+        lead.save()
 
 
 if __name__ == '__main__':

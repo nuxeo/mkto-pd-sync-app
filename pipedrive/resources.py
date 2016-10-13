@@ -90,22 +90,24 @@ class Resource:
         data = self._client.get_resource_data(self.resource_name, self.id)
         if data:
             for key in data:
-                value = data[key]
-                new_value = value
-                if type(value) is dict and "value" in value:  # Field has to be "flattened" as parameter
-                    new_value = value["value"]
-                elif type(value) is list:  # In case of list/array keep only primary value
-                    for v in value:
-                        if v["primary"]:
-                            new_value = v["value"]
-                setattr(self, key, new_value)
+                setattr(self, key, self._get_data_value(data[key]))
         else:
             self.id = None  # Reset id case given id not found
 
     def save(self):
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         for key in data:
-            setattr(self, key, data[key])
+            setattr(self, key, self._get_data_value(data[key]))
+
+    def _get_data_value(self, value):
+        new_value = value
+        if type(value) is dict and "value" in value:  # Field has to be "flattened" as parameter
+            new_value = value["value"]
+        elif type(value) is list:  # In case of list/array keep only primary value
+            for v in value:
+                if v["primary"]:
+                    new_value = v["value"]
+        return new_value
 
 
 class Person(Resource):
