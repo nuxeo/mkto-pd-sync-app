@@ -70,28 +70,33 @@ class MarketoClient:
         resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
         resource = resource_class(self)
         data = self.set_resource_data(resource_name, resource_data)
-        # Only id is returned
-        if "id" in data:
-            setattr(resource, "id", data["id"])
         for key in resource_data:
             setattr(resource, key, resource_data[key])
+        # Only id is returned
+        if resource.id_field in data:
+            setattr(resource, "id", data[resource.id_field])
+            setattr(resource, resource.id_field, data[resource.id_field])
         return resource
 
-    def set_resource_data(self, resource_name, resource_data, resource_id=None):
+    def set_resource_data(self, resource_name, resource_data, resource_id=None, resource_id_field="id"):
         """
         Dump resource data to Marketo.
         :param resource_name: The resource name (should be the same as class name)
         :param resource_data: The resource data
         :param resource_id: The resource id
+        :param resource_id_field: The resource id field to lookup for
         :return: The dumped data as a dictionary of field
         """
         r_data = {
             "action": "createOrUpdate",
             "input": [resource_data]
         }
-        if resource_id is not None:
-            resource_data["id"] = resource_id
-            r_data["lookupField"] = "id"
+        if resource_id is not None:  # Update
+            if resource_id_field == "id":
+                r_data["lookupField"] = resource_id_field
+            else:
+                # r_data["dedupeBy"] = "idField"  # FIXME: does not work for now - sent an E-mail to support
+                r_data["dedupeBy"] = "dedupeFields"  # but maybe easier using dedupeFields for update  # TODO: add as parameter?
         data_array = self._push_data(resource_name, r_data)
 
         ret = {}
@@ -148,7 +153,7 @@ class MarketoClient:
         url = self._build_url(r_name, r_id_or_action)
 
         headers = {"Authorization": "Bearer %s" % self._auth_token}
-        r = self._session.post(url, headers=headers, json=r_data)  # POST request for adding and updating
+        r = self._session.post(url, headers=headers, json=r_data)  # POST request for creating and updating
         self._logger.info("Called %s", r.url)
         r.raise_for_status()
 
@@ -177,12 +182,14 @@ class MarketoClient:
         return url
 
     # Play carefully with this method!
-    def delete_resource(self, r_name, r_id):
+    def delete_resource(self, r_name, r_id, r_id_field="id"):
         self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
 
         r_data = {
-            "input": [{"id": r_id}]
+            "input": [{r_id_field: r_id}]
         }
+        if r_id_field != "id":
+            r_data["deleteBy"] = "idField"
         data_array = self._push_data(r_name, r_data, "delete")
         ret = {}
         if data_array:

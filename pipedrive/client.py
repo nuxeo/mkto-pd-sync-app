@@ -99,7 +99,7 @@ class PipedriveClient:
 
         url = self._build_url(r_name, r_id_or_action)
 
-        if r_id_or_action is None:  # Add
+        if r_id_or_action is None:  # Create
             r = self._session.post(url, data=r_data)
         else:  # Update
             r = self._session.put(url, json=r_data)

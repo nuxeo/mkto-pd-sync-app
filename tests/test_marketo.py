@@ -50,7 +50,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, "Lead")
         self.assertEquals(lead.email, "lead@test.com")
-        # Delete created person
+        # Delete created lead
         self.mkto.delete_resource("lead", lead.id)
 
     def test_save_lead(self):
@@ -65,7 +65,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, "Lead 2")
         self.assertEquals(lead.email, "lead@test2.com")
-        # Delete created person
+        # Delete created lead
         self.mkto.delete_resource("lead", lead.id)
 
     def test_get_lead_undefined(self):
@@ -74,7 +74,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNone(lead.id)
 
     def test_update_lead(self):
-        # Get person first
+        # Get lead first
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertEqual(lead.firstName, "Marco")
@@ -84,6 +84,8 @@ class MarketoTestCase(unittest.TestCase):
         # Field Actions ->  Block Field Updates -> disable Web service API
         lead.firstName = "Test 3"
         lead.save()
+        # Reload lead before checking bc properties are not updated from result after saving
+        lead = marketo.Lead(self.mkto, 7591021)
         self.assertEquals(lead.firstName, "Test 3")
         # Reset updated value
         lead.firstName = "Marco"
@@ -107,6 +109,70 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(role.externalOpportunityId, "o1")
         self.assertEqual(role.leadId, 7591021)
         self.assertEqual(role.role, "Technical Buyer")
+
+    def test_save_opportunity_and_role(self):
+        opportunity = marketo.Opportunity(self.mkto)
+        opportunity.externalOpportunityId = "testOpportunity1"
+        opportunity.name = "Test opportunity 1"
+        self.assertIsNone(opportunity.id)
+        opportunity.save()
+        self.assertIsNotNone(opportunity)
+        self.assertIsNotNone(opportunity.id)
+        self.assertEquals(opportunity.externalOpportunityId, "testOpportunity1")
+        self.assertEquals(opportunity.name, "Test opportunity 1")
+
+        role = marketo.Role(self.mkto)
+        role.externalOpportunityId = "testOpportunity1"
+        role.leadId = 7591021
+        role.role = "Test role 1"
+        self.assertIsNone(role.id)
+        role.save()
+        self.assertIsNotNone(role)
+        self.assertIsNotNone(role.id)
+        self.assertEquals(role.externalOpportunityId, "testOpportunity1")
+        self.assertEquals(role.leadId, 7591021)
+        self.assertEquals(role.role, "Test role 1")
+
+        # Delete created opportunity and role
+        self.mkto.delete_resource("opportunities/role", role.marketoGUID, "marketoGUID")
+        self.mkto.delete_resource("opportunity", opportunity.marketoGUID, "marketoGUID")
+
+    def test_update_opportunity(self):
+        # Get opportunity first
+        opportunity = marketo.Opportunity(self.mkto, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertIsNotNone(opportunity)
+        self.assertIsNotNone(opportunity.id)
+        self.assertEqual(opportunity.name, "Chairs")
+        self.assertEqual(opportunity.externalOpportunityId, "o1")  # Check dedupeBy field
+        # Then update
+        opportunity.name = "Test opportunity 2"
+        opportunity.save()
+        # Reload opportunity before checking bc properties are not updated from result after saving
+        opportunity = marketo.Opportunity(self.mkto, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertEquals(opportunity.name, "Test opportunity 2")
+        # Reset updated value
+        opportunity.name = "Chairs"
+        opportunity.save()
+
+    def test_update_role(self):
+        # Get role first
+        role = marketo.Role(self.mkto, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertIsNotNone(role)
+        self.assertIsNotNone(role.id)
+        self.assertEquals(role.isPrimary, False)
+        # Check dedupeBy fields
+        self.assertEqual(role.externalOpportunityId, "o1")
+        self.assertEqual(role.leadId, 7591021)
+        self.assertEquals(role.role, "Technical Buyer")
+        # Then update
+        role.isPrimary = True
+        role.save()
+        # Reload role before checking bc properties are not updated from result after saving
+        role = marketo.Role(self.mkto, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertEquals(role.isPrimary, True)
+        # Reset updated value
+        role.isPrimary = False
+        role.save()
 
 
 if __name__ == '__main__':

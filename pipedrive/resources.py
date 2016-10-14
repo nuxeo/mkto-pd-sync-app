@@ -81,7 +81,7 @@ class Resource:
     def related_resources(self):
         """
         Get related resources as a dictionary if any.
-        :return: A dictionary of related resources
+        :return: A dictionary of related resource types mapped against their class
         """
         pass
 

@@ -30,14 +30,14 @@ class Resource:
             try:
                 data[key] = getattr(self, key)
             except AttributeError:
-                data[key] = None
+                data[key] = self.resource_fields()[key]  # Get default value from resource fields
         return data
 
     @abstractproperty
     def related_resources(self):
         """
         Get related resources as a dictionary if any.
-        :return: A dictionary of related resources
+        :return: A dictionary of related resources mapped against their class
         """
         pass
 
@@ -45,7 +45,7 @@ class Resource:
     def resource_fields(self):
         """
         Get resource fields we want to retrieve and be able to set.
-        :return: A dictionary of fields
+        :return: A dictionary of fields mapped against their default value
         """
         pass
 
@@ -54,16 +54,16 @@ class Resource:
         self._fields = []
         if fields:
             if "idField" in fields[0]:
-                self._id_field = fields[0]["idField"]
+                self.id_field = fields[0]["idField"]
             if "fields" in fields[0]:
                 fields = fields[0]["fields"]
         for field in fields:
-            if field["name"] in self.resource_fields():
+            if field["name"] in self.resource_fields().keys():
                 self._fields.append(field["name"])
 
     def _load_data(self):
         data = self._client.get_resource_data(self.resource_name,
-                                              {"filterType": self._id_field, "filterValues": self.id}, self._fields)
+                                              {"filterType": self.id_field, "filterValues": self.id}, self._fields)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -74,10 +74,11 @@ class Resource:
         """
         Save (i.e. create or update) resource.
         """
-        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
+        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id, self.id_field)
         # Only id is returned
-        if "id" in data:
-            setattr(self, "id", data["id"])
+        if self.id_field in data:
+            setattr(self, "id", data[self.id_field])
+            setattr(self, self.id_field, data[self.id_field])
 
 
 class Lead(Resource):
@@ -88,33 +89,34 @@ class Lead(Resource):
         self._fields = []
         for field in fields:
             name = field["rest"]["name"]
-            if name in self.resource_fields() and not field["rest"]["readOnly"]:
+            if name in self.resource_fields().keys() and not field["rest"]["readOnly"]:
                 self._fields.append(name)
-        self._id_field = "id"
+        self.id_field = "id"
 
     def related_resources(self):
         return {}
 
     def resource_fields(self):
-        return [
-            "firstName",
-            "lastName",
-            "email",
-            "title",
-            "phone",
-            "country",
-            "leadSource",
-            "leadStatus",
-            "conversicaLeadOwnerEmail",
-            "conversicaLeadOwnerFirstName",
-            "conversicaLeadOwnerLastName",
-            "pipedriveId",
-            "state",
-            "city",
-            "noofEmployeesRange",
-            "company",
-            "leadScore"
-        ]
+        return {
+            "id": None,
+            "firstName": None,
+            "lastName": None,
+            "email": None,
+            "title": None,
+            "phone": None,
+            "country": None,
+            "leadSource": None,
+            "leadStatus": None,
+            "conversicaLeadOwnerEmail": None,
+            "conversicaLeadOwnerFirstName": None,
+            "conversicaLeadOwnerLastName": None,
+            "pipedriveId": None,
+            "state": None,
+            "city": None,
+            "noofEmployeesRange": None,
+            "company": None,
+            "leadScore": None
+        }
 
 
 class Opportunity(Resource):
@@ -123,10 +125,10 @@ class Opportunity(Resource):
         return {}
 
     def resource_fields(self):
-        return [
-            "externalOpportunityId",
-            "name"
-        ]
+        return {
+            "externalOpportunityId": None,
+            "name": None
+        }
 
 
 class Role(Resource):
@@ -139,8 +141,9 @@ class Role(Resource):
         return {}
 
     def resource_fields(self):
-        return [
-            "externalOpportunityId",
-            "leadId",
-            "role"
-        ]
+        return {
+            "externalOpportunityId": None,
+            "leadId": None,
+            "role": None,
+            "isPrimary": False
+        }
