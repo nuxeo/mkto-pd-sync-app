@@ -54,7 +54,7 @@ class Resource:
         self._fields = []
         if fields:
             if "idField" in fields[0]:
-                self.id_field = fields[0]["idField"]
+                self._id_field = fields[0]["idField"]
             if "fields" in fields[0]:
                 fields = fields[0]["fields"]
         for field in fields:
@@ -62,8 +62,7 @@ class Resource:
                 self._fields.append(field["name"])
 
     def _load_data(self):
-        data = self._client.get_resource_data(self.resource_name,
-                                              {"filterType": self.id_field, "filterValues": self.id}, self._fields)
+        data = self._client.get_resource_data(self.resource_name, self.id, self._fields)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -74,11 +73,12 @@ class Resource:
         """
         Save (i.e. create or update) resource.
         """
-        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id, self.id_field)
+        data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         # Only id is returned
-        if self.id_field in data:
-            setattr(self, "id", data[self.id_field])
-            setattr(self, self.id_field, data[self.id_field])
+        if self._id_field in data:
+            setattr(self, "id", data[self._id_field])
+            if self._id_field != "id":
+                setattr(self, self._id_field, data[self._id_field])
 
 
 class Lead(Resource):
@@ -91,7 +91,7 @@ class Lead(Resource):
             name = field["rest"]["name"]
             if name in self.resource_fields().keys() and not field["rest"]["readOnly"]:
                 self._fields.append(name)
-        self.id_field = "id"
+        self._id_field = "id"
 
     def related_resources(self):
         return {}

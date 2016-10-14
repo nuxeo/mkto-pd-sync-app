@@ -134,8 +134,8 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(role.role, "Test role 1")
 
         # Delete created opportunity and role
-        self.mkto.delete_resource("opportunities/role", role.marketoGUID, "marketoGUID")
-        self.mkto.delete_resource("opportunity", opportunity.marketoGUID, "marketoGUID")
+        self.mkto.delete_resource("opportunities/role", role.marketoGUID)
+        self.mkto.delete_resource("opportunity", opportunity.marketoGUID)
 
     def test_update_opportunity(self):
         # Get opportunity first

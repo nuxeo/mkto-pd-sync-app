@@ -1,3 +1,6 @@
+import re
+
+
 def simple_pluralize(word):
     """
     Simply pluralize word by adding an extra 's' at the end
@@ -12,6 +15,18 @@ def simple_pluralize(word):
         plural = plural[:-1] + "ie"
     plural += "s"
     return plural
+
+
+def is_marketo_guid(id):
+    """
+    Return True if the given id is a Marketo GUID, False otherwise.
+    >>> is_marketo_guid("6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+    True
+    >>> is_marketo_guid("7591021")
+    False
+    """
+    p = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
+    return p.match(id) is not None
 
 
 if __name__ == '__main__':

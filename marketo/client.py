@@ -6,6 +6,7 @@ from helpers import *
 
 class MarketoClient:
     API_VERSION = "v1"
+    ACTIONS = ["describe", "delete"]
 
     def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint):
         self._logger = logging.getLogger(__name__)
@@ -42,25 +43,23 @@ class MarketoClient:
     def get_resource_fields(self, resource_name):
         return self._fetch_data(resource_name, "describe")
 
-    def get_resource_by_id(self, resource_name, resource_id, id_field="id", resource_fields=None):
+    def get_resource_by_id(self, resource_name, resource_id, resource_fields=None):
         resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
         resource = resource_class(self)
-        data = self.get_resource_data(resource_name,
-                                      {"filterType": id_field, "filterValues": resource_id},
-                                      resource_fields)
+        data = self.get_resource_data(resource_name, resource_id, resource_fields)
         for key in data:
             setattr(resource, key, data[key])
         return resource
 
-    def get_resource_data(self, resource_name, resource_filter, resource_fields):
+    def get_resource_data(self, resource_name, resource_id, resource_fields):
         """
         Load resource data as a dictionary from request to Marketo result.
         :param resource_name: The resource name (should be the same as class name)
-        :param resource_filter: The resource filter
+        :param resource_id: The resource id
         :param resource_fields: The resource fields to consider retrieving
         :return: A dictionary of fields
         """
-        data_array = self._fetch_data(resource_name, resource_filter, resource_fields)
+        data_array = self._fetch_data(resource_name, resource_id, resource_fields)
         ret = {}
         if data_array:
             ret = data_array[0]  # Only one resource handled at a time for now
@@ -73,18 +72,19 @@ class MarketoClient:
         for key in resource_data:
             setattr(resource, key, resource_data[key])
         # Only id is returned
-        if resource.id_field in data:
-            setattr(resource, "id", data[resource.id_field])
-            setattr(resource, resource.id_field, data[resource.id_field])
+        if "id" in data:
+            setattr(resource, "id", data["id"])
+        elif "marketoGUID" in data:
+            setattr(resource, "id", data["marketoGUID"])
+            setattr(resource, "marketoGUID", data["marketoGUID"])
         return resource
 
-    def set_resource_data(self, resource_name, resource_data, resource_id=None, resource_id_field="id"):
+    def set_resource_data(self, resource_name, resource_data, resource_id=None):
         """
         Dump resource data to Marketo.
         :param resource_name: The resource name (should be the same as class name)
         :param resource_data: The resource data
         :param resource_id: The resource id
-        :param resource_id_field: The resource id field to lookup for
         :return: The dumped data as a dictionary of field
         """
         r_data = {
@@ -92,11 +92,11 @@ class MarketoClient:
             "input": [resource_data]
         }
         if resource_id is not None:  # Update
-            if resource_id_field == "id":
-                r_data["lookupField"] = resource_id_field
-            else:
+            if is_marketo_guid(str(resource_id)):
                 # r_data["dedupeBy"] = "idField"  # FIXME: does not work for now - sent an E-mail to support
                 r_data["dedupeBy"] = "dedupeFields"  # but maybe easier using dedupeFields for update  # TODO: add as parameter?
+            else:
+                r_data["lookupField"] = "id"
         data_array = self._push_data(resource_name, r_data)
 
         ret = {}
@@ -109,17 +109,20 @@ class MarketoClient:
             self._logger.info("Resource has been %s", ret["status"])
         return ret
 
-    def _fetch_data(self, r_name, r_filter_or_action, r_fields=None):
-        self._logger.debug("Fetching resource %s%s", r_name, " with id/action %s" % str(r_filter_or_action) or "")
+    def _fetch_data(self, r_name, r_id_or_action, r_fields=None):
+        self._logger.debug("Fetching resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
 
         payload = {}
 
-        if type(r_filter_or_action) is dict:  # Case filter
+        if r_id_or_action not in self.ACTIONS:
             url = self._build_url(r_name)
-            payload["filterType"] = r_filter_or_action["filterType"]
-            payload["filterValues"] = r_filter_or_action["filterValues"]
+            payload["filterValues"] = r_id_or_action
+            if is_marketo_guid(str(r_id_or_action)):  # Case Marketo GUID
+                payload["filterType"] = "idField"
+            else:  # Case id
+                payload["filterType"] = "id"
         else:  # Case action
-            url = self._build_url(r_name, r_filter_or_action)
+            url = self._build_url(r_name, r_id_or_action)
 
         # Fields to retrieve have to be specified otherwise not all will be by default
         if r_fields is not None:
@@ -141,7 +144,7 @@ class MarketoClient:
                 if error["code"] == "602":
                     self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
-                    ret = self._fetch_data(r_name, r_filter_or_action, r_fields)
+                    ret = self._fetch_data(r_name, r_id_or_action, r_fields)
                 else:
                     self._logger.error(error["message"])
 
@@ -182,14 +185,17 @@ class MarketoClient:
         return url
 
     # Play carefully with this method!
-    def delete_resource(self, r_name, r_id, r_id_field="id"):
+    def delete_resource(self, r_name, r_id):
         self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
 
-        r_data = {
-            "input": [{r_id_field: r_id}]
-        }
-        if r_id_field != "id":
+        r_data = {}
+        if is_marketo_guid(str(r_id)):
             r_data["deleteBy"] = "idField"
+            r_id_field = "marketoGUID"
+        else:
+            r_id_field = "id"
+        r_data["input"] = [{r_id_field: r_id}]
+
         data_array = self._push_data(r_name, r_data, "delete")
         ret = {}
         if data_array:
