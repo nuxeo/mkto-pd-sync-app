@@ -135,6 +135,14 @@ class PipedriveTestCase(unittest.TestCase):
         # Try to save
         person.save()
 
+    def test_load_deal(self):
+        deal = pipedrive.Deal(self.pd, 1653)
+        self.assertIsNotNone(deal)
+        self.assertIsNotNone(deal.id)
+        self.assertEqual(deal.title, "MyCompany deal test")
+        self.assertIsNotNone(deal.contact_person)
+        self.assertEqual(deal.contact_person.name, "Marco Antonio")
+
 if __name__ == '__main__':
     logging.basicConfig()
     logging.getLogger("pipedrive").setLevel(logging.DEBUG)

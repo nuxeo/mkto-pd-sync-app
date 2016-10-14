@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractproperty
 import logging
-import helpers
+from helpers import *
 
 
 class Resource:
@@ -91,7 +91,7 @@ class Resource:
         self._field_types = {}
         for field in fields:
             key = field["key"]
-            name = helpers.to_snake_case(field["name"])
+            name = to_snake_case(field["name"])
             self._field_keys[name] = key
             self._field_types[key] = field["field_type"]
 
@@ -134,3 +134,11 @@ class Organization(Resource):
 
     def related_resources(self):
         return {}
+
+
+class Deal(Resource):
+
+    def related_resources(self):
+        return {
+            "people": Person
+        }

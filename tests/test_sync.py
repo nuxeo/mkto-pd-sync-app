@@ -67,7 +67,9 @@ class SyncTestCase(unittest.TestCase):
     def test_create_person_in_pipedrive(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.lead.id))
-            person_id = g.marketo_client.get_resource_by_id("lead", self.lead.id, ["firstName", "lastName", "email", "pipedriveId"]).pipedriveId
+            person_id = g.marketo_client.get_resource_by_id("lead", self.lead.id, "id",
+                                                            ["firstName", "lastName", "email", "pipedriveId"])\
+                .pipedriveId
             self.assertIsNotNone(person_id)  # Pipedrive ID has been updated
             person = g.pipedrive_client.get_resource_by_id("person", person_id)
             self.assertIsNotNone(person)  # Person has been created
@@ -115,7 +117,8 @@ class SyncTestCase(unittest.TestCase):
             rv = c.post('/pipedrive/person/' + str(self.person.id))
             lead_id = g.pipedrive_client.get_resource_by_id("person", self.lead.id).marketoid
             self.assertIsNotNone(lead_id)  # Marketo ID has been updated
-            lead = g.marketo_client.get_resource_by_id("lead", lead_id, ["firstName", "lastName", "email", "pipedriveId"])
+            lead = g.marketo_client.get_resource_by_id("lead", lead_id, "id",
+                                                       ["firstName", "lastName", "email", "pipedriveId"])
             self.assertIsNotNone(lead)  # Lead has been created
             self.assertIsNotNone(lead.id)
             self.assertEquals(lead.firstName, "Test Flask")
@@ -146,7 +149,7 @@ class SyncTestCase(unittest.TestCase):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
             lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
-            self.assertEquals(lead.firstName, "Test Linked Flask")  # Lead has been updated
+            self.assertEquals(lead.firstName, "Test Linked Flask")
 
             # Test return data
             data = json.loads(rv.data)
