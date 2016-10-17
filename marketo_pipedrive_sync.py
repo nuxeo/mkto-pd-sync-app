@@ -52,8 +52,8 @@ def create_or_update_person_in_pipedrive(lead_id):
 
     person = pipedrive.Person(get_pipedrive_client(), lead.pipedriveId)
     data_changed = False
-    for pd_field in mappings.PIPEDRIVE_TO_MARKETO:
-        data_changed = update_field(lead, person, pd_field, mappings.PIPEDRIVE_TO_MARKETO[pd_field], get_pipedrive_client())\
+    for pd_field in mappings.PERSON_TO_LEAD:
+        data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field], get_pipedrive_client())\
                   or data_changed
 
     # FIXME for test purpose, set owner_id
@@ -95,8 +95,8 @@ def create_or_update_lead_in_marketo(person_id):
 
     lead = marketo.Lead(get_marketo_client(), person.marketoid)
     data_changed = False
-    for mkto_field in mappings.MARKETO_TO_PIPEDRIVE:
-        data_changed = update_field(person, lead, mkto_field, mappings.MARKETO_TO_PIPEDRIVE[mkto_field], get_marketo_client()) or data_changed
+    for mkto_field in mappings.LEAD_TO_PERSON:
+        data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field], get_marketo_client()) or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
@@ -114,6 +114,72 @@ def create_or_update_lead_in_marketo(person_id):
     ret = {
         "status": status,
         "id": lead.id
+    }
+    return jsonify(**ret)
+
+
+@app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
+def create_or_update_opportunity_in_marketo(deal_id):
+    """Creates or update an opportunity and an opportunity role in Marketo with data from the
+    deal found in Pipedrive with the given id.
+    Update can be performed if the deal is already associated to an opportunity
+    (field XXX is populated).  # TODO
+    Data to set is defined in mappings.
+    If the opportunity is already up-to-date with any associated deal, does nothing.
+    """
+    app.logger.debug("Getting deal data from Pipedrive with id %s", str(deal_id))
+    deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
+
+    deal.marketoid = None  # TODO: create fields (one for opportunity, one for role) in Pipedrive and remove line
+    status = "created" if deal.marketoid is None else "updated"
+
+    # Opportunity
+    opportunity = marketo.Opportunity(get_marketo_client(), deal.marketoid)
+    data_changed = False
+    for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
+        data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field],
+                                    get_marketo_client()) or data_changed
+
+    if data_changed:
+        # Perform the update only if data actually changed
+        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s" % str(deal.marketoid) or "")
+        opportunity.save()
+
+        if deal.marketoid is None or deal.marketoid != opportunity.id:
+            app.logger.debug("Updating Marketo ID in Pipedrive")
+            deal.marketoid = opportunity.id
+            # deal.save()  # TODO
+    else:
+        app.logger.debug("Nothing to do")
+        status = "skipped"
+
+    # Role
+    role = None
+    if deal.contact_person.marketoid is not None:  # Ensure lead exists in Marketo
+        role = marketo.Role(get_marketo_client(), deal.marketoid)
+        data_changed = False
+        for mkto_field in mappings.DEAL_TO_ROLE:
+            # TODO: externalOpportunityId should be the one we created instead of adapter
+            data_changed = update_field(deal, role, mkto_field, mappings.DEAL_TO_ROLE[mkto_field],
+                                        get_marketo_client()) or data_changed
+
+        if data_changed:
+            # Perform the update only if data actually changed
+            app.logger.debug("Sending to Marketo (role)%s", " with id %s" % str(deal.marketoid) or "")
+            role.save()
+
+            if deal.marketoid is None or deal.marketoid != role.id:
+                app.logger.debug("Updating Marketo ID in Pipedrive")
+                deal.marketoid = role.id
+                # deal.save()  # TODO
+        else:
+            app.logger.debug("Nothing to do")
+            status = "skipped"
+
+    ret = {
+        "status": status,
+        "opportunity_id": opportunity.id,
+        "role_id": role.id if role is not None else ""
     }
     return jsonify(**ret)
 

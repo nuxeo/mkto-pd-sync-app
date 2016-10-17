@@ -143,6 +143,19 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(deal.contact_person)
         self.assertEqual(deal.contact_person.name, "Marco Antonio")
 
+    def test_save_deal(self):
+        deal = pipedrive.Deal(self.pd)
+        deal.title = "Test deal 1"
+        deal.person_id = 63080
+        deal.user_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(deal.id)
+        deal.save()
+        self.assertIsNotNone(deal)
+        self.assertIsNotNone(deal.id)
+        self.assertEquals(deal.title, "Test deal 1")
+        # Delete created person
+        self.pd.delete_resource("deal", deal.id)
+
 if __name__ == '__main__':
     logging.basicConfig()
     logging.getLogger("pipedrive").setLevel(logging.DEBUG)

@@ -174,6 +174,14 @@ class MarketoTestCase(unittest.TestCase):
         role.isPrimary = False
         role.save()
 
+    def test_save_loaded_lead(self):
+        lead = marketo.Lead(self.mkto, 7591021)
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
+        lead.save()
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

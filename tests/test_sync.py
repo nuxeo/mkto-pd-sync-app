@@ -47,6 +47,22 @@ class SyncTestCase(unittest.TestCase):
             # Set the links
             cls.linked_lead.pipedriveId = cls.linked_person.id
             cls.linked_person.marketoid = cls.linked_lead.id
+            cls.linked_lead.save()
+            cls.linked_person.save()
+
+            # Create deal in Pipedrive
+            deal = pipedrive.Deal(marketo_pipedrive_sync.get_pipedrive_client())
+            deal.title = "Test Flask Deal"
+            deal.person_id = cls.linked_person.id
+            deal.user_id = 1628545  # my (Helene Jonin) owner id
+            deal.save()
+            cls.deal = deal
+
+            # Initialize class variables
+            cls.new_lead = None
+            cls.new_person = None
+            cls.new_opportunity = None
+            cls.new_role = None
 
     @classmethod
     def tearDownClass(cls):
@@ -56,6 +72,15 @@ class SyncTestCase(unittest.TestCase):
             marketo_pipedrive_sync.get_pipedrive_client().delete_resource("person", cls.person.id)
             marketo_pipedrive_sync.get_marketo_client().delete_resource("lead", cls.linked_lead.id)
             marketo_pipedrive_sync.get_pipedrive_client().delete_resource("person", cls.linked_person.id)
+            if cls.new_lead is not None:
+                marketo_pipedrive_sync.get_marketo_client().delete_resource("lead", cls.new_lead.id)
+            if cls.new_person is not None:
+                marketo_pipedrive_sync.get_pipedrive_client().delete_resource("person", cls.new_person.id)
+            marketo_pipedrive_sync.get_pipedrive_client().delete_resource("deal", cls.deal.id)
+            if cls.new_opportunity is not None:
+                marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
+            if cls.new_role is not None:
+                marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
 
     def setUp(self):
         # Assert Persons and Leads are created
@@ -63,15 +88,17 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(self.person)
         self.assertIsNotNone(self.linked_lead)
         self.assertIsNotNone(self.linked_person)
+        self.assertIsNotNone(self.deal)
 
     def test_create_person_in_pipedrive(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.lead.id))
-            person_id = g.marketo_client.get_resource_by_id("lead", self.lead.id, "id",
-                                                            ["firstName", "lastName", "email", "pipedriveId"])\
+            person_id = g.marketo_client.get_resource_by_id("lead", self.lead.id, ["firstName", "lastName", "email", "pipedriveId"])\
                 .pipedriveId
             self.assertIsNotNone(person_id)  # Pipedrive ID has been updated
+
             person = g.pipedrive_client.get_resource_by_id("person", person_id)
+            self.new_person = person
             self.assertIsNotNone(person)  # Person has been created
             self.assertIsNotNone(person.id)
             self.assertEquals(person.name, "Test Flask Lead")
@@ -95,9 +122,6 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             self.assertEquals(data["status"], "updated")
             self.assertEquals(data["id"], person.id)
-        # Reset updated values
-        self.linked_lead.firstName = "Test Linked Flask"
-        self.linked_lead.save()
 
     @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_update_person_in_pipedrive_no_change(self):
@@ -111,14 +135,14 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "skipped")
             self.assertEquals(data["id"], person.id)
 
-    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_create_lead_in_marketo(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.person.id))
-            lead_id = g.pipedrive_client.get_resource_by_id("person", self.lead.id).marketoid
+            lead_id = g.pipedrive_client.get_resource_by_id("person", self.person.id).marketoid
             self.assertIsNotNone(lead_id)  # Marketo ID has been updated
-            lead = g.marketo_client.get_resource_by_id("lead", lead_id, "id",
-                                                       ["firstName", "lastName", "email", "pipedriveId"])
+
+            lead = g.marketo_client.get_resource_by_id("lead", lead_id, ["firstName", "lastName", "email", "pipedriveId"])
+            self.new_lead = lead
             self.assertIsNotNone(lead)  # Lead has been created
             self.assertIsNotNone(lead.id)
             self.assertEquals(lead.firstName, "Test Flask")
@@ -130,6 +154,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "created")
             self.assertEquals(data["id"], lead.id)
 
+    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_update_lead_in_marketo(self):
         # Update person in Pipedrive
         self.linked_person.name = "Bar Flask Lead"
@@ -155,6 +180,33 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             self.assertEquals(data["status"], "skipped")
             self.assertEquals(data["id"], lead.id)
+
+    def test_create_opportunity_and_role_in_marketo(self):
+        with marketo_pipedrive_sync.app.test_client() as c:
+            rv = c.post('/pipedrive/deal/' + str(self.deal.id))
+            # lead_id = g.pipedrive_client.get_resource_by_id("person", self.lead.id).marketoid
+            # self.assertIsNotNone(lead_id)  # Marketo ID has been updated  # TODO?
+
+            data = json.loads(rv.data)
+            opportunity_id = data["opportunity_id"]
+            opportunity = marketo.Opportunity(g.marketo_client, opportunity_id)
+            self.new_opportunity = opportunity
+            self.assertIsNotNone(opportunity)  # Opportunity has been created
+            self.assertIsNotNone(opportunity.id)
+            self.assertEquals(opportunity.externalOpportunityId, str(self.deal.id))
+            self.assertEquals(opportunity.name, "Test Flask Deal")
+
+            role_id = data["role_id"]
+            role = marketo.Role(g.marketo_client, role_id)
+            self.new_role = role
+            self.assertIsNotNone(role)  # Role has been created
+            self.assertIsNotNone(role.id)
+            self.assertEquals(role.externalOpportunityId, str(self.deal.id))
+            self.assertEquals(role.leadId, int(self.linked_person.marketoid))
+            self.assertEquals(role.role, "Fake role")
+
+            # Test return data
+            self.assertEquals(data["status"], "created")
 
 
 if __name__ == '__main__':

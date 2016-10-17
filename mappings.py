@@ -28,7 +28,7 @@ def country_iso_to_name(**kwargs):
     return ret
 
 # To send from Marketo to Pipedrive
-PIPEDRIVE_TO_MARKETO = {
+PERSON_TO_LEAD = {
     "marketoid": {
         "fields": ["id"]
     },
@@ -80,7 +80,7 @@ def organization_to_name(**kwargs):
     return ret
 
 # To send from Pipedrive to Marketo
-MARKETO_TO_PIPEDRIVE = {
+LEAD_TO_PERSON = {
     "pipedriveId": {
         "fields": ["id"]
     },
@@ -105,5 +105,48 @@ MARKETO_TO_PIPEDRIVE = {
     },
     "leadScore": {
         "fields": ["lead_score"]
+    }
+}
+
+
+def compute_id(**kwargs):
+    id_ = kwargs["value"]
+    ret = id_  # TODO
+    return ret
+
+DEAL_TO_OPPORTUNITY = {
+    "externalOpportunityId": {
+        "fields": ["id"],
+        "adapter": compute_id
+    },
+    "name": {
+        "fields": ["title"]
+    }
+}
+
+
+def person_to_id(**kwargs):
+    contact_person = kwargs["value"]
+    ret = ""
+    if contact_person is not None:
+        ret = contact_person.marketoid
+    return ret
+
+
+def get_fake_role(**kwargs):
+    return "Fake role"
+
+DEAL_TO_ROLE = {
+    "externalOpportunityId": {
+        "fields": ["id"],
+        "adapter": compute_id
+    },
+    "leadId": {
+        "fields": ["contact_person"],
+        "adapter": person_to_id
+    },
+    "role": {
+        "fields": ["contact_person"],
+        "adapter": get_fake_role
     }
 }

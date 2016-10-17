@@ -102,11 +102,11 @@ class MarketoClient:
         ret = {}
         if data_array:
             ret = data_array[0]  # Only one resource handled at a time for now
-        if ret["status"] == "skipped":
-            reason = ret["reasons"][0]  # Only one resource handled at a time for now
-            self._logger.warning(reason["message"])
-        else:
-            self._logger.info("Resource has been %s", ret["status"])
+            if ret["status"] == "skipped":
+                reason = ret["reasons"][0]  # Only one resource handled at a time for now
+                self._logger.warning(reason["message"])
+            else:
+                self._logger.info("Resource has been %s", ret["status"])
         return ret
 
     def _fetch_data(self, r_name, r_id_or_action, r_fields=None):
