@@ -48,9 +48,9 @@ def create_or_update_person_in_pipedrive(lead_id):
     app.logger.debug("Getting lead data from Marketo with id %s", str(lead_id))
     lead = marketo.Lead(get_marketo_client(), lead_id)
 
-    status = "created" if lead.pipedriveId is None else "updated"
-
     person = pipedrive.Person(get_pipedrive_client(), lead.pipedriveId)
+    status = "created" if person.id is None else "updated"
+
     data_changed = False
     for pd_field in mappings.PERSON_TO_LEAD:
         data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field], get_pipedrive_client())\
@@ -91,9 +91,9 @@ def create_or_update_lead_in_marketo(person_id):
     app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
     person = pipedrive.Person(get_pipedrive_client(), person_id)
 
-    status = "created" if person.marketoid is None else "updated"
-
     lead = marketo.Lead(get_marketo_client(), person.marketoid)
+    status = "created" if lead.id is None else "updated"
+
     data_changed = False
     for mkto_field in mappings.LEAD_TO_PERSON:
         data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field], get_marketo_client()) or data_changed
