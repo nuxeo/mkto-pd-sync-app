@@ -38,8 +38,8 @@ class SyncTestCase(unittest.TestCase):
 
             # Create Person in Pipedrive linked with a lead in Marketo
             linked_person = pipedrive.Person(marketo_pipedrive_sync.get_pipedrive_client())
-            linked_person.name = "Test Linked Flask Person"
-            linked_person.email = "person@testlinkedflask.com"
+            linked_person.name = "Test Linked Flask Lead"
+            linked_person.email = "lead@testlinkedflask.com"
             linked_person.owner_id = 1628545  # my (Helene Jonin) owner id
             linked_person.save()
             cls.linked_person = linked_person
@@ -57,6 +57,27 @@ class SyncTestCase(unittest.TestCase):
             deal.user_id = 1628545  # my (Helene Jonin) owner id
             deal.save()
             cls.deal = deal
+
+            # Create deal in Pipedrive linked with an opportunity in Marketo
+            linked_deal = pipedrive.Deal(marketo_pipedrive_sync.get_pipedrive_client())
+            linked_deal.title = "Test Flask Linked Deal"
+            linked_deal.person_id = cls.linked_person.id
+            linked_deal.user_id = 1628545  # my (Helene Jonin) owner id
+            linked_deal.save()
+            cls.linked_deal = linked_deal
+
+            # Create opportunity and role in Marketo linked with a deal in Pipedrive
+            linked_opportunity = marketo.Opportunity(marketo_pipedrive_sync.get_marketo_client())
+            linked_opportunity.externalOpportunityId = linked_deal.id
+            linked_opportunity.name = "Test Flask Linked Deal"
+            linked_opportunity.save()
+            cls.linked_opportunity = linked_opportunity
+            linked_role = marketo.Role(marketo_pipedrive_sync.get_marketo_client())
+            linked_role.externalOpportunityId = linked_opportunity.externalOpportunityId
+            linked_role.leadId = cls.linked_lead.id
+            linked_role.role = "Fake Role"
+            linked_role.save()
+            cls.linked_role = linked_role
 
             # Initialize class variables
             cls.new_lead = None
@@ -77,6 +98,9 @@ class SyncTestCase(unittest.TestCase):
             if cls.new_person is not None:
                 marketo_pipedrive_sync.get_pipedrive_client().delete_resource("person", cls.new_person.id)
             marketo_pipedrive_sync.get_pipedrive_client().delete_resource("deal", cls.deal.id)
+            marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunity", cls.linked_opportunity.id)
+            marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunities/role", cls.linked_role.id)
+            marketo_pipedrive_sync.get_pipedrive_client().delete_resource("deal", cls.linked_deal.id)
             if cls.new_opportunity is not None:
                 marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
             if cls.new_role is not None:
@@ -123,8 +147,12 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "updated")
             self.assertEquals(data["id"], person.id)
 
-    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_update_person_in_pipedrive_no_change(self):
+        # Reset values
+        self.linked_lead.firstName = "Test Linked Flask"
+        self.linked_lead.save()
+        self.linked_person.name = "Test Linked Flask Lead"
+        self.linked_person.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
             person = g.pipedrive_client.get_resource_by_id("person", self.linked_person.id)
@@ -154,7 +182,6 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "created")
             self.assertEquals(data["id"], lead.id)
 
-    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_update_lead_in_marketo(self):
         # Update person in Pipedrive
         self.linked_person.name = "Bar Flask Lead"
@@ -169,8 +196,12 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "updated")
             self.assertEquals(data["id"], lead.id)
 
-    @unittest.skip("Test when webhook will be disabled to prevent from conflicts")
     def test_update_lead_in_marketo_no_change(self):
+        # Reset values
+        self.linked_person.name = "Test Linked Flask Lead"
+        self.linked_person.save()
+        self.linked_lead.firstName = "Test Linked Flask"
+        self.linked_lead.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
             lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
@@ -184,11 +215,9 @@ class SyncTestCase(unittest.TestCase):
     def test_create_opportunity_and_role_in_marketo(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/deal/' + str(self.deal.id))
-            # lead_id = g.pipedrive_client.get_resource_by_id("person", self.lead.id).marketoid
-            # self.assertIsNotNone(lead_id)  # Marketo ID has been updated  # TODO?
 
             data = json.loads(rv.data)
-            opportunity_id = data["opportunity_id"]
+            opportunity_id = data["opportunity"]["id"]
             opportunity = marketo.Opportunity(g.marketo_client, opportunity_id)
             self.new_opportunity = opportunity
             self.assertIsNotNone(opportunity)  # Opportunity has been created
@@ -196,7 +225,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(opportunity.externalOpportunityId, str(self.deal.id))
             self.assertEquals(opportunity.name, "Test Flask Deal")
 
-            role_id = data["role_id"]
+            role_id = data["role"]["id"]
             role = marketo.Role(g.marketo_client, role_id)
             self.new_role = role
             self.assertIsNotNone(role)  # Role has been created
@@ -206,7 +235,39 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(role.role, "Fake role")
 
             # Test return data
-            self.assertEquals(data["status"], "created")
+            self.assertEquals(data["opportunity"]["status"], "created")
+
+    def test_update_opportunity_in_marketo(self):
+        # Update deal in Pipedrive
+        self.linked_deal.title = "Test Flask Linked Deal updated"
+        self.linked_deal.save()
+        with marketo_pipedrive_sync.app.test_client() as c:
+            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id))
+
+            data = json.loads(rv.data)
+            opportunity_id = data["opportunity"]["id"]
+            opportunity = marketo.Opportunity(g.marketo_client, opportunity_id)
+            self.assertEquals(opportunity.name, "Test Flask Linked Deal updated")  # Opportunity has been updated
+
+            # Test return data
+            self.assertEquals(data["opportunity"]["status"], "updated")
+
+    def test_update_opportunity_in_marketo_no_change(self):
+        # Reset values
+        self.linked_deal.title = "Test Flask Linked Deal"
+        self.linked_deal.save()
+        self.linked_opportunity.name = "Test Flask Linked Deal"
+        self.linked_opportunity.save()
+        with marketo_pipedrive_sync.app.test_client() as c:
+            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id))
+
+            data = json.loads(rv.data)
+            opportunity_id = data["opportunity"]["id"]
+            opportunity = marketo.Opportunity(g.marketo_client, opportunity_id)
+            self.assertEquals(opportunity.name, "Test Flask Linked Deal")
+
+            # Test return data
+            self.assertEquals(data["opportunity"]["status"], "skipped")
 
 
 if __name__ == '__main__':

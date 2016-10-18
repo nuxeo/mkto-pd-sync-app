@@ -123,63 +123,56 @@ def create_or_update_opportunity_in_marketo(deal_id):
     """Creates or update an opportunity and an opportunity role in Marketo with data from the
     deal found in Pipedrive with the given id.
     Update can be performed if the deal is already associated to an opportunity
-    (field XXX is populated).  # TODO
+    (externalOpportunityId is equal to deal id).
+    Role cannot be updated (no point for it unless we are mapping the only updatable field: isPrimary).
     Data to set is defined in mappings.
     If the opportunity is already up-to-date with any associated deal, does nothing.
     """
     app.logger.debug("Getting deal data from Pipedrive with id %s", str(deal_id))
     deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
 
-    deal.marketoid = None  # TODO: create fields (one for opportunity, one for role) in Pipedrive and remove line
-    status = "created" if deal.marketoid is None else "updated"
-
     # Opportunity
-    opportunity = marketo.Opportunity(get_marketo_client(), deal.marketoid)
+    opportunity = marketo.Opportunity(get_marketo_client(), deal.id, "externalOpportunityId")  # TODO: compute id?
+
     data_changed = False
+    if opportunity.id is None:
+        opportunity_status = "created"
+        opportunity.externalOpportunityId = deal.id  # TODO: compute id?
+        data_changed = True
+    else:
+        opportunity_status = "updated"
+
     for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
         data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field],
                                     get_marketo_client()) or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s" % str(deal.marketoid) or "")
+        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s" % str(deal.id) or "")
         opportunity.save()
-
-        if deal.marketoid is None or deal.marketoid != opportunity.id:
-            app.logger.debug("Updating Marketo ID in Pipedrive")
-            deal.marketoid = opportunity.id
-            # deal.save()  # TODO
     else:
         app.logger.debug("Nothing to do")
-        status = "skipped"
+        opportunity_status = "skipped"
 
     # Role
     role = None
-    if deal.contact_person.marketoid is not None:  # Ensure lead exists in Marketo
-        role = marketo.Role(get_marketo_client(), deal.marketoid)
-        data_changed = False
-        for mkto_field in mappings.DEAL_TO_ROLE:
-            # TODO: externalOpportunityId should be the one we created instead of adapter
-            data_changed = update_field(deal, role, mkto_field, mappings.DEAL_TO_ROLE[mkto_field],
-                                        get_marketo_client()) or data_changed
-
-        if data_changed:
-            # Perform the update only if data actually changed
-            app.logger.debug("Sending to Marketo (role)%s", " with id %s" % str(deal.marketoid) or "")
-            role.save()
-
-            if deal.marketoid is None or deal.marketoid != role.id:
-                app.logger.debug("Updating Marketo ID in Pipedrive")
-                deal.marketoid = role.id
-                # deal.save()  # TODO
-        else:
-            app.logger.debug("Nothing to do")
-            status = "skipped"
+    if deal.contact_person.marketoid is not None:  # Ensure lead exists in Marketo # TODO: create if it does not?
+        # Role will be automatically created or updated using these 3 fields ("dedupeFields")
+        role = marketo.Role(get_marketo_client())
+        role.externalOpportunityId = opportunity.externalOpportunityId
+        role.leadId = deal.contact_person.marketoid
+        role.role = "Fake role"  # TODO: set or map role - don't forget to change it in Unit Testing as well
+        app.logger.debug("Sending to Marketo (role)")
+        role.save()
 
     ret = {
-        "status": status,
-        "opportunity_id": opportunity.id,
-        "role_id": role.id if role is not None else ""
+        "opportunity": {
+            "status": opportunity_status,
+            "id": opportunity.marketoGUID
+        },
+        "role": {
+            "id": role.marketoGUID if role is not None else ""
+        }
     }
     return jsonify(**ret)
 
@@ -211,6 +204,7 @@ def update_field(from_resource, to_resource, to_field, mapping, to_client):
         updated = True
 
     return updated
+
 
 if __name__ == "__main__":
     app.run()

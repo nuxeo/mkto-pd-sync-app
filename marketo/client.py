@@ -6,7 +6,6 @@ from helpers import *
 
 class MarketoClient:
     API_VERSION = "v1"
-    ACTIONS = ["describe", "delete"]
 
     def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint):
         self._logger = logging.getLogger(__name__)
@@ -46,20 +45,21 @@ class MarketoClient:
     def get_resource_by_id(self, resource_name, resource_id, resource_fields=None):
         resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
         resource = resource_class(self)
-        data = self.get_resource_data(resource_name, resource_id, resource_fields)
+        data = self.get_resource_data(resource_name, resource_id, resource_fields, "id")
         for key in data:
             setattr(resource, key, data[key])
         return resource
 
-    def get_resource_data(self, resource_name, resource_id, resource_fields):
+    def get_resource_data(self, resource_name, resource_id, resource_fields, filter_type):
         """
         Load resource data as a dictionary from request to Marketo result.
         :param resource_name: The resource name (should be the same as class name)
         :param resource_id: The resource id
         :param resource_fields: The resource fields to consider retrieving
+        :param filter_type: The field to filter on, default is id
         :return: A dictionary of fields
         """
-        data_array = self._fetch_data(resource_name, resource_id, resource_fields)
+        data_array = self._fetch_data(resource_name, resource_id, filter_type, resource_fields)
         ret = {}
         if data_array:
             ret = data_array[0]  # Only one resource handled at a time for now
@@ -109,18 +109,15 @@ class MarketoClient:
                 self._logger.info("Resource has been %s", ret["status"])
         return ret
 
-    def _fetch_data(self, r_name, r_id_or_action, r_fields=None):
+    def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
         self._logger.debug("Fetching resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
 
         payload = {}
 
-        if r_id_or_action not in self.ACTIONS:
+        if r_filter_type is not None:  # Case id
             url = self._build_url(r_name)
             payload["filterValues"] = r_id_or_action
-            if is_marketo_guid(str(r_id_or_action)):  # Case Marketo GUID
-                payload["filterType"] = "idField"
-            else:  # Case id
-                payload["filterType"] = "id"
+            payload["filterType"] = r_filter_type
         else:  # Case action
             url = self._build_url(r_name, r_id_or_action)
 
@@ -144,7 +141,7 @@ class MarketoClient:
                 if error["code"] == "602":
                     self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
-                    ret = self._fetch_data(r_name, r_id_or_action, r_fields)
+                    ret = self._fetch_data(r_name, r_id_or_action, r_filter_type, r_fields)
                 else:
                     self._logger.error(error["message"])
 

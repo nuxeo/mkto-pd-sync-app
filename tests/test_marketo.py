@@ -94,7 +94,6 @@ class MarketoTestCase(unittest.TestCase):
     def test_load_opportunity(self):
         opportunity = marketo.Opportunity(self.mkto, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
         self.assertIsNotNone(opportunity)
-        self.assertIsNotNone(opportunity.id)
         self.assertEqual(opportunity.id, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
         self.assertEqual(opportunity.marketoGUID, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
         self.assertEqual(opportunity.externalOpportunityId, "o1")
@@ -103,7 +102,6 @@ class MarketoTestCase(unittest.TestCase):
     def test_load_opportunity_role(self):
         role = marketo.Role(self.mkto, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
         self.assertIsNotNone(role)
-        self.assertIsNotNone(role.id)
         self.assertEqual(role.id, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
         self.assertEqual(role.marketoGUID, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
         self.assertEqual(role.externalOpportunityId, "o1")
@@ -178,9 +176,32 @@ class MarketoTestCase(unittest.TestCase):
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
+        # It did not work because id was missing
         lead.save()
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
+
+    def test_load_opportunity_with_external_id(self):
+        opportunity = marketo.Opportunity(self.mkto, "o1", "externalOpportunityId")
+        self.assertIsNotNone(opportunity)
+        self.assertEqual(opportunity.id, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertEqual(opportunity.marketoGUID, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertEqual(opportunity.externalOpportunityId, "o1")
+        self.assertEqual(opportunity.name, "Chairs")
+
+    def test_get_opportunity_undefined_with_external_id(self):
+        opportunity = marketo.Opportunity(self.mkto, "o2", "externalOpportunityId")
+        self.assertIsNotNone(opportunity)
+        self.assertIsNone(opportunity.id)
+
+    def test_load_opportunity_role_with_lead_id(self):
+        role = marketo.Role(self.mkto, 7591021, "leadId")
+        self.assertIsNotNone(role)
+        self.assertEqual(role.id, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertEqual(role.marketoGUID, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertEqual(role.externalOpportunityId, "o1")
+        self.assertEqual(role.leadId, 7591021)
+        self.assertEqual(role.role, "Technical Buyer")
 
 
 if __name__ == '__main__':

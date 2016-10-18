@@ -5,7 +5,7 @@ import logging
 class Resource:
     __metaclass__ = ABCMeta
 
-    def __init__(self, client, id_=None):
+    def __init__(self, client, id_=None, id_field=None):
         self._logger = logging.getLogger(__name__)
         self._client = client
 
@@ -13,7 +13,7 @@ class Resource:
 
         self.id = id_  # Resource always has an id
         if id_ is not None:
-            self._load_data()
+            self._load_data(id_field)
 
     @property
     def resource_name(self):
@@ -61,11 +61,13 @@ class Resource:
             if field["name"] in self.resource_fields().keys():
                 self._fields.append(field["name"])
 
-    def _load_data(self):
-        data = self._client.get_resource_data(self.resource_name, self.id, self._fields)
+    def _load_data(self, id_field):
+        id_field_to_look_for = self._id_field if id_field is None else id_field
+        data = self._client.get_resource_data(self.resource_name, self.id, self._fields, id_field_to_look_for)
         if data:
             for key in data:
                 setattr(self, key, data[key])
+            self.id = data[self._id_field]
         else:
             self.id = None  # Reset id case given id is not found
 
