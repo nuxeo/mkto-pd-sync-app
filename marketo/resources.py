@@ -23,26 +23,21 @@ class Resource:
     def resource_data(self):
         """
         Get resource data as a dictionary to pass as parameter for create/update request.
-        :return: A dictionary of fields
+        :return: A dictionary of fields mapped against their value
         """
         data = {}
         for key in self._fields:
             try:
                 data[key] = getattr(self, key)
             except AttributeError:
-                data[key] = self.resource_fields()[key]  # Get default value from resource fields
+                try:
+                    data[key] = self._resource_fields[key]  # Set default value
+                except KeyError:
+                    data[key] = None
         return data
 
     @abstractproperty
-    def related_resources(self):
-        """
-        Get related resources as a dictionary if any.
-        :return: A dictionary of related resources mapped against their class
-        """
-        pass
-
-    @abstractproperty
-    def resource_fields(self):
+    def _resource_fields(self):
         """
         Get resource fields we want to retrieve and be able to set.
         :return: A dictionary of fields mapped against their default value
@@ -58,7 +53,7 @@ class Resource:
             if "fields" in fields[0]:
                 fields = fields[0]["fields"]
         for field in fields:
-            if field["name"] in self.resource_fields().keys():
+            if field["name"] in self._resource_fields.keys():
                 self._fields.append(field["name"])
 
     def _load_data(self, id_field):
@@ -76,7 +71,7 @@ class Resource:
         Save (i.e. create or update) resource.
         """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
-        # Only id is returned
+        # Only id is returned so update id only in resource
         if self._id_field in data:
             setattr(self, "id", data[self._id_field])
             if self._id_field != "id":
@@ -85,22 +80,20 @@ class Resource:
 
 class Lead(Resource):
 
-    # Override
+    # Override bc fields do not share the same schema for leads
     def _load_fields(self):
         fields = self._client.get_resource_fields(self.resource_name)
         self._fields = []
+        self._fields.append("id")  # id is mandatory for updating
         for field in fields:
             name = field["rest"]["name"]
-            if name in self.resource_fields().keys() and not field["rest"]["readOnly"]:
+            if name in self._resource_fields.keys() and not field["rest"]["readOnly"]:
                 self._fields.append(name)
-        self._id_field = "id"
+        self._id_field = "id"  # idField is not specified in return data so manually set it
 
-    def related_resources(self):
-        return {}
-
-    def resource_fields(self):
+    @property
+    def _resource_fields(self):
         return {
-            "id": None,
             "firstName": None,
             "lastName": None,
             "email": None,
@@ -123,10 +116,8 @@ class Lead(Resource):
 
 class Opportunity(Resource):
 
-    def related_resources(self):
-        return {}
-
-    def resource_fields(self):
+    @property
+    def _resource_fields(self):
         return {
             "externalOpportunityId": None,
             "name": None
@@ -139,13 +130,22 @@ class Role(Resource):
     def resource_name(self):
         return "opportunities/" + self.__class__.__name__.lower()
 
-    def related_resources(self):
-        return {}
-
-    def resource_fields(self):
+    @property
+    def _resource_fields(self):
         return {
             "externalOpportunityId": None,
             "leadId": None,
             "role": None,
             "isPrimary": False
+        }
+
+
+class Company(Resource):
+
+    @property
+    def _resource_fields(self):
+        return {
+            "externalCompanyId": None,
+            "company": None,
+            "annualRevenue": None
         }

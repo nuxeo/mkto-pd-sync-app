@@ -2,6 +2,7 @@ from .client import MarketoClient
 from .resources import Lead
 from .resources import Opportunity
 from .resources import Role
+from .resources import Company
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging

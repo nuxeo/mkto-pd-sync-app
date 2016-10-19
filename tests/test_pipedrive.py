@@ -25,23 +25,23 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEqual(person.name, "Marco Antonio")
         self.assertEqual(person.email, "emeamarco@gmail.com")
 
-    def test_get_person_custom_field(self):  # i.e. hash field
+    def test_load_person_custom_field(self):  # i.e. hash field
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(getattr(person, "88ec7b3fd70f2fbdabe9aded639e316ff29174ce"), 0)  # Lead score
 
-    def test_get_person_custom_field_nice_name(self):
+    def test_load_person_custom_field_nice_name(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(person.lead_score, 0)
 
-    def test_get_person_undefined_field(self):
+    def test_load_person_undefined_field(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         with self.assertRaises(AttributeError):
             person.fake_field
 
-    def test_get_person_related_organization(self):
+    def test_load_person_related_organization(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertIsNotNone(person.organization)
@@ -77,7 +77,7 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("person", person.id)
 
-    def test_get_person_undefined(self):
+    def test_load_person_undefined(self):
         with self.assertRaises(requests.HTTPError):
             pipedrive.Person(self.pd, -1)
 
@@ -94,7 +94,7 @@ class PipedriveTestCase(unittest.TestCase):
         person.name = "Marco Antonio"
         person.save()
 
-    def test_add_person_custom_field(self):
+    def test_save_person_custom_field(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person 5"
         person.lead_score = 10
@@ -155,6 +155,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEquals(deal.title, "Test deal 1")
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

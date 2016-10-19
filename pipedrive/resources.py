@@ -19,16 +19,16 @@ class Resource:
     def __getattr__(self, name):
         if name != "_field_keys":
             if name in self._field_keys\
-                    and name != self._field_keys[name]:  # Prevent from infinite recursion when name = key
+                    and name != self._field_keys[name]:  # Prevent from infinite looping when name = key
                 self._logger.debug("Looking for custom attribute with name %s in loaded fields", name)
 
                 key = self._field_keys[name]
 
                 attr = getattr(self, key)
 
-                # Check related resource
-                if key in self._field_types and self._field_types[key] in self.related_resources():
-                    resource_class = self.related_resources()[self._field_types[key]]
+                # Check if related resource
+                if key in self._field_types and self._field_types[key] in self.related_resources:
+                    resource_class = self.related_resources[self._field_types[key]]
 
                     if attr is not None\
                             and not isinstance(attr, resource_class):  # Related resource already loaded
@@ -60,7 +60,7 @@ class Resource:
     def resource_data(self):
         """
         Get resource data as a dictionary to pass as parameter for create/update request.
-        :return: A dictionary of fields
+        :return: A dictionary of fields mapped against their value
         """
         data = {}
         for name in self._field_keys:
@@ -70,7 +70,7 @@ class Resource:
                 value = attr
                 if isinstance(attr, Resource):
                     value = getattr(attr, "id")  # "Flatten" related resources - keep id only
-                elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only too
+                elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only as well
                     value = attr["id"]
                 data[key] = value
             except AttributeError:
@@ -124,6 +124,7 @@ class Resource:
 
 class Person(Resource):
 
+    @property
     def related_resources(self):
         return {
             "org": Organization
@@ -132,12 +133,14 @@ class Person(Resource):
 
 class Organization(Resource):
 
+    @property
     def related_resources(self):
         return {}
 
 
 class Deal(Resource):
 
+    @property
     def related_resources(self):
         return {
             "people": Person

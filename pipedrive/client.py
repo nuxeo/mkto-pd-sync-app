@@ -27,11 +27,11 @@ class PipedriveClient:
 
     def get_resource_data(self, resource_name, resource_id, resource_fields=None):
         """
-        Load resource data as a dictionary from request to Pipedrive result.
-        :param resource_name: The resource name (should be the same as class name)
+        Load resource data as a dictionary from a request to Pipedrive result.
+        :param resource_name: The resource name (should be the same as the class name)
         :param resource_id: The resource id
-        :param resource_fields: The resource fields to consider retrieving
-        :return: A dictionary of fields
+        :param resource_fields: The resource fields to consider retrieving, default are all fields
+        :return: A dictionary of fields mapped against their value
         """
         return self._fetch_data(resource_name + "s", resource_id, resource_fields)  # Takes an 's' at the end of the resource name
 
@@ -56,10 +56,10 @@ class PipedriveClient:
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
         """
         Dump resource data to Pipedrive.
-        :param resource_name: The resource name (should be the same as class name)
+        :param resource_name: The resource name (should be the same as the class name)
         :param resource_data: The resource data
-        :param resource_id: The resource id
-        :return: The dumped data as a dictionary of field
+        :param resource_id: The resource id (update only)
+        :return: The dumped data as a dictionary of field mapped against their value
         """
         return self._push_data(resource_name + "s", resource_data, resource_id)  # Takes an 's' at the end of the resource name
 

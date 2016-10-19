@@ -45,19 +45,19 @@ class MarketoClient:
     def get_resource_by_id(self, resource_name, resource_id, resource_fields=None):
         resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
         resource = resource_class(self)
-        data = self.get_resource_data(resource_name, resource_id, resource_fields, "id")
+        data = self.get_resource_data(resource_name, resource_id, resource_fields)
         for key in data:
             setattr(resource, key, data[key])
         return resource
 
-    def get_resource_data(self, resource_name, resource_id, resource_fields, filter_type):
+    def get_resource_data(self, resource_name, resource_id, resource_fields, filter_type="id"):
         """
-        Load resource data as a dictionary from request to Marketo result.
-        :param resource_name: The resource name (should be the same as class name)
+        Load resource data as a dictionary from a request to Marketo result.
+        :param resource_name: The resource name (should be the same as the class name)
         :param resource_id: The resource id
         :param resource_fields: The resource fields to consider retrieving
-        :param filter_type: The field to filter on, default is id
-        :return: A dictionary of fields
+        :param filter_type: The field to filter on, default is "id"
+        :return: A dictionary of fields mapped against their value
         """
         data_array = self._fetch_data(resource_name, resource_id, filter_type, resource_fields)
         ret = {}
@@ -71,7 +71,7 @@ class MarketoClient:
         data = self.set_resource_data(resource_name, resource_data)
         for key in resource_data:
             setattr(resource, key, resource_data[key])
-        # Only id is returned
+        # Only id is returned so update id only in resource
         if "id" in data:
             setattr(resource, "id", data["id"])
         elif "marketoGUID" in data:
@@ -82,10 +82,10 @@ class MarketoClient:
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
         """
         Dump resource data to Marketo.
-        :param resource_name: The resource name (should be the same as class name)
+        :param resource_name: The resource name (should be the same as the class name)
         :param resource_data: The resource data
-        :param resource_id: The resource id
-        :return: The dumped data as a dictionary of field
+        :param resource_id: The resource id (update only)
+        :return: The dumped data as a dictionary with the field id mapped against its value
         """
         r_data = {
             "action": "createOrUpdate",
@@ -97,6 +97,7 @@ class MarketoClient:
                 r_data["dedupeBy"] = "dedupeFields"  # but maybe easier using dedupeFields for update  # TODO: add as parameter?
             else:
                 r_data["lookupField"] = "id"
+
         data_array = self._push_data(resource_name, r_data)
 
         ret = {}
@@ -107,6 +108,7 @@ class MarketoClient:
                 self._logger.warning(reason["message"])
             else:
                 self._logger.info("Resource has been %s", ret["status"])
+
         return ret
 
     def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
