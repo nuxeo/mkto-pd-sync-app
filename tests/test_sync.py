@@ -68,7 +68,7 @@ class SyncTestCase(unittest.TestCase):
 
             # Create opportunity and role in Marketo linked with a deal in Pipedrive
             linked_opportunity = marketo.Opportunity(marketo_pipedrive_sync.get_marketo_client())
-            linked_opportunity.externalOpportunityId = linked_deal.id
+            linked_opportunity.externalOpportunityId = marketo.compute_external_id("deal", linked_deal.id)
             linked_opportunity.name = "Test Flask Linked Deal"
             linked_opportunity.save()
             cls.linked_opportunity = linked_opportunity
@@ -222,7 +222,7 @@ class SyncTestCase(unittest.TestCase):
             self.new_opportunity = opportunity
             self.assertIsNotNone(opportunity)  # Opportunity has been created
             self.assertIsNotNone(opportunity.id)
-            self.assertEquals(opportunity.externalOpportunityId, str(self.deal.id))
+            self.assertEquals(opportunity.externalOpportunityId, marketo.compute_external_id("deal", self.deal.id))
             self.assertEquals(opportunity.name, "Test Flask Deal")
 
             role_id = data["role"]["id"]
@@ -230,7 +230,7 @@ class SyncTestCase(unittest.TestCase):
             self.new_role = role
             self.assertIsNotNone(role)  # Role has been created
             self.assertIsNotNone(role.id)
-            self.assertEquals(role.externalOpportunityId, str(self.deal.id))
+            self.assertEquals(role.externalOpportunityId, marketo.compute_external_id("deal", self.deal.id))
             self.assertEquals(role.leadId, int(self.linked_person.marketoid))
             self.assertEquals(role.role, "Fake role")
 

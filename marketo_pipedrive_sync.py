@@ -132,12 +132,13 @@ def create_or_update_opportunity_in_marketo(deal_id):
     deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
 
     # Opportunity
-    opportunity = marketo.Opportunity(get_marketo_client(), deal.id, "externalOpportunityId")  # TODO: compute id?
+    external_id = marketo.compute_external_id("deal", deal.id)
+    opportunity = marketo.Opportunity(get_marketo_client(), external_id, "externalOpportunityId")
 
     data_changed = False
     if opportunity.id is None:
         opportunity_status = "created"
-        opportunity.externalOpportunityId = deal.id  # TODO: compute id?
+        opportunity.externalOpportunityId = external_id
         data_changed = True
     else:
         opportunity_status = "updated"

@@ -1,4 +1,5 @@
 from .client import MarketoClient
+from .helpers import compute_external_id
 from .resources import Lead
 from .resources import Opportunity
 from .resources import Role
