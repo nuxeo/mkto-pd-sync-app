@@ -69,7 +69,7 @@ def create_or_update_person_in_pipedrive(lead_id):
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(lead.pipedriveId) or "")
+        app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
         person.save()
 
         if lead.pipedriveId is None or lead.id != person.marketoid:
@@ -110,7 +110,8 @@ def create_or_update_organization_in_pipedrive(company_name):
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(organization.id) or "")
+        app.logger.debug("Sending to Pipedrive%s", " with id %s"
+                                                   % str(organization.id) if organization.id is not None else "")
         organization.save()
     else:
         app.logger.debug("Nothing to do")
@@ -145,7 +146,7 @@ def create_or_update_lead_in_marketo(person_id):
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.marketoid) or "")
+        app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
         lead.save()
 
         if person.marketoid is None or person.marketoid != lead.id:
@@ -194,7 +195,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s" % str(deal.id) or "")
+        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s"
+                                                               % str(opportunity.id) if opportunity.id is not None else "")
         opportunity.save()
     else:
         app.logger.debug("Nothing to do")

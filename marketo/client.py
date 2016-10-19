@@ -112,7 +112,8 @@ class MarketoClient:
         return ret
 
     def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
-        self._logger.debug("Fetching resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
+        self._logger.debug("Fetching resource %s%s", r_name,
+                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
 
         payload = {}
 
@@ -150,7 +151,8 @@ class MarketoClient:
         return ret
 
     def _push_data(self, r_name, r_data, r_id_or_action=None):
-        self._logger.debug("Pushing resource %s%s", r_name, " with id/action %s" % str(r_id_or_action) or "")
+        self._logger.debug("Pushing resource %s%s", r_name,
+                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
 
         url = self._build_url(r_name, r_id_or_action)
 
