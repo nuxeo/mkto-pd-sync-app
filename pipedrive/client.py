@@ -66,11 +66,12 @@ class PipedriveClient:
     def find_resource_by_name(self, resource_name, resource_term):
         resource_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
         resource = resource_class(self)
-        data_array = self.get_resource_data(resource_name, "find", {"term": resource_term})
-        if data_array:
-            data = data_array[0]  # Assume first result is the right one
-            for key in data:
-                setattr(resource, key, data[key])
+        if resource_term:
+            data_array = self.get_resource_data(resource_name, "find", {"term": resource_term})
+            if data_array:
+                data = data_array[0]  # Assume first result is the right one
+                for key in data:
+                    setattr(resource, key, data[key])
         return resource
 
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):

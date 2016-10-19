@@ -3,6 +3,7 @@ import marketo
 import pipedrive
 import mappings
 from secret import *
+import json
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -53,8 +54,15 @@ def create_or_update_person_in_pipedrive(lead_id):
 
     data_changed = False
     for pd_field in mappings.PERSON_TO_LEAD:
-        data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field], get_pipedrive_client())\
-                  or data_changed
+        new_attr = get_new_value(lead, mappings.PERSON_TO_LEAD[pd_field])
+        if pd_field != "org_id":
+            data_changed = update_field(person, pd_field, new_attr) or data_changed
+        else:
+            new_org_id = ""
+            if new_attr:
+                organization_data = json.loads(create_or_update_organization_in_pipedrive(new_attr).data)
+                new_org_id = organization_data["id"]
+            data_changed = update_field(person, pd_field, new_org_id) or data_changed
 
     # FIXME for test purpose, set owner_id
     person.owner_id = 1628545  # my (Helene Jonin) owner id
@@ -79,6 +87,42 @@ def create_or_update_person_in_pipedrive(lead_id):
     return jsonify(**ret)
 
 
+def create_or_update_organization_in_pipedrive(company_name):
+    """Creates or update an organization in Pipedrive with data from the
+    company found in Marketo with the given name.
+    Update can be performed if the organization and the company share the same name.
+    Data to set is defined in mappings.
+    If the organization is already up-to-date with any associated company, does nothing.
+    """
+    app.logger.debug("Getting company data from Marketo with name %s", str(company_name))
+    company = marketo.Company(get_marketo_client(), company_name, "company")
+
+    organization = get_pipedrive_client().find_resource_by_name("organization", company_name)
+    status = "created" if organization.id is None else "updated"
+
+    data_changed = False
+    for pd_field in mappings.ORGANIZATION_TO_COMPANY:
+        new_attr = get_new_value(company, mappings.ORGANIZATION_TO_COMPANY[pd_field])
+        data_changed = update_field(organization, pd_field, new_attr) or data_changed
+
+    # FIXME for test purpose, set owner_id
+    organization.owner_id = 1628545  # my (Helene Jonin) owner id
+
+    if data_changed:
+        # Perform the update only if data actually changed
+        app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(organization.id) or "")
+        organization.save()
+    else:
+        app.logger.debug("Nothing to do")
+        status = "skipped"
+
+    ret = {
+        "status": status,
+        "id": organization.id
+    }
+    return jsonify(**ret)
+
+
 @app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
 def create_or_update_lead_in_marketo(person_id):
     """Creates or update a lead in Marketo with data from the
@@ -96,7 +140,8 @@ def create_or_update_lead_in_marketo(person_id):
 
     data_changed = False
     for mkto_field in mappings.LEAD_TO_PERSON:
-        data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field], get_marketo_client()) or data_changed
+        new_attr = get_new_value(person, mappings.LEAD_TO_PERSON[mkto_field])
+        data_changed = update_field(lead, mkto_field, new_attr) or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
@@ -144,8 +189,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
         opportunity_status = "updated"
 
     for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
-        data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field],
-                                    get_marketo_client()) or data_changed
+        new_attr = get_new_value(deal, mappings.DEAL_TO_OPPORTUNITY[mkto_field])
+        data_changed = update_field(opportunity, mkto_field, new_attr) or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
@@ -178,22 +223,24 @@ def create_or_update_opportunity_in_marketo(deal_id):
     return jsonify(**ret)
 
 
-def update_field(from_resource, to_resource, to_field, mapping, to_client):
-    app.logger.debug("Updating field %s", to_field)
-    updated = False
-
+def get_new_value(from_resource, mapping):
     from_values = []
     for from_field in mapping["fields"]:
         from_attr = getattr(from_resource, from_field)
 
         if "adapter" in mapping and callable(mapping["adapter"]):
-            app.logger.debug("Using adapter")
-            from_attr = mapping["adapter"](value=from_attr, client=to_client)
+            app.logger.debug("Adapting value %s", from_attr)
+            from_attr = mapping["adapter"](from_attr)
 
         from_values.append(str(from_attr) if from_attr is not None else "")
 
     # Assume that if several fields are provided for mapping values should be joined using space
-    new_attr = " ".join(from_values)
+    return " ".join(from_values)
+
+
+def update_field(to_resource, to_field, new_attr):
+    app.logger.debug("Updating field %s", to_field)
+    updated = False
 
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field) or ""

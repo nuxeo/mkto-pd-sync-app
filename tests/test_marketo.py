@@ -213,6 +213,48 @@ class MarketoTestCase(unittest.TestCase):
         # Delete created company
         self.mkto.delete_resource("company", company.id)
 
+    def test_update_company(self):
+        # Get company first
+        company = marketo.Company(self.mkto, "c1", "externalCompanyId")
+        self.assertIsNotNone(company)
+        self.assertIsNotNone(company.id)
+        # Then update
+        company.company = "Test company 2"
+        company.save()
+        # Reload company before checking bc properties are not updated from result after saving
+        company = marketo.Company(self.mkto, "c1", "externalCompanyId")
+        self.assertEquals(company.company, "Test company 2")
+        # Reset updated value
+        company.company = "Test company"
+        company.save()
+
+    def test_load_company_with_name(self):
+        company = marketo.Company(self.mkto, "Test company", "company")
+        self.assertIsNotNone(company)
+        self.assertIsNotNone(company.id)
+        self.assertEqual(company.externalCompanyId, "c1")
+
+    def test_save_lead_and_company(self):
+        # Create company
+        company = marketo.Company(self.mkto)
+        company.externalCompanyId = "testCompany2"
+        company.company = "Test company 2"
+        company.save()
+        self.assertIsNotNone(company)
+        self.assertIsNotNone(company.id)
+        # Create lead linked to created company
+        lead = marketo.Lead(self.mkto)
+        lead.firstName = "Test"
+        lead.lastName = "Lead 4"
+        lead.email = "lead@test4.com"
+        lead.externalCompanyId = "testCompany2"
+        lead.save()
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
+        # Delete created lead and company
+        self.mkto.delete_resource("lead", lead.id)
+        self.mkto.delete_resource("company", company.id)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

@@ -27,13 +27,11 @@ class Resource:
         """
         data = {}
         for key in self._fields:
-            try:
-                data[key] = getattr(self, key)
-            except AttributeError:
+            if not self._resource_fields[key]["readOnly"]:  # Some attributes cannot be updated while other are
                 try:
-                    data[key] = self._resource_fields[key]  # Set default value
-                except KeyError:
-                    data[key] = None
+                    data[key] = getattr(self, key)
+                except AttributeError:
+                    data[key] = self._resource_fields[key]["default"]  # Set default value to avoid system errors
         return data
 
     @abstractproperty
@@ -84,7 +82,6 @@ class Lead(Resource):
     def _load_fields(self):
         fields = self._client.get_resource_fields(self.resource_name)
         self._fields = []
-        self._fields.append("id")  # id is mandatory for updating
         for field in fields:
             name = field["rest"]["name"]
             if name in self._resource_fields.keys() and not field["rest"]["readOnly"]:
@@ -94,23 +91,82 @@ class Lead(Resource):
     @property
     def _resource_fields(self):
         return {
-            "firstName": None,
-            "lastName": None,
-            "email": None,
-            "title": None,
-            "phone": None,
-            "country": None,
-            "leadSource": None,
-            "leadStatus": None,
-            "conversicaLeadOwnerEmail": None,
-            "conversicaLeadOwnerFirstName": None,
-            "conversicaLeadOwnerLastName": None,
-            "pipedriveId": None,
-            "state": None,
-            "city": None,
-            "noofEmployeesRange": None,
-            "company": None,
-            "leadScore": None
+            "id": {  # id is mandatory for updating
+                "default": None,
+                "readOnly": False
+            },
+            "firstName": {
+                "default": None,
+                "readOnly": False
+            },
+            "lastName": {
+                "default": None,
+                "readOnly": False
+            },
+            "email": {
+                "default": None,
+                "readOnly": False
+            },
+            "title": {
+                "default": None,
+                "readOnly": False
+            },
+            "phone": {
+                "default": None,
+                "readOnly": False
+            },
+            "country": {
+                "default": None,
+                "readOnly": True
+            },  # read only bc of "externalCompanyId"
+            "leadSource": {
+                "default": None,
+                "readOnly": False
+            },
+            "leadStatus": {
+                "default": None,
+                "readOnly": False
+            },
+            "conversicaLeadOwnerEmail": {
+                "default": None,
+                "readOnly": False
+            },
+            "conversicaLeadOwnerFirstName": {
+                "default": None,
+                "readOnly": False
+            },
+            "conversicaLeadOwnerLastName": {
+                "default": None,
+                "readOnly": False
+            },
+            "pipedriveId": {
+                "default": None,
+                "readOnly": False
+            },
+            "state":  {
+                "default": None,
+                "readOnly": True
+            },  # read only bc of "externalCompanyId"
+            "city":  {
+                "default": None,
+                "readOnly": True
+            },  # read only bc of "externalCompanyId"
+            "noofEmployeesRange": {
+                "default": None,
+                "readOnly": False
+            },
+            "company":  {
+                "default": None,
+                "readOnly": True
+            },  # read only bc of "externalCompanyId"
+            "leadScore": {
+                "default": None,
+                "readOnly": False
+            },
+            "externalCompanyId": {
+                "default": None,
+                "readOnly": False
+            },
         }
 
 
@@ -119,8 +175,14 @@ class Opportunity(Resource):
     @property
     def _resource_fields(self):
         return {
-            "externalOpportunityId": None,
-            "name": None
+            "externalOpportunityId": {
+                "default": None,
+                "readOnly": False
+            },
+            "name": {
+                "default": None,
+                "readOnly": False
+            },
         }
 
 
@@ -133,10 +195,22 @@ class Role(Resource):
     @property
     def _resource_fields(self):
         return {
-            "externalOpportunityId": None,
-            "leadId": None,
-            "role": None,
-            "isPrimary": False
+            "externalOpportunityId": {
+                "default": None,
+                "readOnly": False
+            },
+            "leadId": {
+                "default": None,
+                "readOnly": False
+            },
+            "role": {
+                "default": None,
+                "readOnly": False
+            },
+            "isPrimary": {
+                "default": False,
+                "readOnly": False
+            },
         }
 
 
@@ -145,7 +219,20 @@ class Company(Resource):
     @property
     def _resource_fields(self):
         return {
-            "externalCompanyId": None,
-            "company": None,
-            "annualRevenue": None
+            "externalCompanyId": {
+                "default": None,
+                "readOnly": False
+            },
+            "company": {
+                "default": None,
+                "readOnly": False
+            },
+            "annualRevenue": {
+                "default": None,
+                "readOnly": False
+            },
+            "numberOfEmployees": {
+                "default": None,
+                "readOnly": False
+            },
         }

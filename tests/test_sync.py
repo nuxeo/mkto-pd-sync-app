@@ -12,15 +12,23 @@ class SyncTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         with marketo_pipedrive_sync.app.app_context():
-            # Create Lead in Marketo not linked with any person in Pipedrive
+            # Create company to be linked with a Marketo lead
+            company = marketo.Company(marketo_pipedrive_sync.get_marketo_client())
+            company.externalCompanyId = "testFlaskCompany"
+            company.company = "Test Flask Company"
+            company.save()
+            cls.company = company
+
+            # Create lead in Marketo not linked with any person in Pipedrive
             lead = marketo.Lead(marketo_pipedrive_sync.get_marketo_client())
             lead.firstName = "Test Flask"
             lead.lastName = "Lead"
             lead.email = "lead@testflask.com"
+            lead.externalCompanyId = company.externalCompanyId
             lead.save()
             cls.lead = lead
 
-            # Create Person in Pipedrive not linked with any lead in Marketo
+            # Create person in Pipedrive not linked with any lead in Marketo
             person = pipedrive.Person(marketo_pipedrive_sync.get_pipedrive_client())
             person.name = "Test Flask Person"
             person.email = "person@testflask.com"
@@ -28,7 +36,7 @@ class SyncTestCase(unittest.TestCase):
             person.save()
             cls.person = person
 
-            # Create Lead in Marketo linked with a person in Pipedrive
+            # Create lead in Marketo linked with a person in Pipedrive
             linked_lead = marketo.Lead(marketo_pipedrive_sync.get_marketo_client())
             linked_lead.firstName = "Test Linked Flask"
             linked_lead.lastName = "Lead"
@@ -36,7 +44,7 @@ class SyncTestCase(unittest.TestCase):
             linked_lead.save()
             cls.linked_lead = linked_lead
 
-            # Create Person in Pipedrive linked with a lead in Marketo
+            # Create person in Pipedrive linked with a lead in Marketo
             linked_person = pipedrive.Person(marketo_pipedrive_sync.get_pipedrive_client())
             linked_person.name = "Test Linked Flask Lead"
             linked_person.email = "lead@testlinkedflask.com"
@@ -88,7 +96,7 @@ class SyncTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         with marketo_pipedrive_sync.app.app_context():
-            # Delete created Leads and Persons
+            # Delete created resources
             marketo_pipedrive_sync.get_marketo_client().delete_resource("lead", cls.lead.id)
             marketo_pipedrive_sync.get_pipedrive_client().delete_resource("person", cls.person.id)
             marketo_pipedrive_sync.get_marketo_client().delete_resource("lead", cls.linked_lead.id)
@@ -105,28 +113,22 @@ class SyncTestCase(unittest.TestCase):
                 marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
             if cls.new_role is not None:
                 marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
-
-    def setUp(self):
-        # Assert Persons and Leads are created
-        self.assertIsNotNone(self.lead)
-        self.assertIsNotNone(self.person)
-        self.assertIsNotNone(self.linked_lead)
-        self.assertIsNotNone(self.linked_person)
-        self.assertIsNotNone(self.deal)
+            marketo_pipedrive_sync.get_marketo_client().delete_resource("company", cls.company.id)
 
     def test_create_person_in_pipedrive(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.lead.id))
-            person_id = g.marketo_client.get_resource_by_id("lead", self.lead.id, ["firstName", "lastName", "email", "pipedriveId"])\
-                .pipedriveId
+            person_id = marketo.Lead(g.marketo_client, self.lead.id).pipedriveId
             self.assertIsNotNone(person_id)  # Pipedrive ID has been updated
 
-            person = g.pipedrive_client.get_resource_by_id("person", person_id)
+            person = pipedrive.Person(g.pipedrive_client, person_id)
             self.new_person = person
             self.assertIsNotNone(person)  # Person has been created
             self.assertIsNotNone(person.id)
             self.assertEquals(person.name, "Test Flask Lead")
             self.assertEquals(person.email, "lead@testflask.com")
+            self.assertIsNotNone(person.organization)  # Company has been created
+            self.assertEquals(person.organization.name, "Test Flask Company")
 
             # Test return data
             data = json.loads(rv.data)
@@ -139,7 +141,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
-            person = g.pipedrive_client.get_resource_by_id("person", self.linked_person.id)
+            person = pipedrive.Person(g.pipedrive_client, self.linked_person.id)
             self.assertEquals(person.name, "Foo Flask Lead")  # Person has been updated
 
             # Test return data
@@ -155,7 +157,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_person.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
-            person = g.pipedrive_client.get_resource_by_id("person", self.linked_person.id)
+            person = pipedrive.Person(g.pipedrive_client, self.linked_person.id)
             self.assertEquals(person.name, "Test Linked Flask Lead")
 
             # Test return data
@@ -166,10 +168,10 @@ class SyncTestCase(unittest.TestCase):
     def test_create_lead_in_marketo(self):
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.person.id))
-            lead_id = g.pipedrive_client.get_resource_by_id("person", self.person.id).marketoid
+            lead_id = pipedrive.Person(g.pipedrive_client, self.person.id).marketoid
             self.assertIsNotNone(lead_id)  # Marketo ID has been updated
 
-            lead = g.marketo_client.get_resource_by_id("lead", lead_id, ["firstName", "lastName", "email", "pipedriveId"])
+            lead = marketo.Lead(g.marketo_client, lead_id)
             self.new_lead = lead
             self.assertIsNotNone(lead)  # Lead has been created
             self.assertIsNotNone(lead.id)
@@ -188,7 +190,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_person.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
-            lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
+            lead = marketo.Lead(g.marketo_client, self.linked_lead.id)
             self.assertEquals(lead.firstName, "Bar Flask")  # Lead has been updated
 
             # Test return data
@@ -204,7 +206,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.save()
         with marketo_pipedrive_sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
-            lead = g.marketo_client.get_resource_by_id("lead", self.linked_lead.id)
+            lead = marketo.Lead(g.marketo_client, self.linked_lead.id)
             self.assertEquals(lead.firstName, "Test Linked Flask")
 
             # Test return data

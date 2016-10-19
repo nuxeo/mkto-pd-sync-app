@@ -17,14 +17,22 @@ PERSON_TO_LEAD = {
         "adapter": country_iso_to_name
     },
     "org_id": {
-        "fields": ["company"],
-        "adapter": org_name_to_id
+        "fields": ["company"]
     },
     "lead_score": {
         "fields": ["leadScore"]
     }
 }
 
+# To send from Marketo to Pipedrive
+ORGANIZATION_TO_COMPANY = {
+    "name": {
+        "fields": ["company"]
+    },
+    "people_count": {
+        "fields": ["numberOfEmployees"]
+    }
+}
 
 # To send from Pipedrive to Marketo
 LEAD_TO_PERSON = {

@@ -156,6 +156,17 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
 
+    def test_save_person_related_updated_organization(self):
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        # Load organization
+        self.assertIsNotNone(person.organization)
+        self.assertEqual(person.organization.name, "MyCompany")
+        person.organization.name = "MyCompany2"
+        # Try to save
+        person.save()
+        self.assertEqual(person.organization.name, "MyCompany")  # Related resources are read-only so no update
+
 
 if __name__ == '__main__':
     logging.basicConfig()
