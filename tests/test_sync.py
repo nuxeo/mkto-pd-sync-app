@@ -2,12 +2,14 @@ import unittest
 from .context import marketo_pipedrive_sync
 from .context import marketo
 from .context import pipedrive
+from .context import secret
 import logging
 from flask import g
 import json
 
 
 class SyncTestCase(unittest.TestCase):
+    AUTHENTICATION_PARAM = "?api_key=" + secret.FLASK_AUTHORIZED_KEYS[0]
 
     @classmethod
     def setUpClass(cls):
@@ -131,7 +133,7 @@ class SyncTestCase(unittest.TestCase):
 
     def test_create_person_in_pipedrive(self):
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/marketo/lead/' + str(self.lead.id))
+            rv = c.post('/marketo/lead/' + str(self.lead.id) + self.AUTHENTICATION_PARAM)
             person_id = marketo.Lead(g.marketo_client, self.lead.id).pipedriveId
             self.assertIsNotNone(person_id)  # Pipedrive ID has been updated
 
@@ -155,7 +157,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.firstName = "Foo Flask"
         self.linked_lead.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
+            rv = c.post('/marketo/lead/' + str(self.linked_lead.id) + self.AUTHENTICATION_PARAM)
             person = pipedrive.Person(g.pipedrive_client, self.linked_person.id)
             self.assertEquals(person.name, "Foo Flask Lead")  # Person has been updated
 
@@ -171,7 +173,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_person.name = "Test Linked Flask Lead"
         self.linked_person.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/marketo/lead/' + str(self.linked_lead.id))
+            rv = c.post('/marketo/lead/' + str(self.linked_lead.id) + self.AUTHENTICATION_PARAM)
             person = pipedrive.Person(g.pipedrive_client, self.linked_person.id)
             self.assertEquals(person.name, "Test Linked Flask Lead")
 
@@ -182,7 +184,7 @@ class SyncTestCase(unittest.TestCase):
 
     def test_create_lead_in_marketo(self):
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/person/' + str(self.person.id))
+            rv = c.post('/pipedrive/person/' + str(self.person.id) + self.AUTHENTICATION_PARAM)
             lead_id = pipedrive.Person(g.pipedrive_client, self.person.id).marketoid
             self.assertIsNotNone(lead_id)  # Marketo ID has been updated
 
@@ -209,7 +211,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_person.name = "Bar Flask Lead"
         self.linked_person.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
+            rv = c.post('/pipedrive/person/' + str(self.linked_person.id) + self.AUTHENTICATION_PARAM)
             lead = marketo.Lead(g.marketo_client, self.linked_lead.id)
             self.assertEquals(lead.firstName, "Bar Flask")  # Lead has been updated
 
@@ -225,7 +227,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.firstName = "Test Linked Flask"
         self.linked_lead.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/person/' + str(self.linked_person.id))
+            rv = c.post('/pipedrive/person/' + str(self.linked_person.id) + self.AUTHENTICATION_PARAM)
             lead = marketo.Lead(g.marketo_client, self.linked_lead.id)
             self.assertEquals(lead.firstName, "Test Linked Flask")
 
@@ -236,7 +238,7 @@ class SyncTestCase(unittest.TestCase):
 
     def test_create_opportunity_and_role_in_marketo(self):
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/deal/' + str(self.deal.id))
+            rv = c.post('/pipedrive/deal/' + str(self.deal.id) + self.AUTHENTICATION_PARAM)
 
             data = json.loads(rv.data)
             opportunity_id = data["opportunity"]["id"]
@@ -264,7 +266,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_deal.title = "Test Flask Linked Deal updated"
         self.linked_deal.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id))
+            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id) + self.AUTHENTICATION_PARAM)
 
             data = json.loads(rv.data)
             opportunity_id = data["opportunity"]["id"]
@@ -281,7 +283,7 @@ class SyncTestCase(unittest.TestCase):
         self.linked_opportunity.name = "Test Flask Linked Deal"
         self.linked_opportunity.save()
         with marketo_pipedrive_sync.app.test_client() as c:
-            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id))
+            rv = c.post('/pipedrive/deal/' + str(self.linked_deal.id) + self.AUTHENTICATION_PARAM)
 
             data = json.loads(rv.data)
             opportunity_id = data["opportunity"]["id"]

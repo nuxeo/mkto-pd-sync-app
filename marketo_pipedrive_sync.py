@@ -1,4 +1,5 @@
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, request
+from functools import wraps
 import marketo
 import pipedrive
 import mappings
@@ -6,6 +7,16 @@ from secret import *
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+
+
+def authenticate(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.args.get('api_key') and request.args.get('api_key') in FLASK_AUTHORIZED_KEYS:
+            return f(*args, **kwargs)
+        else:
+            raise AuthenticationError("Authentication required")
+    return decorated_function
 
 
 def create_marketo_client():
@@ -37,6 +48,7 @@ def get_pipedrive_client():
 
 
 @app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
+@authenticate
 def create_or_update_person_in_pipedrive(lead_id):
     """Creates or update a person in Pipedrive with data from the
     lead found in Marketo with the given id.
@@ -117,6 +129,7 @@ def create_or_update_organization_in_pipedrive(company_name):
 
 
 @app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
+@authenticate
 def create_or_update_lead_in_marketo(person_id):
     """Creates or update a lead in Marketo with data from the
     person found in Pipedrive with the given id.
@@ -198,6 +211,7 @@ def create_or_update_company_in_marketo(organization_name):
 
 
 @app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
+@authenticate
 def create_or_update_opportunity_in_marketo(deal_id):
     """Creates or update an opportunity and an opportunity role in Marketo with data from the
     deal found in Pipedrive with the given id.
@@ -297,6 +311,17 @@ def get_new_attr(from_resource, mapping):
         ret = mapping["post_adapter"](ret)
 
     return ret
+
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
+class AuthenticationError(Error):
+    """Exception raised for errors in the authentication.
+    """
+    pass
 
 
 if __name__ == "__main__":
