@@ -3,7 +3,6 @@ import marketo
 import pipedrive
 import mappings
 from secret import *
-import json
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -54,15 +53,8 @@ def create_or_update_person_in_pipedrive(lead_id):
 
     data_changed = False
     for pd_field in mappings.PERSON_TO_LEAD:
-        new_attr = get_new_value(lead, mappings.PERSON_TO_LEAD[pd_field])
-        if pd_field != "org_id":
-            data_changed = update_field(person, pd_field, new_attr) or data_changed
-        else:
-            new_org_id = ""
-            if new_attr:
-                organization_data = json.loads(create_or_update_organization_in_pipedrive(new_attr).data)
-                new_org_id = organization_data["id"]
-            data_changed = update_field(person, pd_field, new_org_id) or data_changed
+        data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field])\
+                       or data_changed
 
     # FIXME for test purpose, set owner_id
     person.owner_id = 1628545  # my (Helene Jonin) owner id
@@ -102,8 +94,8 @@ def create_or_update_organization_in_pipedrive(company_name):
 
     data_changed = False
     for pd_field in mappings.ORGANIZATION_TO_COMPANY:
-        new_attr = get_new_value(company, mappings.ORGANIZATION_TO_COMPANY[pd_field])
-        data_changed = update_field(organization, pd_field, new_attr) or data_changed
+        data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field])\
+                       or data_changed
 
     # FIXME for test purpose, set owner_id
     organization.owner_id = 1628545  # my (Helene Jonin) owner id
@@ -121,7 +113,7 @@ def create_or_update_organization_in_pipedrive(company_name):
         "status": status,
         "id": organization.id
     }
-    return jsonify(**ret)
+    return ret
 
 
 @app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
@@ -141,8 +133,8 @@ def create_or_update_lead_in_marketo(person_id):
 
     data_changed = False
     for mkto_field in mappings.LEAD_TO_PERSON:
-        new_attr = get_new_value(person, mappings.LEAD_TO_PERSON[mkto_field])
-        data_changed = update_field(lead, mkto_field, new_attr) or data_changed
+        data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field])\
+                       or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
@@ -190,13 +182,13 @@ def create_or_update_opportunity_in_marketo(deal_id):
         opportunity_status = "updated"
 
     for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
-        new_attr = get_new_value(deal, mappings.DEAL_TO_OPPORTUNITY[mkto_field])
-        data_changed = update_field(opportunity, mkto_field, new_attr) or data_changed
+        data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field])\
+                       or data_changed
 
     if data_changed:
         # Perform the update only if data actually changed
-        app.logger.debug("Sending to Marketo (opportunity)%s", " with id %s"
-                                                               % str(opportunity.id) if opportunity.id is not None else "")
+        app.logger.debug("Sending to Marketo (opportunity)%s",
+                         " with id %s" % str(opportunity.id) if opportunity.id is not None else "")
         opportunity.save()
     else:
         app.logger.debug("Nothing to do")
@@ -216,34 +208,21 @@ def create_or_update_opportunity_in_marketo(deal_id):
     ret = {
         "opportunity": {
             "status": opportunity_status,
-            "id": opportunity.marketoGUID
+            "id": opportunity.id
         },
         "role": {
-            "id": role.marketoGUID if role is not None else ""
+            "id": role.id
         }
     }
     return jsonify(**ret)
 
 
-def get_new_value(from_resource, mapping):
-    from_values = []
-    for from_field in mapping["fields"]:
-        from_attr = getattr(from_resource, from_field)
-
-        if "adapter" in mapping and callable(mapping["adapter"]):
-            app.logger.debug("Adapting value %s", from_attr)
-            from_attr = mapping["adapter"](from_attr)
-
-        from_values.append(str(from_attr) if from_attr is not None else "")
-
-    # Assume that if several fields are provided for mapping values should be joined using space
-    return " ".join(from_values)
-
-
-def update_field(to_resource, to_field, new_attr):
+def update_field(from_resource, to_resource, to_field, mapping):
     app.logger.debug("Updating field %s", to_field)
-    updated = False
 
+    new_attr = get_new_attr(from_resource, mapping)
+
+    updated = False
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field) or ""
         if str(new_attr) != str(old_attr):  # Compare value string representations bc not sure of type
@@ -254,6 +233,29 @@ def update_field(to_resource, to_field, new_attr):
         updated = True
 
     return updated
+
+
+def get_new_attr(from_resource, mapping):
+    from_values = []
+    for from_field in mapping["fields"]:
+        from_attr = getattr(from_resource, from_field)
+
+        # Call pre adapter on field value
+        if "pre_adapter" in mapping and callable(mapping["pre_adapter"]):
+            app.logger.debug("And pre-adapting value %s", from_attr)
+            from_attr = mapping["pre_adapter"](from_attr)
+
+        from_values.append(str(from_attr) if from_attr is not None else "")
+
+    # Assume that if several fields are provided for mapping values should be joined using space
+    ret = " ".join(from_values)
+
+    # Call post adapter on result value
+    if "post_adapter" in mapping and callable(mapping["post_adapter"]):
+        app.logger.debug("And post-adapting result %s", ret)
+        ret = mapping["post_adapter"](ret)
+
+    return ret
 
 
 if __name__ == "__main__":

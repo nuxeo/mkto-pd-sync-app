@@ -1,9 +1,18 @@
+import marketo_pipedrive_sync
 from pycountry import countries
 
 
+def company_name_to_org_id(company):
+    ret = ""
+    if company:
+        res = marketo_pipedrive_sync.create_or_update_organization_in_pipedrive(company)
+        ret = res["id"] if res else ""
+    return ret
+
+
 def country_iso_to_name(country):
-    ret = country
-    if country is not None:
+    ret = ""
+    if country:
         ret = countries.get(alpha2=country).name
     return ret
 
@@ -19,8 +28,8 @@ def split_name_get_last(name):
 
 
 def country_name_to_iso(country):
-    ret = country
-    if country is not None:
+    ret = ""
+    if country:
         ret = countries.get(name=country).alpha2
     return ret
 

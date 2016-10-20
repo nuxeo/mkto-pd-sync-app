@@ -14,10 +14,11 @@ PERSON_TO_LEAD = {
     },
     "inferred_country": {
         "fields": ["country"],
-        "adapter": country_iso_to_name
+        "post_adapter": country_iso_to_name
     },
     "org_id": {
-        "fields": ["company"]
+        "fields": ["company"],
+        "post_adapter": company_name_to_org_id
     },
     "lead_score": {
         "fields": ["leadScore"]
@@ -41,22 +42,22 @@ LEAD_TO_PERSON = {
     },
     "firstName": {
         "fields": ["name"],
-        "adapter": split_name_get_first
+        "post_adapter": split_name_get_first
     },
     "lastName": {
         "fields": ["name"],
-        "adapter": split_name_get_last
+        "post_adapter": split_name_get_last
     },
     "email": {
         "fields": ["email"]
     },
     "country": {
         "fields": ["inferred_country"],
-        "adapter": country_name_to_iso
+        "post_adapter": country_name_to_iso
     },
     "company": {
         "fields": ["organization"],
-        "adapter": organization_to_name
+        "pre_adapter": organization_to_name
     },
     "leadScore": {
         "fields": ["lead_score"]
