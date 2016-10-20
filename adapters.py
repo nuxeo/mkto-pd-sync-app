@@ -39,3 +39,11 @@ def organization_to_name(organization):
     if organization is not None:
         ret = organization.name
     return ret
+
+
+def organization_name_to_external_id(organization):
+    ret = ""
+    if organization:
+        res = marketo_pipedrive_sync.create_or_update_company_in_marketo(organization)
+        ret = res["externalId"] if res else ""
+    return ret

@@ -2,6 +2,7 @@ from adapters import *
 
 
 # To send from Marketo to Pipedrive
+
 PERSON_TO_LEAD = {
     "marketoid": {
         "fields": ["id"]
@@ -25,7 +26,6 @@ PERSON_TO_LEAD = {
     }
 }
 
-# To send from Marketo to Pipedrive
 ORGANIZATION_TO_COMPANY = {
     "name": {
         "fields": ["company"]
@@ -36,6 +36,7 @@ ORGANIZATION_TO_COMPANY = {
 }
 
 # To send from Pipedrive to Marketo
+
 LEAD_TO_PERSON = {
     "pipedriveId": {
         "fields": ["id"]
@@ -55,16 +56,25 @@ LEAD_TO_PERSON = {
         "fields": ["inferred_country"],
         "post_adapter": country_name_to_iso
     },
-    "company": {
+    "externalCompanyId": {
         "fields": ["organization"],
-        "pre_adapter": organization_to_name
+        "pre_adapter": organization_to_name,
+        "post_adapter": organization_name_to_external_id
     },
     "leadScore": {
         "fields": ["lead_score"]
     }
 }
 
-# To send from Pipedrive to Marketo
+COMPANY_TO_ORGANIZATION = {
+    "company": {
+        "fields": ["name"]
+    },
+    "numberOfEmployees": {
+        "fields": ["people_count"]
+    }
+}
+
 DEAL_TO_OPPORTUNITY = {
     "name": {
         "fields": ["title"]

@@ -24,14 +24,21 @@ class SyncTestCase(unittest.TestCase):
             lead.firstName = "Test Flask"
             lead.lastName = "Lead"
             lead.email = "lead@testflask.com"
-            lead.externalCompanyId = company.externalCompanyId
+            lead.externalCompanyId = cls.company.externalCompanyId
             lead.save()
             cls.lead = lead
+
+            # Create organization to be linked with a Pipedrive person
+            organization = pipedrive.Organization(marketo_pipedrive_sync.get_pipedrive_client())
+            organization.name = "Test Flask Organization"
+            organization.save()
+            cls.organization = organization
 
             # Create person in Pipedrive not linked with any lead in Marketo
             person = pipedrive.Person(marketo_pipedrive_sync.get_pipedrive_client())
             person.name = "Test Flask Person"
             person.email = "person@testflask.com"
+            person.org_id = cls.organization.id
             person.owner_id = 1628545  # my (Helene Jonin) owner id
             person.save()
             cls.person = person
@@ -92,6 +99,8 @@ class SyncTestCase(unittest.TestCase):
             cls.new_person = None
             cls.new_opportunity = None
             cls.new_role = None
+            cls.new_organization = None
+            cls.new_company = None
 
     @classmethod
     def tearDownClass(cls):
@@ -114,6 +123,11 @@ class SyncTestCase(unittest.TestCase):
             if cls.new_role is not None:
                 marketo_pipedrive_sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
             marketo_pipedrive_sync.get_marketo_client().delete_resource("company", cls.company.id)
+            marketo_pipedrive_sync.get_pipedrive_client().delete_resource("organization", cls.organization.id)
+            if cls.new_company is not None:
+                marketo_pipedrive_sync.get_marketo_client().delete_resource("company", cls.new_company.id)
+            if cls.new_organization is not None:
+                marketo_pipedrive_sync.get_pipedrive_client().delete_resource("organization", cls.new_organization.id)
 
     def test_create_person_in_pipedrive(self):
         with marketo_pipedrive_sync.app.test_client() as c:
@@ -127,6 +141,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertIsNotNone(person.id)
             self.assertEquals(person.name, "Test Flask Lead")
             self.assertEquals(person.email, "lead@testflask.com")
+            self.new_organization = person.organization
             self.assertIsNotNone(person.organization)  # Company has been created
             self.assertEquals(person.organization.name, "Test Flask Company")
 
@@ -178,6 +193,11 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(lead.firstName, "Test Flask")
             self.assertEquals(lead.lastName, "Person")
             self.assertEquals(lead.email, "person@testflask.com")
+
+            company = marketo.Company(g.marketo_client, lead.externalCompanyId, "externalCompanyId")
+            self.new_company = company
+            self.assertIsNotNone(company)  # Company has been created
+            self.assertEquals(company.company, "Test Flask Organization")
 
             # Test return data
             data = json.loads(rv.data)

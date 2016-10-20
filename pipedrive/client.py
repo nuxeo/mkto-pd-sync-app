@@ -70,8 +70,10 @@ class PipedriveClient:
             data_array = self.get_resource_data(resource_name, "find", {"term": resource_term})
             if data_array:
                 data = data_array[0]  # Assume first result is the right one
-                for key in data:
-                    setattr(resource, key, data[key])
+                # Only id is returned so fetch the whole resource data again
+                resource_data = self.get_resource_data(resource_name, data["id"])
+                for key in resource_data:
+                    setattr(resource, key, resource_data[key])
         return resource
 
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):

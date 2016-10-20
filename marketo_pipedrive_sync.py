@@ -156,6 +156,47 @@ def create_or_update_lead_in_marketo(person_id):
     return jsonify(**ret)
 
 
+def create_or_update_company_in_marketo(organization_name):
+    """Creates or update a company in Marketo with data from the
+    organization found in Pipedrive with the given name.
+    Update can be performed if the company and the organization share the same name.
+    Data to set is defined in mappings.
+    If the company is already up-to-date with any associated organization, does nothing.
+    """
+    app.logger.debug("Getting organization data from Pipedrive with name %s", str(organization_name))
+    organization = get_pipedrive_client().find_resource_by_name("organization", organization_name)
+
+    company = marketo.Company(get_marketo_client(), organization_name, "company")
+
+    data_changed = False
+    if company.id is None:
+        status = "created"
+        external_id = marketo.compute_external_id("organization", organization.id)
+        company.externalCompanyId = external_id
+        data_changed = True
+    else:
+        status = "updated"
+
+    for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
+        data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field])\
+                       or data_changed
+
+    if data_changed:
+        # Perform the update only if data actually changed
+        app.logger.debug("Sending to Marketo%s", " with id %s" % str(company.id) if company.id is not None else "")
+        company.save()
+    else:
+        app.logger.debug("Nothing to do")
+        status = "skipped"
+
+    ret = {
+        "status": status,
+        "id": company.id,
+        "externalId": company.externalCompanyId
+    }
+    return ret
+
+
 @app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
 def create_or_update_opportunity_in_marketo(deal_id):
     """Creates or update an opportunity and an opportunity role in Marketo with data from the
