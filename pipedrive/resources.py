@@ -12,9 +12,8 @@ class Resource:
 
         self._load_fields()
 
-        self.id = id_  # Resource always has an id
         if id_ is not None:
-            self._load_data(id_field)
+            self._load_data(id_, id_field)
 
     def __getattr__(self, name):
         if name != "_field_keys":
@@ -94,22 +93,21 @@ class Resource:
             name = to_snake_case(field["name"])
             self._field_keys[name] = key
             self._field_types[key] = field["field_type"]
+            setattr(self, key, None)  # Initialize field
 
-    def _load_data(self, id_field):
-        id_ = self.id
+    def _load_data(self, id_, id_field):
+        id_to_look_for = id_
 
         # Find id for given name first if id_field was provided as "name"
-        if id_field == "name" and self.id:
-            data_array = self._client.get_resource_data(self.resource_name, "find", {"term": self.id})
+        if id_field == "name" and id_:
+            data_array = self._client.get_resource_data(self.resource_name, "find", {"term": id_})
             if data_array:
-                id_ = data_array[0]["id"]  # Assume first result is the right one
+                id_to_look_for = data_array[0]["id"]  # Assume first result is the right one
 
-        data = self._client.get_resource_data(self.resource_name, id_)
+        data = self._client.get_resource_data(self.resource_name, id_to_look_for)
         if data:
             for key in data:
                 setattr(self, key, self._get_data_value(data[key]))
-        else:
-            self.id = None  # Reset id case given id is not found
 
     def save(self):
         """

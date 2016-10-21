@@ -47,12 +47,6 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.organization)
         self.assertEqual(person.organization.name, "MyCompany")
 
-    def test_empty_person_with_field_name_equals_key(self):
-        person = pipedrive.Person(self.pd)
-        self.assertIsNotNone(person)
-        with self.assertRaises(AttributeError):
-            person.name
-
     def test_add_person_from_client(self):
         person = pipedrive.Person(self.pd)
         person.name = "Test Person"
@@ -172,7 +166,14 @@ class PipedriveTestCase(unittest.TestCase):
         organization = pipedrive.Organization(self.pd, "MyCompany", "name")
         self.assertIsNotNone(organization)
         self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.name, "MyCompany")
         self.assertEqual(organization.people_count, 12)
+
+    def test_empty_person_get_field(self):
+        person = pipedrive.Person(self.pd)
+        self.assertIsNotNone(person)
+        self.assertIsNone(person.id)
+        self.assertIsNone(person.name)
 
 
 if __name__ == '__main__':

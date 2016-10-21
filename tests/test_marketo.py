@@ -262,6 +262,12 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(lead.firstName, "Marco")
         self.assertEqual(lead.lastName, "Antonio")
 
+    def test_empty_person_get_field(self):
+        lead = marketo.Lead(self.mkto)
+        self.assertIsNotNone(lead)
+        self.assertIsNone(lead.id)
+        self.assertIsNone(lead.firstName)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

@@ -11,9 +11,8 @@ class Resource:
 
         self._load_fields()
 
-        self.id = id_  # Resource always has an id
         if id_ is not None:
-            self._load_data(id_field)
+            self._load_data(id_, id_field)
 
     @property
     def resource_name(self):
@@ -28,10 +27,7 @@ class Resource:
         data = {}
         for key in self._fields:
             if key in self._resource_fields_to_update:
-                try:
-                    data[key] = getattr(self, key)
-                except AttributeError:
-                    data[key] = self._resource_fields_to_update[key]  # Set default value to avoid system errors
+                data[key] = getattr(self, key) or self._resource_fields_to_update[key]  # Set default value if any to avoid system errors
         return data
 
     @abstractproperty
@@ -52,16 +48,18 @@ class Resource:
                 fields = fields[0]["fields"]
         for field in fields:
             self._fields.append(field["name"])
+            setattr(self, field["name"], None)  # Initialize field
+            if self._id_field != "id":
+                self.id = None  # Resource should always have an id
 
-    def _load_data(self, id_field):
+    def _load_data(self, id_, id_field):
         id_field_to_look_for = self._id_field if id_field is None else id_field
-        data = self._client.get_resource_data(self.resource_name, self.id, self._fields, id_field_to_look_for)
+        data = self._client.get_resource_data(self.resource_name, id_, self._fields, id_field_to_look_for)
         if data:
             for key in data:
                 setattr(self, key, data[key])
-            self.id = data[self._id_field]
-        else:
-            self.id = None  # Reset id case given id is not found
+            if self._id_field != "id":
+                self.id = data[self._id_field]  # Resource should always have an id
 
     def save(self):
         """
@@ -83,8 +81,9 @@ class Lead(Resource):
         self._fields = []
         for field in fields:
             name = field["rest"]["name"]
-            if name in self._resource_fields_to_update.keys() and not field["rest"]["readOnly"]:
+            if not field["rest"]["readOnly"]:
                 self._fields.append(name)
+            setattr(self, name, None)  # Initialize field
         self._id_field = "id"  # idField is not specified in return data so manually set it
 
     @property
