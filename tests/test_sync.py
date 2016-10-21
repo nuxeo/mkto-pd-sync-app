@@ -1,11 +1,11 @@
-import unittest
 from .context import marketo_pipedrive_sync
 from .context import marketo
 from .context import pipedrive
 from .context import secret
-import logging
 from flask import g
 import json
+import logging
+import unittest
 
 
 class SyncTestCase(unittest.TestCase):

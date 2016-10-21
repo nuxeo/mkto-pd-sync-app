@@ -35,6 +35,11 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(lead)
         self.assertIsNone(lead.id)
 
+    def test_load_lead_undefined_2(self):
+        lead = marketo.Lead(self.mkto, "")
+        self.assertIsNotNone(lead)
+        self.assertIsNone(lead.id)
+
     def test_load_lead_with_email(self):
         lead = marketo.Lead(self.mkto, "emeamarco@gmail.com", "email")
         self.assertIsNotNone(lead)

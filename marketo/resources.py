@@ -12,7 +12,7 @@ class Resource:
 
         self._load_fields()
 
-        if id_ is not None:
+        if id_:
             self._load_data(id_, id_field)
 
     @property

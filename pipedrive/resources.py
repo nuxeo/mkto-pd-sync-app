@@ -14,7 +14,7 @@ class Resource:
 
         self._load_fields()
 
-        if id_ is not None:
+        if id_:
             self._load_data(id_, id_field)
 
     def __getattr__(self, name):
@@ -102,8 +102,8 @@ class Resource:
     def _load_data(self, id_, id_field):
         id_to_look_for = id_
 
-        # Find resource id first if id_field was provided as "name" (and an actual name was provided)
-        if id_field == "name" and id_:
+        # Find resource id first if id_field was provided as "name"
+        if id_field == "name":
             data_array = self._client.get_resource_data(self.resource_name, "find", {"term": id_})
             if data_array:
                 id_to_look_for = data_array[0]["id"]  # Assume first result is the right one

@@ -38,6 +38,11 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person)
         self.assertIsNone(person.id)
 
+    def test_load_person_undefined_2(self):
+        person = pipedrive.Person(self.pd, "")
+        self.assertIsNotNone(person)
+        self.assertIsNone(person.id)
+
     def test_empty_person_get_field(self):
         person = pipedrive.Person(self.pd)
         self.assertIsNotNone(person)
