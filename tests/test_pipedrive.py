@@ -168,6 +168,12 @@ class PipedriveTestCase(unittest.TestCase):
         person.save()
         self.assertEqual(person.organization.name, "MyCompany")  # Related resources are read-only so no update
 
+    def test_load_organization_with_name(self):
+        organization = pipedrive.Organization(self.pd, "MyCompany", "name")
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.people_count, 12)
+
 
 if __name__ == '__main__':
     logging.basicConfig()

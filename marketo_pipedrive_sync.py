@@ -101,7 +101,7 @@ def create_or_update_organization_in_pipedrive(company_name):
     app.logger.debug("Getting company data from Marketo with name %s", str(company_name))
     company = marketo.Company(get_marketo_client(), company_name, "company")
 
-    organization = get_pipedrive_client().find_resource_by_name("organization", company_name)
+    organization = pipedrive.Organization(get_pipedrive_client(), company_name, "name")
     status = "created" if organization.id is None else "updated"
 
     data_changed = False
@@ -177,7 +177,7 @@ def create_or_update_company_in_marketo(organization_name):
     If the company is already up-to-date with any associated organization, does nothing.
     """
     app.logger.debug("Getting organization data from Pipedrive with name %s", str(organization_name))
-    organization = get_pipedrive_client().find_resource_by_name("organization", organization_name)
+    organization = pipedrive.Organization(get_pipedrive_client(), organization_name, "name")
 
     company = marketo.Company(get_marketo_client(), organization_name, "company")
 

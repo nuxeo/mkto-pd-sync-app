@@ -255,6 +255,13 @@ class MarketoTestCase(unittest.TestCase):
         self.mkto.delete_resource("lead", lead.id)
         self.mkto.delete_resource("company", company.id)
 
+    def test_load_lead_with_email(self):
+        lead = marketo.Lead(self.mkto, "emeamarco@gmail.com", "email")
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
+        self.assertEqual(lead.firstName, "Marco")
+        self.assertEqual(lead.lastName, "Antonio")
+
 
 if __name__ == '__main__':
     logging.basicConfig()

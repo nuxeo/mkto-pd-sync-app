@@ -6,7 +6,7 @@ from helpers import *
 class Resource:
     __metaclass__ = ABCMeta
 
-    def __init__(self, client, id_=None):
+    def __init__(self, client, id_=None, id_field="id"):
         self._logger = logging.getLogger(__name__)
         self._client = client
 
@@ -14,7 +14,7 @@ class Resource:
 
         self.id = id_  # Resource always has an id
         if id_ is not None:
-            self._load_data()
+            self._load_data(id_field)
 
     def __getattr__(self, name):
         if name != "_field_keys":
@@ -95,8 +95,16 @@ class Resource:
             self._field_keys[name] = key
             self._field_types[key] = field["field_type"]
 
-    def _load_data(self):
-        data = self._client.get_resource_data(self.resource_name, self.id)
+    def _load_data(self, id_field):
+        id_ = self.id
+
+        # Find id for given name first if id_field was provided as "name"
+        if id_field == "name" and self.id:
+            data_array = self._client.get_resource_data(self.resource_name, "find", {"term": self.id})
+            if data_array:
+                id_ = data_array[0]["id"]  # Assume first result is the right one
+
+        data = self._client.get_resource_data(self.resource_name, id_)
         if data:
             for key in data:
                 setattr(self, key, self._get_data_value(data[key]))
