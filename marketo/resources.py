@@ -27,15 +27,15 @@ class Resource:
         """
         data = {}
         for key in self._fields:
-            if not self._resource_fields[key]["readOnly"]:  # Some attributes cannot be updated while other are
+            if key in self._resource_fields_to_update:
                 try:
                     data[key] = getattr(self, key)
                 except AttributeError:
-                    data[key] = self._resource_fields[key]["default"]  # Set default value to avoid system errors
+                    data[key] = self._resource_fields_to_update[key]  # Set default value to avoid system errors
         return data
 
     @abstractproperty
-    def _resource_fields(self):
+    def _resource_fields_to_update(self):
         """
         Get resource fields we want to retrieve and be able to set.
         :return: A dictionary of fields mapped against their default value
@@ -51,8 +51,7 @@ class Resource:
             if "fields" in fields[0]:
                 fields = fields[0]["fields"]
         for field in fields:
-            if field["name"] in self._resource_fields.keys():
-                self._fields.append(field["name"])
+            self._fields.append(field["name"])
 
     def _load_data(self, id_field):
         id_field_to_look_for = self._id_field if id_field is None else id_field
@@ -84,105 +83,40 @@ class Lead(Resource):
         self._fields = []
         for field in fields:
             name = field["rest"]["name"]
-            if name in self._resource_fields.keys() and not field["rest"]["readOnly"]:
+            if name in self._resource_fields_to_update.keys() and not field["rest"]["readOnly"]:
                 self._fields.append(name)
         self._id_field = "id"  # idField is not specified in return data so manually set it
 
     @property
-    def _resource_fields(self):
+    def _resource_fields_to_update(self):
+        # Marketo won't let us update all fields
+        # especially some attributes cannot be updated while other are
         return {
-            "id": {  # id is mandatory for updating
-                "default": None,
-                "readOnly": False
-            },
-            "firstName": {
-                "default": None,
-                "readOnly": False
-            },
-            "lastName": {
-                "default": None,
-                "readOnly": False
-            },
-            "email": {
-                "default": None,
-                "readOnly": False
-            },
-            "title": {
-                "default": None,
-                "readOnly": False
-            },
-            "phone": {
-                "default": None,
-                "readOnly": False
-            },
-            "country": {
-                "default": None,
-                "readOnly": True
-            },  # read only bc of "externalCompanyId"
-            "leadSource": {
-                "default": None,
-                "readOnly": False
-            },
-            "leadStatus": {
-                "default": None,
-                "readOnly": False
-            },
-            "conversicaLeadOwnerEmail": {
-                "default": None,
-                "readOnly": False
-            },
-            "conversicaLeadOwnerFirstName": {
-                "default": None,
-                "readOnly": False
-            },
-            "conversicaLeadOwnerLastName": {
-                "default": None,
-                "readOnly": False
-            },
-            "pipedriveId": {
-                "default": None,
-                "readOnly": False
-            },
-            "state":  {
-                "default": None,
-                "readOnly": True
-            },  # read only bc of "externalCompanyId"
-            "city":  {
-                "default": None,
-                "readOnly": True
-            },  # read only bc of "externalCompanyId"
-            "noofEmployeesRange": {
-                "default": None,
-                "readOnly": False
-            },
-            "company":  {
-                "default": None,
-                "readOnly": True
-            },  # read only bc of "externalCompanyId"
-            "leadScore": {
-                "default": None,
-                "readOnly": False
-            },
-            "externalCompanyId": {
-                "default": None,
-                "readOnly": False
-            },
+            "id": None,  # id is mandatory for updating
+            "firstName": None,
+            "lastName": None,
+            "email": None,
+            "title": None,
+            "phone": None,
+            "leadSource": None,
+            "leadStatus": None,
+            "conversicaLeadOwnerEmail": None,
+            "conversicaLeadOwnerFirstName": None,
+            "conversicaLeadOwnerLastName": None,
+            "pipedriveId": None,
+            "noofEmployeesRange": None,
+            "leadScore": None,
+            "externalCompanyId": None,
         }
 
 
 class Opportunity(Resource):
 
     @property
-    def _resource_fields(self):
+    def _resource_fields_to_update(self):
         return {
-            "externalOpportunityId": {
-                "default": None,
-                "readOnly": False
-            },
-            "name": {
-                "default": None,
-                "readOnly": False
-            },
+            "externalOpportunityId": None,
+            "name": None,
         }
 
 
@@ -193,46 +127,22 @@ class Role(Resource):
         return "opportunities/" + self.__class__.__name__.lower()
 
     @property
-    def _resource_fields(self):
+    def _resource_fields_to_update(self):
         return {
-            "externalOpportunityId": {
-                "default": None,
-                "readOnly": False
-            },
-            "leadId": {
-                "default": None,
-                "readOnly": False
-            },
-            "role": {
-                "default": None,
-                "readOnly": False
-            },
-            "isPrimary": {
-                "default": False,
-                "readOnly": False
-            },
+            "externalOpportunityId": None,
+            "leadId": None,
+            "role": None,
+            "isPrimary": False,  # Marketo also requires a default value (no null) for certain fields
         }
 
 
 class Company(Resource):
 
     @property
-    def _resource_fields(self):
+    def _resource_fields_to_update(self):
         return {
-            "externalCompanyId": {
-                "default": None,
-                "readOnly": False
-            },
-            "company": {
-                "default": None,
-                "readOnly": False
-            },
-            "annualRevenue": {
-                "default": None,
-                "readOnly": False
-            },
-            "numberOfEmployees": {
-                "default": None,
-                "readOnly": False
-            },
+            "externalCompanyId": None,
+            "company": None,
+            "annualRevenue": None,
+            "numberOfEmployees": None,
         }
