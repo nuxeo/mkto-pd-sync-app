@@ -1,7 +1,6 @@
-import requests
-import logging
-import importlib
 from helpers import *
+import logging
+import requests
 
 
 class MarketoClient:
@@ -36,28 +35,20 @@ class MarketoClient:
         auth_data = r.json()
 
         self._logger.info("Access token acquired: %s expiring in %ss" %
-            (auth_data['access_token'], auth_data['expires_in']))
+                          (auth_data['access_token'], auth_data['expires_in']))
         return auth_data['access_token']
 
     def get_resource_fields(self, resource_name):
         return self._fetch_data(resource_name, "describe")
 
-    def get_resource_by_id(self, resource_name, resource_id, resource_fields=None):
-        resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
-        resource = resource_class(self)
-        data = self.get_resource_data(resource_name, resource_id, resource_fields)
-        for key in data:
-            setattr(resource, key, data[key])
-        return resource
-
-    def get_resource_data(self, resource_name, resource_id, resource_fields, filter_type="id"):
+    def get_resource_data(self, resource_name, resource_id, filter_type="id", resource_fields=None):
         """
         Load resource data as a dictionary from a request to Marketo result.
         :param resource_name: The resource name (should be the same as the class name)
         :param resource_id: The resource id
         :param resource_fields: The resource fields to consider retrieving
-        :param filter_type: The field to filter on, default is "id"
-        :return: A dictionary of fields mapped against their value
+        :param filter_type: The resource field to filter on, default is "id"
+        :return: The loaded dara as a dictionary of fields mapped against their value
         """
         data_array = self._fetch_data(resource_name, resource_id, filter_type, resource_fields)
         ret = {}
@@ -65,38 +56,21 @@ class MarketoClient:
             ret = data_array[0]  # Only one resource handled at a time for now
         return ret
 
-    def add_resource(self, resource_name, resource_data):
-        resource_class = getattr(importlib.import_module("marketo.resources"), resource_name.capitalize())
-        resource = resource_class(self)
-        data = self.set_resource_data(resource_name, resource_data)
-        for key in resource_data:
-            setattr(resource, key, resource_data[key])
-        # Only id is returned so update id only in resource
-        if "id" in data:
-            setattr(resource, "id", data["id"])
-        elif "marketoGUID" in data:
-            setattr(resource, "id", data["marketoGUID"])
-            setattr(resource, "marketoGUID", data["marketoGUID"])
-        return resource
-
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
         """
         Dump resource data to Marketo.
         :param resource_name: The resource name (should be the same as the class name)
         :param resource_data: The resource data
         :param resource_id: The resource id (update only)
-        :return: The dumped data as a dictionary with the field id mapped against its value
+        :return: The dumped data as a dictionary with the id field mapped against its value
         """
         r_data = {
             "action": "createOrUpdate",
             "input": [resource_data]
         }
         if resource_id is not None:  # Update
-            if is_marketo_guid(str(resource_id)):
-                # r_data["dedupeBy"] = "idField"  # FIXME: does not work for now - sent an E-mail to support
-                r_data["dedupeBy"] = "dedupeFields"  # but maybe easier using dedupeFields for update  # TODO: add as parameter?
-            else:
-                r_data["lookupField"] = "id"
+            if not is_marketo_guid(str(resource_id)):
+                r_data["lookupField"] = "id"  # Otherwise default would have been "email" for a lead
 
         data_array = self._push_data(resource_name, r_data)
 
@@ -113,8 +87,7 @@ class MarketoClient:
 
     def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
         self._logger.debug("Fetching resource %s%s", r_name,
-                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
-
+                           " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         payload = {}
 
         if r_filter_type is not None:  # Case id
@@ -124,7 +97,7 @@ class MarketoClient:
         else:  # Case action
             url = self._build_url(r_name, r_id_or_action)
 
-        # Fields to retrieve have to be specified otherwise not all will be by default
+        # Fields to be retrieved should be specified otherwise not all will be by default
         if r_fields is not None:
             payload["fields"] = r_fields
 
@@ -150,11 +123,10 @@ class MarketoClient:
 
         return ret
 
-    def _push_data(self, r_name, r_data, r_id_or_action=None):
+    def _push_data(self, r_name, r_data, r_action=None):
         self._logger.debug("Pushing resource %s%s", r_name,
-                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
-
-        url = self._build_url(r_name, r_id_or_action)
+                           " with id/action %s" % str(r_action) if r_action is not None else "")
+        url = self._build_url(r_name, r_action)
 
         headers = {"Authorization": "Bearer %s" % self._auth_token}
         r = self._session.post(url, headers=headers, json=r_data)  # POST request for creating and updating
@@ -172,14 +144,15 @@ class MarketoClient:
                 if error["code"] == "602":
                     self._logger.debug("Token expired, fetching new token to replay request")
                     self._auth_token = self._get_auth_token()
-                    ret = self._push_data(r_name, r_data, r_id_or_action)
+                    ret = self._push_data(r_name, r_data, r_action)
                 else:
                     self._logger.error(error["message"])
 
         return ret
 
     def _build_url(self, r_name, r_action=None):
-        url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION, simple_pluralize(r_name))  # Should be plural form
+        url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION,
+                            simple_pluralize(r_name))  # Resource name should be plural form
         if r_action is not None:
             url += "/" + str(r_action)
         url += ".json"
@@ -198,7 +171,9 @@ class MarketoClient:
         r_data["input"] = [{r_id_field: r_id}]
 
         data_array = self._push_data(r_name, r_data, "delete")
+
         ret = {}
         if data_array:
             ret = data_array[0]  # Only one resource handled at a time for now
+
         return ret

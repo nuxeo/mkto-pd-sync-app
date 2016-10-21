@@ -1,7 +1,7 @@
-import unittest
 from .context import marketo
 from .context import secret
 import logging
+import unittest
 
 
 class MarketoTestCase(unittest.TestCase):
@@ -11,14 +11,6 @@ class MarketoTestCase(unittest.TestCase):
         cls.mkto = marketo.MarketoClient(secret.IDENTITY_ENDPOINT, secret.CLIENT_ID, secret.CLIENT_SECRET,
                                          secret.API_ENDPOINT)
 
-    def test_get_lead_from_client(self):
-        lead = self.mkto.get_resource_by_id("lead", 7591021)
-        self.assertIsNotNone(lead)
-        self.assertIsNotNone(lead.id)
-        self.assertEqual(lead.firstName, "Marco")
-        self.assertEqual(lead.lastName, "Antonio")
-        self.assertEqual(lead.email, "emeamarco@gmail.com")
-
     def test_load_lead(self):
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
@@ -27,31 +19,34 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(lead.lastName, "Antonio")
         self.assertEqual(lead.email, "emeamarco@gmail.com")
 
-    def test_load_lead_not_default_field(self):
+    def test_load_lead_get_not_default_field(self):
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertEqual(lead.pipedriveId, 63080)
 
-    def test_load_lead_undefined_field(self):
+    def test_load_lead_get_undefined_field(self):
         lead = marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         with self.assertRaises(AttributeError):
             lead.fake_field
 
-    def test_add_lead_from_client(self):
-        lead = marketo.Lead(self.mkto)
-        lead.firstName = "Test"
-        lead.lastName = "Lead"
-        lead.email = "lead@test.com"
+    def test_load_lead_undefined(self):
+        lead = marketo.Lead(self.mkto, -1)
+        self.assertIsNotNone(lead)
         self.assertIsNone(lead.id)
-        lead = self.mkto.add_resource("lead", lead.resource_data)
+
+    def test_load_lead_with_email(self):
+        lead = marketo.Lead(self.mkto, "emeamarco@gmail.com", "email")
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
-        self.assertEquals(lead.firstName, "Test")
-        self.assertEquals(lead.lastName, "Lead")
-        self.assertEquals(lead.email, "lead@test.com")
-        # Delete created lead
-        self.mkto.delete_resource("lead", lead.id)
+        self.assertEqual(lead.firstName, "Marco")
+        self.assertEqual(lead.lastName, "Antonio")
+
+    def test_empty_lead_get_field(self):
+        lead = marketo.Lead(self.mkto)
+        self.assertIsNotNone(lead)
+        self.assertIsNone(lead.id)
+        self.assertIsNone(lead.firstName)
 
     def test_save_lead(self):
         lead = marketo.Lead(self.mkto)
@@ -67,11 +62,6 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(lead.email, "lead@test2.com")
         # Delete created lead
         self.mkto.delete_resource("lead", lead.id)
-
-    def test_load_lead_undefined(self):
-        lead = marketo.Lead(self.mkto, -1)
-        self.assertIsNotNone(lead)
-        self.assertIsNone(lead.id)
 
     def test_update_lead(self):
         # Get lead first
@@ -99,8 +89,30 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(opportunity.externalOpportunityId, "o1")
         self.assertEqual(opportunity.name, "Chairs")
 
-    def test_load_opportunity_role(self):
+    def test_load_opportunity_with_external_id(self):
+        opportunity = marketo.Opportunity(self.mkto, "o1", "externalOpportunityId")
+        self.assertIsNotNone(opportunity)
+        self.assertEqual(opportunity.id, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertEqual(opportunity.marketoGUID, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
+        self.assertEqual(opportunity.externalOpportunityId, "o1")
+        self.assertEqual(opportunity.name, "Chairs")
+
+    def test_load_opportunity_undefined_with_external_id(self):
+        opportunity = marketo.Opportunity(self.mkto, "o2", "externalOpportunityId")
+        self.assertIsNotNone(opportunity)
+        self.assertIsNone(opportunity.id)
+
+    def test_load_role(self):
         role = marketo.Role(self.mkto, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertIsNotNone(role)
+        self.assertEqual(role.id, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertEqual(role.marketoGUID, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
+        self.assertEqual(role.externalOpportunityId, "o1")
+        self.assertEqual(role.leadId, 7591021)
+        self.assertEqual(role.role, "Technical Buyer")
+
+    def test_load_role_with_lead_id(self):
+        role = marketo.Role(self.mkto, 7591021, "leadId")
         self.assertIsNotNone(role)
         self.assertEqual(role.id, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
         self.assertEqual(role.marketoGUID, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
@@ -172,33 +184,17 @@ class MarketoTestCase(unittest.TestCase):
         role.isPrimary = False
         role.save()
 
-    def test_load_opportunity_with_external_id(self):
-        opportunity = marketo.Opportunity(self.mkto, "o1", "externalOpportunityId")
-        self.assertIsNotNone(opportunity)
-        self.assertEqual(opportunity.id, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
-        self.assertEqual(opportunity.marketoGUID, "6a38a3bd-edce-4d86-bcc0-83f1feef8997")
-        self.assertEqual(opportunity.externalOpportunityId, "o1")
-        self.assertEqual(opportunity.name, "Chairs")
-
-    def test_load_opportunity_undefined_with_external_id(self):
-        opportunity = marketo.Opportunity(self.mkto, "o2", "externalOpportunityId")
-        self.assertIsNotNone(opportunity)
-        self.assertIsNone(opportunity.id)
-
-    def test_load_opportunity_role_with_lead_id(self):
-        role = marketo.Role(self.mkto, 7591021, "leadId")
-        self.assertIsNotNone(role)
-        self.assertEqual(role.id, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
-        self.assertEqual(role.marketoGUID, "d8c8fec7-cd0a-4088-bba7-ee7d57e45b11")
-        self.assertEqual(role.externalOpportunityId, "o1")
-        self.assertEqual(role.leadId, 7591021)
-        self.assertEqual(role.role, "Technical Buyer")
-
     def test_load_company_with_external_id(self):
         company = marketo.Company(self.mkto, "c1", "externalCompanyId")
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
         self.assertEqual(company.company, "Test company")
+
+    def test_load_company_with_name(self):
+        company = marketo.Company(self.mkto, "Test company", "company")
+        self.assertIsNotNone(company)
+        self.assertIsNotNone(company.id)
+        self.assertEqual(company.externalCompanyId, "c1")
 
     def test_save_company(self):
         company = marketo.Company(self.mkto)
@@ -228,12 +224,6 @@ class MarketoTestCase(unittest.TestCase):
         company.company = "Test company"
         company.save()
 
-    def test_load_company_with_name(self):
-        company = marketo.Company(self.mkto, "Test company", "company")
-        self.assertIsNotNone(company)
-        self.assertIsNotNone(company.id)
-        self.assertEqual(company.externalCompanyId, "c1")
-
     def test_save_lead_and_company(self):
         # Create company
         company = marketo.Company(self.mkto)
@@ -254,19 +244,6 @@ class MarketoTestCase(unittest.TestCase):
         # Delete created lead and company
         self.mkto.delete_resource("lead", lead.id)
         self.mkto.delete_resource("company", company.id)
-
-    def test_load_lead_with_email(self):
-        lead = marketo.Lead(self.mkto, "emeamarco@gmail.com", "email")
-        self.assertIsNotNone(lead)
-        self.assertIsNotNone(lead.id)
-        self.assertEqual(lead.firstName, "Marco")
-        self.assertEqual(lead.lastName, "Antonio")
-
-    def test_empty_person_get_field(self):
-        lead = marketo.Lead(self.mkto)
-        self.assertIsNotNone(lead)
-        self.assertIsNone(lead.id)
-        self.assertIsNone(lead.firstName)
 
 
 if __name__ == '__main__':

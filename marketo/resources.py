@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractproperty
+from .errors import *
 import logging
 
 
@@ -27,50 +28,56 @@ class Resource:
         data = {}
         for key in self._fields:
             if key in self._resource_fields_to_update:
-                data[key] = getattr(self, key) or self._resource_fields_to_update[key]  # Set default value if any to avoid system errors
+                data[key] = getattr(self, key)\
+                            or self._resource_fields_to_update[key]  # Set default value if any to avoid system errors
         return data
 
     @abstractproperty
     def _resource_fields_to_update(self):
         """
-        Get resource fields we want to retrieve and be able to set.
+        Get resource fields we want to be able to set.
         :return: A dictionary of fields mapped against their default value
         """
         pass
 
     def _load_fields(self):
-        fields = self._client.get_resource_fields(self.resource_name)
+        data = self._client.get_resource_fields(self.resource_name)
         self._fields = []
-        if fields:
-            if "idField" in fields[0]:
-                self._id_field = fields[0]["idField"]
-            if "fields" in fields[0]:
-                fields = fields[0]["fields"]
-        for field in fields:
-            self._fields.append(field["name"])
-            setattr(self, field["name"], None)  # Initialize field
+        if data:
+            self._id_field = data[0]["idField"]
             if self._id_field != "id":
                 self.id = None  # Resource should always have an id
+            for field in data[0]["fields"]:
+                self._fields.append(field["name"])
+                setattr(self, field["name"], None)  # Initialize field
+
+        else:
+            raise InitializationError("Load fields", "No data returned")
 
     def _load_data(self, id_, id_field):
-        id_field_to_look_for = self._id_field if id_field is None else id_field
-        data = self._client.get_resource_data(self.resource_name, id_, self._fields, id_field_to_look_for)
+        id_field_to_look_for = id_field or self._id_field
+        data = self._client.get_resource_data(self.resource_name, id_, id_field_to_look_for, self._fields)
         if data:
             for key in data:
                 setattr(self, key, data[key])
             if self._id_field != "id":
-                self.id = data[self._id_field]  # Resource should always have an id
+                self.id = getattr(self, self._id_field)  # Set id value with id field value
+        else:
+            self._logger.warning("No data could be loaded for resource %s with id %s (looking for id field \"%s\")",
+                                 self.resource_name, id_, id_field_to_look_for)
 
     def save(self):
         """
         Save (i.e. create or update) resource.
         """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
-        # Only id is returned so update id only in resource
-        if self._id_field in data:
-            setattr(self, "id", data[self._id_field])
+        # Only id field is returned so update id and id field only
+        if data:
+            setattr(self, self._id_field, data[self._id_field])
             if self._id_field != "id":
-                setattr(self, self._id_field, data[self._id_field])
+                setattr(self, "id", data[self._id_field])  # Set id value with id field value
+        else:
+            raise SavingError("Save resource", "No data returned")
 
 
 class Lead(Resource):
@@ -79,17 +86,20 @@ class Lead(Resource):
     def _load_fields(self):
         fields = self._client.get_resource_fields(self.resource_name)
         self._fields = []
-        for field in fields:
-            name = field["rest"]["name"]
-            if not field["rest"]["readOnly"]:
-                self._fields.append(name)
-            setattr(self, name, None)  # Initialize field
-        self._id_field = "id"  # idField is not specified in return data so manually set it
+        if fields:
+            for field in fields:
+                name = field["rest"]["name"]
+                if not field["rest"]["readOnly"]:
+                    self._fields.append(name)
+                setattr(self, name, None)  # Initialize field
+                self._id_field = "id"  # idField is not specified in return data for lead so manually set it
+        else:
+            raise InitializationError("Load fields", "No data returned")
 
     @property
     def _resource_fields_to_update(self):
         # Marketo won't let us update all fields
-        # especially some attributes cannot be updated while other are
+        # Especially some that cannot be updated while other are
         return {
             "id": None,  # id is mandatory for updating
             "firstName": None,
@@ -131,7 +141,7 @@ class Role(Resource):
             "externalOpportunityId": None,
             "leadId": None,
             "role": None,
-            "isPrimary": False,  # Marketo also requires a default value (no null) for certain fields
+            "isPrimary": False,  # Marketo also requires a default value (no null) for certain fields (boolean fields?)
         }
 
 
