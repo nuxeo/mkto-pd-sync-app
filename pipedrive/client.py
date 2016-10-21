@@ -1,6 +1,5 @@
-import requests
 import logging
-import importlib
+import requests
 
 
 class PipedriveClient:
@@ -16,42 +15,16 @@ class PipedriveClient:
     def get_resource_fields(self, resource_name):
         return self._fetch_data(resource_name + "Fields")
 
-    def get_resource_by_id(self, resource_name, resource_id, resource_fields=None):
-        resource_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
-        resource = resource_class(self)
-        data = self.get_resource_data(resource_name, resource_id, resource_fields)
-        # Fill object
-        for key in data:
-            setattr(resource, key, self._get_data_value(data[key]))
-        return resource
-
     def get_resource_data(self, resource_name, resource_id, resource_fields=None):
         """
         Load resource data as a dictionary from a request to Pipedrive result.
         :param resource_name: The resource name (should be the same as the class name)
         :param resource_id: The resource id
         :param resource_fields: The resource fields to consider retrieving, default are all fields
-        :return: A dictionary of fields mapped against their value
+        :return: The loaded dara as a dictionary of fields mapped against their value
         """
-        return self._fetch_data(resource_name + "s", resource_id, resource_fields)  # Takes an 's' at the end of the resource name
-
-    def add_resource(self, resource_name, resource_data):
-        resources_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
-        resource = resources_class(self)
-        data = self.set_resource_data(resource_name, resource_data)
-        for key in data:
-            setattr(resource, key, self._get_data_value(data[key]))
-        return resource
-
-    def _get_data_value(self, value):
-        new_value = value
-        if type(value) is dict and "value" in value:  # "Flatten" complex field value such as org_id
-            new_value = value["value"]
-        elif type(value) is list:  # In case of list, keep only primary value and "flatten" field value
-            for v in value:
-                if v["primary"]:
-                    new_value = v["value"]
-        return new_value
+        return self._fetch_data(resource_name + "s",  # Takes an 's' at the end of the resource name
+                                resource_id, resource_fields)
 
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
         """
@@ -61,25 +34,12 @@ class PipedriveClient:
         :param resource_id: The resource id (update only)
         :return: The dumped data as a dictionary of field mapped against their value
         """
-        return self._push_data(resource_name + "s", resource_data, resource_id)  # Takes an 's' at the end of the resource name
-
-    def find_resource_by_name(self, resource_name, resource_term):
-        resource_class = getattr(importlib.import_module("pipedrive.resources"), resource_name.capitalize())
-        resource = resource_class(self)
-        if resource_term:
-            data_array = self.get_resource_data(resource_name, "find", {"term": resource_term})
-            if data_array:
-                data = data_array[0]  # Assume first result is the right one
-                # Only id is returned so fetch the whole resource data again
-                resource_data = self.get_resource_data(resource_name, data["id"])
-                for key in resource_data:
-                    setattr(resource, key, resource_data[key])
-        return resource
+        return self._push_data(resource_name + "s",  # Takes an 's' at the end of the resource name
+                               resource_data, resource_id)
 
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
         self._logger.debug("Fetching resource %s%s", r_name,
-                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
-
+                           " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         url = self._build_url(r_name, r_id_or_action)
 
         payload = r_fields or {}
@@ -100,8 +60,7 @@ class PipedriveClient:
 
     def _push_data(self, r_name, r_data, r_id_or_action=None):
         self._logger.debug("Pushing resource %s%s", r_name,
-                           " with id/action %s" % str(r_id_or_action) if r_id_or_action else "")
-
+                           " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         url = self._build_url(r_name, r_id_or_action)
 
         if r_id_or_action is None:  # Create

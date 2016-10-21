@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractproperty
-import logging
+from .errors import *
 from helpers import *
+from requests import HTTPError
+import logging
 
 
 class Resource:
@@ -25,7 +27,7 @@ class Resource:
 
                 attr = getattr(self, key)
 
-                # Check if related resource
+                # Look for related resource
                 if key in self._field_types and self._field_types[key] in self.related_resources:
                     resource_class = self.related_resources[self._field_types[key]]
 
@@ -34,8 +36,10 @@ class Resource:
                         related_name = resource_class.__name__.lower()
                         related_id = attr
                         self._logger.debug("Loading related resource %s with id %s", related_name, related_id)
-                        attr = self._client.get_resource_by_id(related_name, related_id)
-                        setattr(self, key, attr)  # Cache value for related resource
+
+                        attr = resource_class(self._client, related_id)
+
+                        setattr(self, key, attr)  # Cache related resource to prevent from further reloading
 
                 return attr
             else:
@@ -63,23 +67,20 @@ class Resource:
         """
         data = {}
         for name in self._field_keys:
-            try:
-                key = self._field_keys[name]
-                attr = getattr(self, key)
-                value = attr
-                if isinstance(attr, Resource):
-                    value = getattr(attr, "id")  # "Flatten" related resources - keep id only
-                elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only as well
-                    value = attr["id"]
-                data[key] = value
-            except AttributeError:
-                data[key] = None
+            key = self._field_keys[name]
+            attr = getattr(self, key)
+            value = attr
+            if isinstance(attr, Resource):
+                value = getattr(attr, "id")  # "Flatten" related resources - keep id only
+            elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only as well
+                value = attr["id"]
+            data[key] = value
         return data
 
     @abstractproperty
     def related_resources(self):
         """
-        Get related resources as a dictionary if any.
+        Get related resources as a dictionary, if any.
         :return: A dictionary of related resource types mapped against their class
         """
         pass
@@ -88,34 +89,54 @@ class Resource:
         fields = self._client.get_resource_fields(self.resource_name)
         self._field_keys = {}
         self._field_types = {}
-        for field in fields:
-            key = field["key"]
-            name = to_snake_case(field["name"])
-            self._field_keys[name] = key
-            self._field_types[key] = field["field_type"]
-            setattr(self, key, None)  # Initialize field
+        if fields:
+            for field in fields:
+                key = field["key"]
+                name = to_snake_case(field["name"])
+                self._field_keys[name] = key
+                self._field_types[key] = field["field_type"]
+                setattr(self, key, None)  # Initialize field
+        else:
+            raise InitializationError("Load fields", "No data returned")
 
     def _load_data(self, id_, id_field):
         id_to_look_for = id_
 
-        # Find id for given name first if id_field was provided as "name"
+        # Find resource id first if id_field was provided as "name" (and an actual name was provided)
         if id_field == "name" and id_:
             data_array = self._client.get_resource_data(self.resource_name, "find", {"term": id_})
             if data_array:
                 id_to_look_for = data_array[0]["id"]  # Assume first result is the right one
+            else:
+                self._logger.warning("No resource %s found with name %s",
+                                     self.resource_name, id_)
+                return
 
-        data = self._client.get_resource_data(self.resource_name, id_to_look_for)
-        if data:
-            for key in data:
-                setattr(self, key, self._get_data_value(data[key]))
+        try:
+            data = self._client.get_resource_data(self.resource_name, id_to_look_for)
+            if data:
+                for key in data:
+                    setattr(self, key, self._get_data_value(data[key]))
+            else:
+                self._logger.warning("No data could be loaded for resource %s with id %s",
+                                     self.resource_name, id_to_look_for)
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                self._logger.warning("No data could be loaded for resource %s with id %s",
+                                     self.resource_name, id_to_look_for)
+            else:
+                raise e
 
     def save(self):
         """
         Save (i.e. create or update) resource.
         """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
-        for key in data:
-            setattr(self, key, self._get_data_value(data[key]))
+        if data:
+            for key in data:
+                setattr(self, key, self._get_data_value(data[key]))
+        else:
+            raise SavingError("Save resource", "No data returned")
 
     def _get_data_value(self, value):
         new_value = value

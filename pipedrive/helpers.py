@@ -1,5 +1,5 @@
-import string
 import re
+import string
 
 
 def to_snake_case(label):

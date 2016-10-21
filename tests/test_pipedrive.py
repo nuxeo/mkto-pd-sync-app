@@ -1,8 +1,7 @@
-import unittest
 from .context import pipedrive
 from .context import secret
 import logging
-import requests
+import unittest
 
 
 class PipedriveTestCase(unittest.TestCase):
@@ -11,13 +10,6 @@ class PipedriveTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.pd = pipedrive.PipedriveClient(secret.PD_API_TOKEN)
 
-    def test_get_person_from_client(self):
-        person = self.pd.get_resource_by_id("person", 63080)
-        self.assertIsNotNone(person)
-        self.assertIsNotNone(person.id)
-        self.assertEqual(person.name, "Marco Antonio")
-        self.assertEqual(person.email, "emeamarco@gmail.com")  # Test email was "flattened"
-
     def test_load_person(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
@@ -25,39 +17,32 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEqual(person.name, "Marco Antonio")
         self.assertEqual(person.email, "emeamarco@gmail.com")
 
-    def test_load_person_custom_field(self):  # i.e. hash field
+    def test_load_person_get_custom_field(self):  # i.e. hash field
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(getattr(person, "88ec7b3fd70f2fbdabe9aded639e316ff29174ce"), 0)  # Lead score
 
-    def test_load_person_custom_field_nice_name(self):
+    def test_load_person_get_custom_field_nice_name(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         self.assertEqual(person.lead_score, 0)
 
-    def test_load_person_undefined_field(self):
+    def test_load_person_get_undefined_field(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         with self.assertRaises(AttributeError):
             person.fake_field
 
-    def test_load_person_related_organization(self):
-        person = pipedrive.Person(self.pd, 63080)
+    def test_load_person_undefined(self):
+        person = pipedrive.Person(self.pd, -1)
         self.assertIsNotNone(person)
-        self.assertIsNotNone(person.organization)
-        self.assertEqual(person.organization.name, "MyCompany")
-
-    def test_add_person_from_client(self):
-        person = pipedrive.Person(self.pd)
-        person.name = "Test Person"
-        person.owner_id = 1628545  # my (Helene Jonin) owner id
         self.assertIsNone(person.id)
-        person = self.pd.add_resource("person", person.resource_data)
+
+    def test_empty_person_get_field(self):
+        person = pipedrive.Person(self.pd)
         self.assertIsNotNone(person)
-        self.assertIsNotNone(person.id)
-        self.assertEquals(person.name, "Test Person")
-        # Delete created person
-        self.pd.delete_resource("person", person.id)
+        self.assertIsNone(person.id)
+        self.assertIsNone(person.name)
 
     def test_save_person(self):
         person = pipedrive.Person(self.pd)
@@ -70,23 +55,6 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEquals(person.name, "Test Person 2")
         # Delete created person
         self.pd.delete_resource("person", person.id)
-
-    def test_load_person_undefined(self):
-        with self.assertRaises(requests.HTTPError):
-            pipedrive.Person(self.pd, -1)
-
-    def test_update_person(self):
-        # Get person first
-        person = pipedrive.Person(self.pd, 63080)
-        self.assertIsNotNone(person)
-        self.assertEqual(person.name, "Marco Antonio")
-        # Then update
-        person.name = "Test Person 4"
-        person.save()
-        self.assertEquals(person.name, "Test Person 4")
-        # Reset updated value
-        person.name = "Marco Antonio"
-        person.save()
 
     def test_save_person_custom_field(self):
         person = pipedrive.Person(self.pd)
@@ -101,6 +69,19 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("person", person.id)
 
+    def test_update_person(self):
+        # Get person first
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        self.assertEqual(person.name, "Marco Antonio")
+        # Then update
+        person.name = "Test Person 4"
+        person.save()
+        self.assertEquals(person.name, "Test Person 4")
+        # Reset updated value
+        person.name = "Marco Antonio"
+        person.save()
+
     def test_update_person_custom_field(self):
         # Get person first
         person = pipedrive.Person(self.pd, 63080)
@@ -114,21 +95,34 @@ class PipedriveTestCase(unittest.TestCase):
         person.lead_score = 0
         person.save()
 
-    def test_get_organization_with_name(self):
-        organization = self.pd.find_resource_by_name("organization", "MyCompany")
+    def test_load_organization_with_name(self):
+        organization = pipedrive.Organization(self.pd, "MyCompany", "name")
         self.assertIsNotNone(organization)
         self.assertIsNotNone(organization.id)
         self.assertEqual(organization.name, "MyCompany")
         self.assertEqual(organization.people_count, 12)
 
-    def test_save_person_related_organization(self):
+    def test_load_organization_undefined_with_name(self):
+        organization = pipedrive.Organization(self.pd, "MyCompany2", "name")
+        self.assertIsNotNone(organization)
+        self.assertIsNone(organization.id)
+
+    def test_load_person_related_organization(self):
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.organization)
+        self.assertEqual(person.organization.name, "MyCompany")
+
+    def test_save_person_related_updated_organization(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
         # Load organization
         self.assertIsNotNone(person.organization)
         self.assertEqual(person.organization.name, "MyCompany")
+        person.organization.name = "MyCompany2"
         # Try to save
         person.save()
+        self.assertEqual(person.organization.name, "MyCompany")  # Related resources are read-only so no update
 
     def test_load_deal(self):
         deal = pipedrive.Deal(self.pd, 1653)
@@ -150,30 +144,6 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEquals(deal.title, "Test deal 1")
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
-
-    def test_save_person_related_updated_organization(self):
-        person = pipedrive.Person(self.pd, 63080)
-        self.assertIsNotNone(person)
-        # Load organization
-        self.assertIsNotNone(person.organization)
-        self.assertEqual(person.organization.name, "MyCompany")
-        person.organization.name = "MyCompany2"
-        # Try to save
-        person.save()
-        self.assertEqual(person.organization.name, "MyCompany")  # Related resources are read-only so no update
-
-    def test_load_organization_with_name(self):
-        organization = pipedrive.Organization(self.pd, "MyCompany", "name")
-        self.assertIsNotNone(organization)
-        self.assertIsNotNone(organization.id)
-        self.assertEqual(organization.name, "MyCompany")
-        self.assertEqual(organization.people_count, 12)
-
-    def test_empty_person_get_field(self):
-        person = pipedrive.Person(self.pd)
-        self.assertIsNotNone(person)
-        self.assertIsNone(person.id)
-        self.assertIsNone(person.name)
 
 
 if __name__ == '__main__':
