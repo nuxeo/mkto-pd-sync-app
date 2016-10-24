@@ -19,7 +19,7 @@ which can be any exiting field for leads but should be a "searchable field" for 
 
 A resource can be saved: it is then created or updated depending on if it matches an existing one.
 
-### Use
+### Usage
 
 ```python
 import marketo
@@ -57,7 +57,7 @@ A resource can be saved: it is then created or updated depending on if it matche
 
 For related resources, only the link can be updated.
 
-### Use
+### Usage
 
 ```python
 import pipedrive
@@ -66,6 +66,9 @@ pd = pipedrive.PipedriveClient(secret.PD_API_TOKEN)
 
 # Get a person by ID
 person = pipedrive.Person(pd, "12345")
+
+# Get a person custom field with its nicer name
+person.lead_score  # or getattr(person, {HASH KEY})
 
 # Get a person related organization
 organization = person.organization
@@ -113,7 +116,7 @@ It is possible to use a "pre" or a "post adapter" (defined in a separate adapter
 
 The pre adapter will be processed on each separate matching field whereas the post adapter will run for the final value.
 
-### Use
+### Usage
 
 Any call returns the synchronisation status ("created", "updated" or "skipped") as well as the id of the created/updated resource in JSON.
 
