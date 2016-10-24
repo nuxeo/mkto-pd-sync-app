@@ -1,9 +1,11 @@
-from flask import Flask, g, jsonify, request
 from functools import wraps
-from secret import *
-import mappings
+
+from flask import Flask, g, jsonify, request
+
 import marketo
 import pipedrive
+import mappings
+from secret import *
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -358,7 +360,3 @@ class AuthenticationError(Error):
     """Exception raised for errors in the authentication.
     """
     pass
-
-
-if __name__ == "__main__":
-    app.run()

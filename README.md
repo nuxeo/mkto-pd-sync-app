@@ -1,4 +1,4 @@
-# marketo_pipedrive_sync
+# Sync App
 
 Synchronize data between Marketo and Pipedrive.
 
@@ -81,7 +81,7 @@ person.name = "New Name"
 person.save()
 ```
 
-## Sync app
+## sync module
 
 Simple Flask app to synchronize data between Marketo and Pipedrive.
 
