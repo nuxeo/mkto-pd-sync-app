@@ -1,13 +1,13 @@
-import json
-import logging
-import unittest
-
-from flask import g
-
 from .context import marketo
 from .context import pipedrive
 from .context import secret
 from .context import sync
+
+from flask import g
+
+import json
+import logging
+import unittest
 
 
 class SyncTestCase(unittest.TestCase):

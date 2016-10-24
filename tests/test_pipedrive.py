@@ -1,5 +1,6 @@
 from .context import pipedrive
 from .context import secret
+
 import logging
 import unittest
 

@@ -1,7 +1,9 @@
-from abc import ABCMeta, abstractproperty
 from .errors import *
+
+from abc import ABCMeta, abstractproperty
 from helpers import *
 from requests import HTTPError
+
 import logging
 
 

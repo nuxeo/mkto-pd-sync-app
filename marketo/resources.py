@@ -1,5 +1,7 @@
-from abc import ABCMeta, abstractproperty
 from .errors import *
+
+from abc import ABCMeta, abstractproperty
+
 import logging
 
 

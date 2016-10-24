@@ -1,6 +1,7 @@
 from helpers import *
+from requests import Session
+
 import logging
-import requests
 
 
 class MarketoClient:
@@ -14,7 +15,7 @@ class MarketoClient:
         self._client_secret = client_secret
         self._api_endpoint = api_endpoint
 
-        self._session = requests.Session()
+        self._session = Session()
 
         self._auth_token = self._get_auth_token()
 

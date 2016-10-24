@@ -5,6 +5,7 @@ from .resources import Opportunity
 from .resources import Role
 from .resources import Company
 
+
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
 try:  # Python 2.7+

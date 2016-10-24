@@ -1,5 +1,6 @@
+from requests import Session
+
 import logging
-import requests
 
 
 class PipedriveClient:
@@ -9,7 +10,7 @@ class PipedriveClient:
         self._logger = logging.getLogger(__name__)
 
         payload = {"api_token": api_token}
-        self._session = requests.Session()
+        self._session = Session()
         self._session.params = payload
 
     def get_resource_fields(self, resource_name):

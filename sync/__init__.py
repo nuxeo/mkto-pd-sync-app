@@ -1,11 +1,11 @@
-from functools import wraps
-
 from flask import Flask, g, jsonify, request
+from functools import wraps
+from secret import *
 
+import mappings
 import marketo
 import pipedrive
-import mappings
-from secret import *
+
 
 app = Flask(__name__)
 app.config.from_object(__name__)
