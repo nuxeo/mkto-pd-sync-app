@@ -1,12 +1,12 @@
 from pycountry import countries
 
-import __init__
+import views
 
 
 def company_name_to_org_id(company):
     ret = ""
     if company:
-        res = __init__.create_or_update_organization_in_pipedrive(company)
+        res = views.create_or_update_organization_in_pipedrive(company)
         ret = res["id"] if res else ""
     return ret
 
@@ -45,6 +45,6 @@ def organization_to_name(organization):
 def organization_name_to_external_id(organization):
     ret = ""
     if organization:
-        res = __init__.create_or_update_company_in_marketo(organization)
+        res = views.create_or_update_company_in_marketo(organization)
         ret = res["externalId"] if res else ""
     return ret
