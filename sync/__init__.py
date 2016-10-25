@@ -6,20 +6,23 @@ import pipedrive
 
 
 app = Flask(__name__)
-app.config.from_object(__name__)
 
 if not app.debug:
     import logging
     loggers = [app.logger, logging.getLogger('marketo'),
                logging.getLogger('pipedrive')]
-    file_handler = logging.FileHandler('sync_app.log')
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-        '[in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.WARNING)
-    for logger in loggers:
-        logger.addHandler(file_handler)
+    file_name = '/var/www/sync_app/sync_app.log'
+    try:
+        file_handler = logging.FileHandler(file_name)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.WARNING)
+        for logger in loggers:
+            logger.addHandler(file_handler)
+    except IOError:
+        logging.error("Could no create log file with name %s (make sure directory exists)", file_name)
 
 
 def create_marketo_client():
