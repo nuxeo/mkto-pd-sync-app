@@ -92,7 +92,7 @@ def create_or_update_person_in_pipedrive(lead_id):
             app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
             person.save()
 
-            if lead.pipedriveId is None or lead.id != person.marketoid:
+            if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):
                 app.logger.debug("Updating Pipedrive ID in Marketo")
                 lead.pipedriveId = person.id
                 lead.save()
@@ -182,7 +182,7 @@ def create_or_update_lead_in_marketo(person_id):
             app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
             lead.save()
 
-            if person.marketoid is None or person.marketoid != lead.id:
+            if person.marketoid is None or str(person.marketoid) != str(lead.id):
                 app.logger.debug("Updating Marketo ID in Pipedrive")
                 person.marketoid = lead.id
                 person.save()
@@ -349,8 +349,18 @@ def get_new_attr(from_resource, mapping):
 
         from_values.append(str(from_attr) if from_attr is not None else "")
 
-    # Assume that if several fields are provided for mapping then values should be joined using space
-    ret = " ".join(from_values)
+    ret = ""
+    if len(from_values):
+        ret = from_values[0]  # Assume first value is the right one
+        if len(from_values) > 1:
+            # Otherwise if several fields are provided then mode should be supplied
+            if "mode" in mapping:
+                if mapping["mode"] == "join":
+                    # For join mode assume separator is space
+                    ret = " ".join(from_values)
+                elif mapping["mode"] == "choose":
+                    # Get first non empty value
+                    ret = next((value for value in from_values if value is not ""), "")
 
     # Call post adapter on result value
     if "post_adapter" in mapping and callable(mapping["post_adapter"]):

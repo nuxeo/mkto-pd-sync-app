@@ -74,7 +74,7 @@ class Resource:
         """
         data = self._client.set_resource_data(self.resource_name, self.resource_data, self.id)
         # Only id field is returned so update id and id field only
-        if data:
+        if data and self._id_field in data:
             setattr(self, self._id_field, data[self._id_field])
             if self._id_field != "id":
                 setattr(self, "id", data[self._id_field])  # Set id value with id field value
@@ -91,8 +91,7 @@ class Lead(Resource):
         if fields:
             for field in fields:
                 name = field["rest"]["name"]
-                if not field["rest"]["readOnly"]:
-                    self._fields.append(name)
+                self._fields.append(name)
                 setattr(self, name, None)  # Initialize field
                 self._id_field = "id"  # idField is not specified in return data for lead so manually set it
         else:
@@ -107,17 +106,12 @@ class Lead(Resource):
             "firstName": None,
             "lastName": None,
             "email": None,
+            "externalCompanyId": None,
             "title": None,
             "phone": None,
             "leadSource": None,
-            "leadStatus": None,
-            "conversicaLeadOwnerEmail": None,
-            "conversicaLeadOwnerFirstName": None,
-            "conversicaLeadOwnerLastName": None,
             "pipedriveId": None,
-            "noofEmployeesRange": None,
-            "leadScore": None,
-            "externalCompanyId": None,
+            "noofEmployeesRange": None
         }
 
 
@@ -127,7 +121,11 @@ class Opportunity(Resource):
     def _resource_fields_to_update(self):
         return {
             "externalOpportunityId": None,
+            "amount": None,
+            "closeDate": None,
             "name": None,
+            "stage": None,
+            "type": None,
         }
 
 
@@ -153,7 +151,7 @@ class Company(Resource):
     def _resource_fields_to_update(self):
         return {
             "externalCompanyId": None,
+            "industry": None,
             "company": None,
-            "annualRevenue": None,
             "numberOfEmployees": None,
         }
