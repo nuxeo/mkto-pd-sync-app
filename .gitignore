@@ -4,3 +4,4 @@
 /secret.py
 .coverage
 coverage*
+venv/
