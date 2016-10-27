@@ -89,7 +89,7 @@ Simple Flask app to synchronize data between Marketo and Pipedrive.
 
 #### Endpoints
 
-3 endpoints:
+3 endpoints accessible through a POST request:
 - `/marketo/lead/<int:lead_id>`: to send lead data from Marketo to Pipedrive
 
 Actually synchronizes data if and only if it is new or it has changed.
