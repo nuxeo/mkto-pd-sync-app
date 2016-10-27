@@ -150,7 +150,7 @@ def number_to_float(number):
     ret = ""
     if number:
         ret = float(number)
-    return ret
+    return ret or ""
 
 
 def datetime_to_date2(datetime_):
