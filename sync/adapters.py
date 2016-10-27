@@ -8,7 +8,7 @@ def company_name_to_org_id(company):
     ret = ""
     if company:
         res = views.create_or_update_organization_in_pipedrive(company)
-        ret = res["id"] if res else ""
+        ret = res["id"] if res and "id" in res else ""
     return ret
 
 
@@ -101,7 +101,7 @@ def organization_name_to_external_id(organization):
     ret = ""
     if organization:
         res = views.create_or_update_company_in_marketo(organization)
-        ret = res["externalId"] if res else ""
+        ret = res["externalId"] if res and "externalId" in res else ""
     return ret
 
 

@@ -255,7 +255,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
     """Creates or update an opportunity and an opportunity role in Marketo with data from the
     deal found in Pipedrive with the given id.
     Update can be performed if the deal is already associated to an opportunity
-    (externalOpportunityId is equal to deal id).
+    (externalOpportunityId is computed from deal id).
     Role cannot be updated (no point for it unless we are mapping the only updateable field: isPrimary).
     Data to set is defined in mappings.
     If the opportunity is already up-to-date with any associated deal, does nothing.
