@@ -110,7 +110,7 @@ All routes require authentication using an API key as GET parameter.
 
 A mapping file describes how Marketo and Pipedrive resource fields should be matched.
 
-If several fields are provided for matching they are simply joined using a space.
+If several fields are provided for matching depending on the provided "mode" they are joined using a space ("join") or it is first not null value ("choose").
 
 It is possible to use a "pre" or a "post adapter" (defined in a separate adapters file) for each field mapping.
 
