@@ -105,7 +105,7 @@ class Resource:
         id_to_look_for = id_
 
         # Find resource id first if id_field was provided as "name"
-        if id_field == "name":
+        if id_field == "name" and id_.strip():
             data_array = self._client.get_resource_data(self.resource_name, "find", {"term": id_})
             if data_array:
                 id_to_look_for = data_array[0]["id"]  # Assume first result is the right one
@@ -156,7 +156,8 @@ class Person(Resource):
     @property
     def related_resources(self):
         return {
-            "org": Organization
+            "org": Organization,
+            "user": User
         }
 
 
@@ -174,3 +175,10 @@ class Deal(Resource):
         return {
             "people": Person
         }
+
+
+class User(Resource):
+
+    @property
+    def related_resources(self):
+        return {}

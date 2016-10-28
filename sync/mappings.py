@@ -1,6 +1,13 @@
 from adapters import *
 
 
+"""
+"fields" is mandatory
+"mode" ("join" or "choose") should be provided if several fields are
+"pre-adapter" is run for each raw field
+"post-adapter" is run on final string value
+"""
+
 # To send from Marketo to Pipedrive
 
 PERSON_TO_LEAD = {
@@ -29,6 +36,11 @@ PERSON_TO_LEAD = {
     "lead_source": {
         "fields": ["leadSource"]
     },
+    "owner_id": {
+        "fields": ["conversicaLeadOwnerFirstName", "conversicaLeadOwnerLastName"],
+        "mode": "join",
+        "post_adapter": lead_name_to_user_id
+    },
     "created_date": {
         "fields": ["createdAt"],
         "post_adapter": datetime_to_date
@@ -50,22 +62,23 @@ PERSON_TO_LEAD = {
     "date_sql": {
         "fields": ["mKTODateSQL"],
         "post_adapter": datetime_to_date
-    },
-    "no__of_employees__range_": {
-        "fields": ["noofEmployeesRange"]
     }
 }
 
 ORGANIZATION_TO_COMPANY = {
+    "name": {
+        "fields": ["company"]
+    },
     "industry": {
         "fields": ["industry"],
         "post_adapter": industry_name_to_code
     },
-    "name": {
-        "fields": ["company"]
-    },
     "people_count": {
         "fields": ["numberOfEmployees"]
+    },
+    "owner_id": {
+        "fields": [],
+        "post_adapter": big_bot_id
     }
 }
 
@@ -97,21 +110,30 @@ LEAD_TO_PERSON = {
     "leadSource": {
         "fields": ["lead_source"]
     },
+    "conversicaLeadOwnerEmail": {
+        "fields": ["owner"],
+        "pre_adapter": user_to_email
+    },
+    "conversicaLeadOwnerFirstName": {
+        "fields": ["owner"],
+        "pre_adapter": user_to_first_name
+    },
+    "conversicaLeadOwnerLastName": {
+        "fields": ["owner"],
+        "pre_adapter": user_to_last_name
+    },
     "pipedriveId": {
         "fields": ["id"]
-    },
-    "noofEmployeesRange": {
-        "fields": ["no__of_employees__range_"]
     }
 }
 
 COMPANY_TO_ORGANIZATION = {
+    "company": {
+        "fields": ["name"]
+    },
     "industry": {
         "fields": ["industry"],
         "post_adapter": industry_code_to_name
-    },
-    "company": {
-        "fields": ["name"]
     },
     "numberOfEmployees": {
         "fields": ["people_count"]
@@ -119,21 +141,47 @@ COMPANY_TO_ORGANIZATION = {
 }
 
 DEAL_TO_OPPORTUNITY = {
+    "name": {
+        "fields": ["title"]
+    },
+    "type": {
+        "fields": ["type"],
+        "post_adapter": type_code_to_name
+    },
+    "description": {
+        "fields": ["deal_description"]
+    },
+    "lastActivityDate": {
+        "fields": ["last_activity_date"]
+    },
+    "isClosed": {
+        "fields": ["status"],
+        "post_adapter": is_closed
+    },
+    "isWon": {
+        "fields": ["status"],
+        "post_adapter": is_won
+    },
     "amount": {
         "fields": ["value"],
         "post_adapter": number_to_float
     },
     "closeDate": {
-        "fields": ["close_time"],
+        "fields": ["close_time", "expected_close_date"],
+        "mode": "choose",
         "post_adapter": datetime_to_date2
-    },
-    "name": {
-        "fields": ["title"]
     },
     "stage": {
         "fields": ["stage"]
     },
-    "type": {
-        "fields": ["type"]
+    "fiscalQuarter": {
+        "fields": ["close_time", "expected_close_date"],
+        "mode": "choose",
+        "post_adapter": datetime_to_quarter
+    },
+    "fiscalYear": {
+        "fields": ["close_time", "expected_close_date"],
+        "mode": "choose",
+        "post_adapter": datetime_to_year
     }
 }

@@ -101,6 +101,12 @@ class PipedriveTestCase(unittest.TestCase):
         person.lead_score = 0
         person.save()
 
+    def test_load_person_related_owner(self):
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.owner)
+        self.assertIsNotNone(person.owner.id)
+
     def test_load_organization_with_name(self):
         organization = pipedrive.Organization(self.pd, "MyCompany", "name")
         self.assertIsNotNone(organization)

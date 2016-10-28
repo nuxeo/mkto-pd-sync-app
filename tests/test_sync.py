@@ -92,7 +92,7 @@ class SyncTestCase(unittest.TestCase):
             linked_role = marketo.Role(sync.get_marketo_client())
             linked_role.externalOpportunityId = linked_opportunity.externalOpportunityId
             linked_role.leadId = cls.linked_lead.id
-            linked_role.role = "Fake Role"
+            linked_role.role = "Default Role"
             linked_role.save()
             cls.linked_role = linked_role
 

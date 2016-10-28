@@ -84,9 +84,6 @@ def create_or_update_person_in_pipedrive(lead_id):
             data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field])\
                            or data_changed
 
-        # FIXME for test purpose, set owner_id
-        person.owner_id = 1628545  # my (Helene Jonin) owner id
-
         if data_changed:
             # Perform the update only if data actually changed
             app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
@@ -131,9 +128,6 @@ def create_or_update_organization_in_pipedrive(company_name):
         for pd_field in mappings.ORGANIZATION_TO_COMPANY:
             data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field])\
                            or data_changed
-
-        # FIXME for test purpose, set owner_id
-        organization.owner_id = 1628545  # my (Helene Jonin) owner id
 
         if data_changed:
             # Perform the update only if data actually changed
@@ -297,7 +291,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
             role = marketo.Role(get_marketo_client())
             role.externalOpportunityId = opportunity.externalOpportunityId
             role.leadId = deal.contact_person.marketoid
-            role.role = "Fake role"  # TODO: set or map role - don't forget to change it in Unit Testing as well
+            role.role = deal.champion.title if deal.champion and deal.champion.title else "Default Role"
+            role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
             app.logger.debug("Sending to Marketo (role)")
             role.save()
 

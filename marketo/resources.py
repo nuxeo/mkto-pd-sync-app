@@ -110,8 +110,11 @@ class Lead(Resource):
             "title": None,
             "phone": None,
             "leadSource": None,
+            "conversicaLeadOwnerEmail": None,
+            "conversicaLeadOwnerFirstName": None,
+            "conversicaLeadOwnerLastName": None,
             "pipedriveId": None,
-            "noofEmployeesRange": None
+            "leadStatus": None
         }
 
 
@@ -121,11 +124,17 @@ class Opportunity(Resource):
     def _resource_fields_to_update(self):
         return {
             "externalOpportunityId": None,
+            "name": None,
+            "type": None,
+            "description": None,
+            "lastActivityDate": None,
+            "isClosed": None,
+            "isWon": None,
             "amount": None,
             "closeDate": None,
-            "name": None,
             "stage": None,
-            "type": None,
+            "fiscalQuarter": None,
+            "fiscalYear": None
         }
 
 
@@ -141,7 +150,7 @@ class Role(Resource):
             "externalOpportunityId": None,
             "leadId": None,
             "role": None,
-            "isPrimary": False,  # Marketo also requires a default value (no null) for certain fields (boolean fields?)
+            "isPrimary": False  # Marketo also requires a default value (no null) for certain fields (boolean fields?)
         }
 
 
@@ -151,7 +160,7 @@ class Company(Resource):
     def _resource_fields_to_update(self):
         return {
             "externalCompanyId": None,
-            "industry": None,
             "company": None,
-            "numberOfEmployees": None,
+            "industry": None,
+            "numberOfEmployees": None
         }

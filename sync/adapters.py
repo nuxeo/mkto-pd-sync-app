@@ -1,6 +1,8 @@
 from datetime import datetime
 from pycountry import countries
+from sync import get_pipedrive_client
 
+import pipedrive
 import views
 
 
@@ -8,7 +10,7 @@ def company_name_to_org_id(company):
     ret = ""
     if company:
         res = views.create_or_update_organization_in_pipedrive(company)
-        ret = res["id"] if res and "id" in res else ""
+        ret = res["id"] if res and "id" in res else ret
     return ret
 
 
@@ -22,10 +24,21 @@ def country_iso_to_name(country):
     return ret
 
 
+def lead_name_to_user_id(lead):
+    ret = "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
+    if lead.strip():
+        user = pipedrive.User(get_pipedrive_client(), lead, "name")
+        ret = user.id or ret
+    return ret
+
+
 def datetime_to_date(datetime_):
     ret = ""
     if datetime_:
-        ret = datetime.strptime(datetime_, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
+        try:
+            ret = datetime.strptime(datetime_, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
+        except ValueError:
+            pass
     return ret
 
 
@@ -70,6 +83,10 @@ def industry_name_to_code(industry):
     return ret
 
 
+def big_bot_id(empty_str):
+    return "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
+
+
 def split_name_get_first(name):
     split = name.split()
     return " ".join(split[:-1]) if len(split) > 1 else ""
@@ -101,7 +118,28 @@ def organization_name_to_external_id(organization):
     ret = ""
     if organization:
         res = views.create_or_update_company_in_marketo(organization)
-        ret = res["externalId"] if res and "externalId" in res else ""
+        ret = res["externalId"] if res and "externalId" in res else ret
+    return ret
+
+
+def user_to_email(user):
+    ret = ""
+    if user is not None:
+        ret = user.email
+    return ret
+
+
+def user_to_first_name(user):
+    ret = ""
+    if user is not None:
+        ret = split_name_get_first(user.name)
+    return ret
+
+
+def user_to_last_name(user):
+    ret = ""
+    if user is not None:
+        ret = split_name_get_last(user.name)
     return ret
 
 
@@ -146,6 +184,33 @@ def industry_code_to_name(industry):
     return ret
 
 
+def type_code_to_name(type):
+    ret = ""
+    types = {
+        "4": "New Business",
+        "5": "Upsell",
+        "6": "Renewal",
+        "129": "Consulting"
+    }
+    if type and type in types:
+        ret = types[type]
+    return ret
+
+
+def is_closed(status):
+    ret = ""
+    if status == "lost" or status == "won":
+        ret = True
+    return ret
+
+
+def is_won(status):
+    ret = ""
+    if status == "won":
+        ret = True
+    return ret
+
+
 def number_to_float(number):
     ret = ""
     if number:
@@ -156,5 +221,37 @@ def number_to_float(number):
 def datetime_to_date2(datetime_):
     ret = ""
     if datetime_:
-        ret = datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+        try:
+            ret = datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+        except ValueError:
+            try:
+                ret = datetime.strptime(datetime_, "%Y-%m-%d").strftime("%Y-%m-%d")
+            except ValueError:
+                pass
+    return ret
+
+
+def datetime_to_quarter(datetime_):
+    ret = ""
+    if datetime_:
+        try:
+            ret = datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").year
+        except ValueError:
+            try:
+                ret = datetime.strptime(datetime_, "%Y-%m-%d").year
+            except ValueError:
+                pass
+    return ret
+
+
+def datetime_to_year(datetime_):
+    ret = ""
+    if datetime_:
+        try:
+            ret = (datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").month - 1) // 3 + 1
+        except ValueError:
+            try:
+                ret = (datetime.strptime(datetime_, "%Y-%m-%d").month - 1) // 3 + 1
+            except ValueError:
+                pass
     return ret
