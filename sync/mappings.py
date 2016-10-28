@@ -172,7 +172,8 @@ DEAL_TO_OPPORTUNITY = {
         "post_adapter": datetime_to_date2
     },
     "stage": {
-        "fields": ["stage"]
+        "fields": ["stage"],
+        "pre_adapter": stage_to_name
     },
     "fiscalQuarter": {
         "fields": ["close_time", "expected_close_date"],

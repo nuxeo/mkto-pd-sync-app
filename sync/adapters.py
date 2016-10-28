@@ -1,15 +1,14 @@
 from datetime import datetime
 from pycountry import countries
-from sync import get_pipedrive_client
 
 import pipedrive
-import views
+import sync
 
 
 def company_name_to_org_id(company):
     ret = ""
     if company:
-        res = views.create_or_update_organization_in_pipedrive(company)
+        res = sync.create_or_update_organization_in_pipedrive(company)
         ret = res["id"] if res and "id" in res else ret
     return ret
 
@@ -27,7 +26,7 @@ def country_iso_to_name(country):
 def lead_name_to_user_id(lead):
     ret = "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
     if lead.strip():
-        user = pipedrive.User(get_pipedrive_client(), lead, "name")
+        user = pipedrive.User(sync.get_pipedrive_client(), lead, "name")
         ret = user.id or ret
     return ret
 
@@ -117,7 +116,7 @@ def organization_to_name(organization):
 def organization_name_to_external_id(organization):
     ret = ""
     if organization:
-        res = views.create_or_update_company_in_marketo(organization)
+        res = sync.create_or_update_company_in_marketo(organization)
         ret = res["externalId"] if res and "externalId" in res else ret
     return ret
 
@@ -184,7 +183,7 @@ def industry_code_to_name(industry):
     return ret
 
 
-def type_code_to_name(type):
+def type_code_to_name(type_):
     ret = ""
     types = {
         "4": "New Business",
@@ -192,8 +191,8 @@ def type_code_to_name(type):
         "6": "Renewal",
         "129": "Consulting"
     }
-    if type and type in types:
-        ret = types[type]
+    if type_ and type_ in types:
+        ret = types[type_]
     return ret
 
 
@@ -228,6 +227,13 @@ def datetime_to_date2(datetime_):
                 ret = datetime.strptime(datetime_, "%Y-%m-%d").strftime("%Y-%m-%d")
             except ValueError:
                 pass
+    return ret
+
+
+def stage_to_name(stage):
+    ret = ""
+    if stage is not None:
+        ret = stage.name
     return ret
 
 

@@ -30,7 +30,7 @@ def is_marketo_guid(id):
 
 
 def compute_external_id(pd_resource_name, id_):
-    return "pd-" + pd_resource_name + str(id_)
+    return "pd-" + pd_resource_name + "-" + str(id_)
 
 
 if __name__ == '__main__':

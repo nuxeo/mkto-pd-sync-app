@@ -173,7 +173,8 @@ class Deal(Resource):
     @property
     def related_resources(self):
         return {
-            "people": Person
+            "people": Person,
+            "stage": Stage
         }
 
 
@@ -182,3 +183,31 @@ class User(Resource):
     @property
     def related_resources(self):
         return {}
+
+
+class Stage(Resource):
+
+    @property
+    def related_resources(self):
+        return {}
+
+    def _load_fields(self):
+        # Cannot automatically load fields because "stageFields" not implemented
+        fields = [
+            "id",
+            "order_nr",
+            "name",
+            "active_flag",
+            "deal_probability",
+            "pipeline_id",
+            "rotten_flag",
+            "rotten_days",
+            "add_time",
+            "update_time",
+            "deals_summary"
+        ]
+        self._field_keys = {}
+        self._field_types = {}
+        for field in fields:
+            self._field_keys[field] = field
+            setattr(self, field, None)  # Initialize field

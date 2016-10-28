@@ -3,6 +3,7 @@ from .context import pipedrive
 from .context import secret
 from .context import sync
 
+import datetime
 import json
 import logging
 import unittest
@@ -13,123 +14,132 @@ class SyncTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with sync.app.app_context():
-            # Create company to be linked with a Marketo lead
-            company = marketo.Company(sync.get_marketo_client())
-            company.externalCompanyId = "testFlaskCompany"
-            company.company = "Test Flask Company"
-            company.save()
-            cls.company = company
+        cls.context = sync.app.app_context()
+        cls.context.push()
 
-            # Create lead in Marketo not linked with any person in Pipedrive
-            lead = marketo.Lead(sync.get_marketo_client())
-            lead.firstName = "Test Flask"
-            lead.lastName = "Lead"
-            lead.email = "lead@testflask.com"
-            lead.externalCompanyId = cls.company.externalCompanyId
-            lead.save()
-            cls.lead = lead
+        # Create company to be linked with a Marketo lead
+        company = marketo.Company(sync.get_marketo_client())
+        company.externalCompanyId = "testFlaskCompany"
+        company.company = "Test Flask Company"
+        company.save()
+        cls.company = company
 
-            # Create organization to be linked with a Pipedrive person
-            organization = pipedrive.Organization(sync.get_pipedrive_client())
-            organization.name = "Test Flask Organization"
-            organization.save()
-            cls.organization = organization
+        # Create lead in Marketo not linked with any person in Pipedrive
+        lead = marketo.Lead(sync.get_marketo_client())
+        lead.firstName = "Test Flask"
+        lead.lastName = "Lead"
+        lead.email = "lead@testflask.com"
+        lead.externalCompanyId = cls.company.externalCompanyId
+        lead.save()
+        cls.lead = lead
 
-            # Create person in Pipedrive not linked with any lead in Marketo
-            person = pipedrive.Person(sync.get_pipedrive_client())
-            person.name = "Test Flask Person"
-            person.email = "person@testflask.com"
-            person.org_id = cls.organization.id
-            person.owner_id = 1628545  # my (Helene Jonin) owner id
-            person.save()
-            cls.person = person
+        # Create organization to be linked with a Pipedrive person
+        organization = pipedrive.Organization(sync.get_pipedrive_client())
+        organization.name = "Test Flask Organization"
+        organization.save()
+        cls.organization = organization
 
-            # Create lead in Marketo linked with a person in Pipedrive
-            linked_lead = marketo.Lead(sync.get_marketo_client())
-            linked_lead.firstName = "Test Linked Flask"
-            linked_lead.lastName = "Lead"
-            linked_lead.email = "lead@testlinkedflask.com"
-            linked_lead.save()
-            cls.linked_lead = linked_lead
+        # Create person in Pipedrive not linked with any lead in Marketo
+        person = pipedrive.Person(sync.get_pipedrive_client())
+        person.name = "Test Flask Person"
+        person.email = "person@testflask.com"
+        person.org_id = cls.organization.id
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        person.save()
+        cls.person = person
 
-            # Create person in Pipedrive linked with a lead in Marketo
-            linked_person = pipedrive.Person(sync.get_pipedrive_client())
-            linked_person.name = "Test Linked Flask Lead"
-            linked_person.email = "lead@testlinkedflask.com"
-            linked_person.owner_id = 1628545  # my (Helene Jonin) owner id
-            linked_person.save()
-            cls.linked_person = linked_person
+        # Create lead in Marketo linked with a person in Pipedrive
+        linked_lead = marketo.Lead(sync.get_marketo_client())
+        linked_lead.firstName = "Test Linked Flask"
+        linked_lead.lastName = "Lead"
+        linked_lead.email = "lead@testlinkedflask.com"
+        # Those fields because of owner_id
+        linked_lead.conversicaLeadOwnerFirstName = "Helene"
+        linked_lead.conversicaLeadOwnerLastName = "Jonin"
+        linked_lead.conversicaLeadOwnerEmail = "hjonin@nuxeo.com"
+        linked_lead.save()
+        cls.linked_lead = linked_lead
 
-            # Set the links
-            cls.linked_lead.pipedriveId = cls.linked_person.id
-            cls.linked_person.marketoid = cls.linked_lead.id
-            cls.linked_lead.save()
-            cls.linked_person.save()
+        # Create person in Pipedrive linked with a lead in Marketo
+        linked_person = pipedrive.Person(sync.get_pipedrive_client())
+        linked_person.name = "Test Linked Flask Lead"
+        linked_person.email = "lead@testlinkedflask.com"
+        linked_person.owner_id = 1628545  # my (Helene Jonin) owner id
+        linked_person.created_date = datetime.datetime.today().strftime("%Y-%m-%d")
+        linked_person.save()
+        cls.linked_person = linked_person
 
-            # Create deal in Pipedrive
-            deal = pipedrive.Deal(sync.get_pipedrive_client())
-            deal.title = "Test Flask Deal"
-            deal.person_id = cls.linked_person.id
-            deal.user_id = 1628545  # my (Helene Jonin) owner id
-            deal.save()
-            cls.deal = deal
+        # Set the links
+        cls.linked_lead.pipedriveId = cls.linked_person.id
+        cls.linked_person.marketoid = cls.linked_lead.id
+        cls.linked_lead.save()
+        cls.linked_person.save()
 
-            # Create deal in Pipedrive linked with an opportunity in Marketo
-            linked_deal = pipedrive.Deal(sync.get_pipedrive_client())
-            linked_deal.title = "Test Flask Linked Deal"
-            linked_deal.person_id = cls.linked_person.id
-            linked_deal.user_id = 1628545  # my (Helene Jonin) owner id
-            linked_deal.save()
-            cls.linked_deal = linked_deal
+        # Create deal in Pipedrive
+        deal = pipedrive.Deal(sync.get_pipedrive_client())
+        deal.title = "Test Flask Deal"
+        deal.person_id = cls.linked_person.id
+        deal.user_id = 1628545  # my (Helene Jonin) owner id
+        deal.save()
+        cls.deal = deal
 
-            # Create opportunity and role in Marketo linked with a deal in Pipedrive
-            linked_opportunity = marketo.Opportunity(sync.get_marketo_client())
-            linked_opportunity.externalOpportunityId = marketo.compute_external_id("deal", linked_deal.id)
-            linked_opportunity.name = "Test Flask Linked Deal"
-            linked_opportunity.save()
-            cls.linked_opportunity = linked_opportunity
-            linked_role = marketo.Role(sync.get_marketo_client())
-            linked_role.externalOpportunityId = linked_opportunity.externalOpportunityId
-            linked_role.leadId = cls.linked_lead.id
-            linked_role.role = "Default Role"
-            linked_role.save()
-            cls.linked_role = linked_role
+        # Create deal in Pipedrive linked with an opportunity in Marketo
+        linked_deal = pipedrive.Deal(sync.get_pipedrive_client())
+        linked_deal.title = "Test Flask Linked Deal"
+        linked_deal.person_id = cls.linked_person.id
+        linked_deal.user_id = 1628545  # my (Helene Jonin) owner id
+        linked_deal.save()
+        cls.linked_deal = linked_deal
 
-            # Initialize class variables
-            cls.new_lead = None
-            cls.new_person = None
-            cls.new_opportunity = None
-            cls.new_role = None
-            cls.new_organization = None
-            cls.new_company = None
+        # Create opportunity and role in Marketo linked with a deal in Pipedrive
+        linked_opportunity = marketo.Opportunity(sync.get_marketo_client())
+        linked_opportunity.externalOpportunityId = marketo.compute_external_id("deal", linked_deal.id)
+        linked_opportunity.name = "Test Flask Linked Deal"
+        linked_opportunity.stage = "Active Customer"  # Default value
+        linked_opportunity.save()
+        cls.linked_opportunity = linked_opportunity
+        linked_role = marketo.Role(sync.get_marketo_client())
+        linked_role.externalOpportunityId = linked_opportunity.externalOpportunityId
+        linked_role.leadId = cls.linked_lead.id
+        linked_role.role = "Default Role"
+        linked_role.save()
+        cls.linked_role = linked_role
+
+        # Initialize class variables
+        cls.new_lead = None
+        cls.new_person = None
+        cls.new_opportunity = None
+        cls.new_role = None
+        cls.new_organization = None
+        cls.new_company = None
 
     @classmethod
     def tearDownClass(cls):
-        with sync.app.app_context():
-            # Delete created resources
-            sync.get_marketo_client().delete_resource("lead", cls.lead.id)
-            sync.get_pipedrive_client().delete_resource("person", cls.person.id)
-            sync.get_marketo_client().delete_resource("lead", cls.linked_lead.id)
-            sync.get_pipedrive_client().delete_resource("person", cls.linked_person.id)
-            if cls.new_lead is not None:
-                sync.get_marketo_client().delete_resource("lead", cls.new_lead.id)
-            if cls.new_person is not None:
-                sync.get_pipedrive_client().delete_resource("person", cls.new_person.id)
-            sync.get_pipedrive_client().delete_resource("deal", cls.deal.id)
-            sync.get_marketo_client().delete_resource("opportunity", cls.linked_opportunity.id)
-            sync.get_marketo_client().delete_resource("opportunities/role", cls.linked_role.id)
-            sync.get_pipedrive_client().delete_resource("deal", cls.linked_deal.id)
-            if cls.new_opportunity is not None:
-                sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
-            if cls.new_role is not None:
-                sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
-            sync.get_marketo_client().delete_resource("company", cls.company.id)
-            sync.get_pipedrive_client().delete_resource("organization", cls.organization.id)
-            if cls.new_company is not None:
-                sync.get_marketo_client().delete_resource("company", cls.new_company.id)
-            if cls.new_organization is not None:
-                sync.get_pipedrive_client().delete_resource("organization", cls.new_organization.id)
+        # Delete created resources
+        sync.get_marketo_client().delete_resource("lead", cls.lead.id)
+        sync.get_pipedrive_client().delete_resource("person", cls.person.id)
+        sync.get_marketo_client().delete_resource("lead", cls.linked_lead.id)
+        sync.get_pipedrive_client().delete_resource("person", cls.linked_person.id)
+        if cls.new_lead is not None:
+            sync.get_marketo_client().delete_resource("lead", cls.new_lead.id)
+        if cls.new_person is not None:
+            sync.get_pipedrive_client().delete_resource("person", cls.new_person.id)
+        sync.get_pipedrive_client().delete_resource("deal", cls.deal.id)
+        sync.get_marketo_client().delete_resource("opportunity", cls.linked_opportunity.id)
+        sync.get_marketo_client().delete_resource("opportunities/role", cls.linked_role.id)
+        sync.get_pipedrive_client().delete_resource("deal", cls.linked_deal.id)
+        if cls.new_opportunity is not None:
+            sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
+        if cls.new_role is not None:
+            sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
+        sync.get_marketo_client().delete_resource("company", cls.company.id)
+        sync.get_pipedrive_client().delete_resource("organization", cls.organization.id)
+        if cls.new_company is not None:
+            sync.get_marketo_client().delete_resource("company", cls.new_company.id)
+        if cls.new_organization is not None:
+            sync.get_pipedrive_client().delete_resource("organization", cls.new_organization.id)
+
+        cls.context.pop()
 
     def test_create_person_in_pipedrive(self):
         with sync.app.test_client() as c:
@@ -256,7 +266,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertIsNotNone(role.id)
             self.assertEquals(role.externalOpportunityId, marketo.compute_external_id("deal", self.deal.id))
             self.assertEquals(role.leadId, int(self.linked_person.marketoid))
-            self.assertEquals(role.role, "Fake role")
+            self.assertEquals(role.role, "Default Role")
 
             # Test return data
             self.assertEquals(data["opportunity"]["status"], "created")

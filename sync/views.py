@@ -1,11 +1,11 @@
 from flask import jsonify, request
 from functools import wraps
 from secret import *
-from sync import app, get_marketo_client, get_pipedrive_client
 
 import mappings
 import marketo
 import pipedrive
+import sync
 
 
 class InvalidUsage(Exception):
@@ -26,7 +26,7 @@ class InvalidUsage(Exception):
         return rv
 
 
-@app.errorhandler(InvalidUsage)
+@sync.app.errorhandler(InvalidUsage)
 def handle_authentication_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
@@ -43,21 +43,21 @@ def authenticate(f):
     return decorated_function
 
 
-@app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
+@sync.app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
 @authenticate
 def marketo_lead_to_pipedrive_person(lead_id):
     ret = create_or_update_person_in_pipedrive(lead_id)
     return jsonify(**ret)
 
 
-@app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
+@sync.app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
 @authenticate
 def pipedrive_person_to_marketo_lead(person_id):
     ret = create_or_update_lead_in_marketo(person_id)
     return jsonify(**ret)
 
 
-@app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
+@sync.app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
 @authenticate
 def pipedrive_deal_to_marketo_opportunity_and_role(deal_id):
     ret = create_or_update_opportunity_in_marketo(deal_id)
@@ -72,11 +72,11 @@ def create_or_update_person_in_pipedrive(lead_id):
     Data to set is defined in mappings.
     If the person is already up-to-date with any associated lead, does nothing.
     """
-    app.logger.debug("Getting lead data from Marketo with id %s", str(lead_id))
-    lead = marketo.Lead(get_marketo_client(), lead_id)
+    sync.app.logger.debug("Getting lead data from Marketo with id %s", str(lead_id))
+    lead = marketo.Lead(sync.get_marketo_client(), lead_id)
 
     if lead.id is not None:
-        person = pipedrive.Person(get_pipedrive_client(), lead.pipedriveId)
+        person = pipedrive.Person(sync.get_pipedrive_client(), lead.pipedriveId)
         status = "created" if person.id is None else "updated"
 
         data_changed = False
@@ -86,15 +86,15 @@ def create_or_update_person_in_pipedrive(lead_id):
 
         if data_changed:
             # Perform the update only if data actually changed
-            app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
+            sync.app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
             person.save()
 
             if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):
-                app.logger.debug("Updating Pipedrive ID in Marketo")
+                sync.app.logger.debug("Updating Pipedrive ID in Marketo")
                 lead.pipedriveId = person.id
                 lead.save()
         else:
-            app.logger.debug("Nothing to do")
+            sync.app.logger.debug("Nothing to do")
             status = "skipped"
 
         ret = {
@@ -117,11 +117,11 @@ def create_or_update_organization_in_pipedrive(company_name):
     Data to set is defined in mappings.
     If the organization is already up-to-date with any associated company, does nothing.
     """
-    app.logger.debug("Getting company data from Marketo with name %s", str(company_name))
-    company = marketo.Company(get_marketo_client(), company_name, "company")
+    sync.app.logger.debug("Getting company data from Marketo with name %s", str(company_name))
+    company = marketo.Company(sync.get_marketo_client(), company_name, "company")
 
     if company.id is not None:
-        organization = pipedrive.Organization(get_pipedrive_client(), company_name, "name")
+        organization = pipedrive.Organization(sync.get_pipedrive_client(), company_name, "name")
         status = "created" if organization.id is None else "updated"
 
         data_changed = False
@@ -131,11 +131,11 @@ def create_or_update_organization_in_pipedrive(company_name):
 
         if data_changed:
             # Perform the update only if data actually changed
-            app.logger.debug("Sending to Pipedrive%s", " with id %s"
+            sync.app.logger.debug("Sending to Pipedrive%s", " with id %s"
                                                        % str(organization.id) if organization.id is not None else "")
             organization.save()
         else:
-            app.logger.debug("Nothing to do")
+            sync.app.logger.debug("Nothing to do")
             status = "skipped"
 
         ret = {
@@ -159,11 +159,11 @@ def create_or_update_lead_in_marketo(person_id):
     Data to set is defined in mappings.
     If the lead is already up-to-date with any associated person, does nothing.
     """
-    app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
-    person = pipedrive.Person(get_pipedrive_client(), person_id)
+    sync.app.logger.debug("Getting person data from Pipedrive with id %s", str(person_id))
+    person = pipedrive.Person(sync.get_pipedrive_client(), person_id)
 
     if person.id is not None:
-        lead = marketo.Lead(get_marketo_client(), person.marketoid)
+        lead = marketo.Lead(sync.get_marketo_client(), person.marketoid)
         status = "created" if lead.id is None else "updated"
 
         data_changed = False
@@ -173,15 +173,15 @@ def create_or_update_lead_in_marketo(person_id):
 
         if data_changed:
             # Perform the update only if data actually changed
-            app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
+            sync.app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
             lead.save()
 
             if person.marketoid is None or str(person.marketoid) != str(lead.id):
-                app.logger.debug("Updating Marketo ID in Pipedrive")
+                sync.app.logger.debug("Updating Marketo ID in Pipedrive")
                 person.marketoid = lead.id
                 person.save()
         else:
-            app.logger.debug("Nothing to do")
+            sync.app.logger.debug("Nothing to do")
             status = "skipped"
 
         ret = {
@@ -204,11 +204,11 @@ def create_or_update_company_in_marketo(organization_name):
     Data to set is defined in mappings.
     If the company is already up-to-date with any associated organization, does nothing.
     """
-    app.logger.debug("Getting organization data from Pipedrive with name %s", str(organization_name))
-    organization = pipedrive.Organization(get_pipedrive_client(), organization_name, "name")
+    sync.app.logger.debug("Getting organization data from Pipedrive with name %s", str(organization_name))
+    organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_name, "name")
 
     if organization.id is not None:
-        company = marketo.Company(get_marketo_client(), organization_name, "company")
+        company = marketo.Company(sync.get_marketo_client(), organization_name, "company")
 
         data_changed = False
         if company.id is None:
@@ -225,10 +225,10 @@ def create_or_update_company_in_marketo(organization_name):
 
         if data_changed:
             # Perform the update only if data actually changed
-            app.logger.debug("Sending to Marketo%s", " with id %s" % str(company.id) if company.id is not None else "")
+            sync.app.logger.debug("Sending to Marketo%s", " with id %s" % str(company.id) if company.id is not None else "")
             company.save()
         else:
-            app.logger.debug("Nothing to do")
+            sync.app.logger.debug("Nothing to do")
             status = "skipped"
 
         ret = {
@@ -254,14 +254,14 @@ def create_or_update_opportunity_in_marketo(deal_id):
     Data to set is defined in mappings.
     If the opportunity is already up-to-date with any associated deal, does nothing.
     """
-    app.logger.debug("Getting deal data from Pipedrive with id %s", str(deal_id))
-    deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
+    sync.app.logger.debug("Getting deal data from Pipedrive with id %s", str(deal_id))
+    deal = pipedrive.Deal(sync.get_pipedrive_client(), deal_id)
 
     if deal.id is not None:
 
         # Opportunity
         external_id = marketo.compute_external_id("deal", deal.id)
-        opportunity = marketo.Opportunity(get_marketo_client(), external_id, "externalOpportunityId")
+        opportunity = marketo.Opportunity(sync.get_marketo_client(), external_id, "externalOpportunityId")
 
         data_changed = False
         if opportunity.id is None:
@@ -277,23 +277,23 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
         if data_changed:
             # Perform the update only if data actually changed
-            app.logger.debug("Sending to Marketo (opportunity)%s",
+            sync.app.logger.debug("Sending to Marketo (opportunity)%s",
                              " with id %s" % str(opportunity.id) if opportunity.id is not None else "")
             opportunity.save()
         else:
-            app.logger.debug("Nothing to do")
+            sync.app.logger.debug("Nothing to do")
             opportunity_status = "skipped"
 
         # Role
         role = None
         if deal.contact_person.marketoid is not None:  # Ensure has existed in Marketo # TODO: create if not?
             # Role will be automatically created or updated using these 3 fields ("dedupeFields")
-            role = marketo.Role(get_marketo_client())
+            role = marketo.Role(sync.get_marketo_client())
             role.externalOpportunityId = opportunity.externalOpportunityId
             role.leadId = deal.contact_person.marketoid
             role.role = deal.champion.title if deal.champion and deal.champion.title else "Default Role"
             role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
-            app.logger.debug("Sending to Marketo (role)")
+            sync.app.logger.debug("Sending to Marketo (role)")
             role.save()
 
         ret = {
@@ -315,7 +315,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
 
 def update_field(from_resource, to_resource, to_field, mapping):
-    app.logger.debug("Updating field %s", to_field)
+    sync.app.logger.debug("Updating field %s", to_field)
 
     new_attr = get_new_attr(from_resource, mapping)
 
@@ -339,7 +339,7 @@ def get_new_attr(from_resource, mapping):
 
         # Call pre adapter on field value
         if "pre_adapter" in mapping and callable(mapping["pre_adapter"]):
-            app.logger.debug("And pre-adapting value %s", from_attr)
+            sync.app.logger.debug("And pre-adapting value %s", from_attr)
             from_attr = mapping["pre_adapter"](from_attr)
 
         from_values.append(str(from_attr) if from_attr is not None else "")
@@ -359,7 +359,7 @@ def get_new_attr(from_resource, mapping):
 
     # Call post adapter on result value
     if "post_adapter" in mapping and callable(mapping["post_adapter"]):
-        app.logger.debug("And post-adapting result %s", ret)
+        sync.app.logger.debug("And post-adapting result %s", ret)
         ret = mapping["post_adapter"](ret)
 
     return ret
