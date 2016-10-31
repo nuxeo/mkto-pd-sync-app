@@ -145,7 +145,7 @@ class SyncTestCase(unittest.TestCase):
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.lead.id) + self.AUTHENTICATION_PARAM)
             person_id = marketo.Lead(sync.get_marketo_client(), self.lead.id).pipedriveId
-            self.assertIsNotNone(person_id)  # Pipedrive ID has been updated
+            self.assertIsNotNone(person_id)  # Pipedrive id has been updated
 
             person = pipedrive.Person(sync.get_pipedrive_client(), person_id)
             self.new_person = person
@@ -196,7 +196,7 @@ class SyncTestCase(unittest.TestCase):
         with sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.person.id) + self.AUTHENTICATION_PARAM)
             lead_id = pipedrive.Person(sync.get_pipedrive_client(), self.person.id).marketoid
-            self.assertIsNotNone(lead_id)  # Marketo ID has been updated
+            self.assertIsNotNone(lead_id)  # Marketo id has been updated
 
             lead = marketo.Lead(sync.get_marketo_client(), lead_id)
             self.new_lead = lead

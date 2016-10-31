@@ -1,4 +1,4 @@
-from requests import Session
+from requests import Session, HTTPError
 
 import logging
 
@@ -90,21 +90,29 @@ class PipedriveClient:
 
     # Play carefully with this method!
     def delete_resource(self, r_name, r_id):
-        self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
-
-        url = self._build_url(r_name + "s", r_id)  # Takes an 's' at the end of the resource name
-
-        r = self._session.delete(url)
-        self._logger.info("Called %s", r.url)
-        r.raise_for_status()
-
-        data = r.json()
-
         ret = {}
-        if "success" in data:
-            if data["success"]:
-                ret = data["data"]
-            else:
-                self._logger.error("Error: %s", data["error"])
+
+        if r_id:
+            self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
+
+            url = self._build_url(r_name + "s", r_id)  # Takes an 's' at the end of the resource name
+
+            r = self._session.delete(url)
+            self._logger.info("Called %s", r.url)
+            try:
+                r.raise_for_status()
+            except HTTPError as e:
+                if e.response.status_code != 410:  # Pipedrive seems to raise a 410 error during deletion
+                    raise e
+
+            data = r.json()
+
+            if "success" in data:
+                if data["success"]:
+                    ret = data["data"]
+                else:
+                    self._logger.error("Error: %s", data["error"])
+        else:
+            self._logger.warning("Null id given")
 
         return ret

@@ -114,7 +114,8 @@ class Lead(Resource):
             "conversicaLeadOwnerFirstName": None,
             "conversicaLeadOwnerLastName": None,
             "pipedriveId": None,
-            "leadStatus": None
+            "leadStatus": None,
+            "toDelete": False
         }
 
 

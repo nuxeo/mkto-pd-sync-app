@@ -26,7 +26,7 @@ import marketo
 
 mkto = marketo.MarketoClient(IDENTITY_ENDPOINT, CLIENT_ID, CLIENT_SECRET, API_ENDPOINT)
 
-# Get a lead by ID
+# Get a lead by id
 lead = marketo.Lead(mkto, "12345")
 
 # Get a lead by email
@@ -64,7 +64,7 @@ import pipedrive
 
 pd = pipedrive.PipedriveClient(secret.PD_API_TOKEN)
 
-# Get a person by ID
+# Get a person by id
 person = pipedrive.Person(pd, "12345")
 
 # Get an organization by name
@@ -89,7 +89,7 @@ Simple Flask app to synchronize data between Marketo and Pipedrive.
 
 #### Endpoints
 
-3 endpoints accessible through a POST request:
+5 endpoints accessible through a POST request:
 - `/marketo/lead/<int:lead_id>`: to send lead data from Marketo to Pipedrive
 
 Actually synchronizes data if and only if it is new or it has changed.
@@ -101,6 +101,10 @@ Actually synchronizes data if and only if it is new or it has changed.
 - `/pipedrive/deal/<int:deal_id>`: to send deal data from Pipedrive to Marketo
 
 Actually synchronizes data if and only if it is new or it has changed.
+
+- `/marketo/lead/<int:lead_pipedrive_id>/delete`: to delete a person in Pipedrive (using lead pipedrive id)
+
+- `/pipedrive/person/<int:pipedrive_marketo_id>/delete`: to delete a lead in Marketo (using person marketo id)
 
 #### Authentication
 

@@ -50,10 +50,50 @@ def marketo_lead_to_pipedrive_person(lead_id):
     return jsonify(**ret)
 
 
+@sync.app.route('/marketo/lead/<int:lead_pipedrive_id>/delete', methods=['POST'])
+@authenticate
+def delete_pipedrive_person(lead_pipedrive_id):
+    data = sync.get_pipedrive_client().delete_resource("person", lead_pipedrive_id)
+
+    if data:
+        ret = {
+            "status": "deleted",
+            "id": data["id"]
+        }
+
+    else:
+        ret = {
+            "error": "Could not delete person with id %s" % str(lead_pipedrive_id)
+        }
+
+    return jsonify(**ret)
+
+
 @sync.app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
 @authenticate
 def pipedrive_person_to_marketo_lead(person_id):
     ret = create_or_update_lead_in_marketo(person_id)
+    return jsonify(**ret)
+
+
+@sync.app.route('/pipedrive/person/<int:pipedrive_marketo_id>/delete', methods=['POST'])
+@authenticate
+def delete_marketo_lead(pipedrive_marketo_id):
+    lead = marketo.Lead(sync.get_marketo_client(), pipedrive_marketo_id)
+
+    lead.toDelete = True
+    lead.save()
+
+    if lead.id is not None:
+        ret = {
+            "status": "Ready for deletion",
+            "id": lead.id
+        }
+    else:
+        ret = {
+            "error": "Could not prepare lead for deletion with id %s" % str(pipedrive_marketo_id)
+        }
+
     return jsonify(**ret)
 
 
@@ -90,7 +130,7 @@ def create_or_update_person_in_pipedrive(lead_id):
             person.save()
 
             if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):  # Compare value string representations
-                sync.app.logger.debug("Updating Pipedrive ID in Marketo")
+                sync.app.logger.debug("Updating Pipedrive id in Marketo")
                 lead.pipedriveId = person.id
                 lead.save()
         else:
@@ -177,7 +217,7 @@ def create_or_update_lead_in_marketo(person_id):
             lead.save()
 
             if person.marketoid is None or str(person.marketoid) != str(lead.id):  # Compare value string representations
-                sync.app.logger.debug("Updating Marketo ID in Pipedrive")
+                sync.app.logger.debug("Updating Marketo id in Pipedrive")
                 person.marketoid = lead.id
                 person.save()
         else:
