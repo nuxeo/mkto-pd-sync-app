@@ -116,7 +116,8 @@ class Resource:
 
         try:
             data = self._client.get_resource_data(self.resource_name, id_to_look_for)
-            if data:
+            if data and\
+                    ("active_flag" in data and data["active_flag"] or "active_flag" not in data):  # Prevent from loading deleted resource
                 for key in data:
                     setattr(self, key, self._get_data_value(data[key]))
             else:
