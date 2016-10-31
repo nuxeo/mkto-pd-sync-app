@@ -1,32 +1,44 @@
 from datetime import datetime
 from pycountry import countries
 
+import marketo
 import pipedrive
 import sync
 
 
-def company_name_to_org_id(company):
+def company_name_to_org_id(lead):
     ret = ""
-    if company:
-        res = sync.create_or_update_organization_in_pipedrive(company)
-        ret = res["id"] if res and "id" in res else ret
+    if lead.company:  # Case Company object
+        res = sync.create_or_update_organization_in_pipedrive(lead.company)
+        if res and "id" in res:
+            ret = res["id"]
+        else:  # Case company form fields
+            company = marketo.Company(sync.get_marketo_client())
+            company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
+            company.company = lead.company
+            # TODO: address fields
+            company.save()
+            lead.externalCompanyId = company.externalCompanyId
+            lead.save()
+            res = sync.create_or_update_organization_in_pipedrive(company.company)
+            ret = res["id"] if res and "id" in res else ret
     return ret
 
 
-def country_iso_to_name(country):
+def country_iso_to_name(country_iso):
     ret = ""
-    if country:
+    if country_iso:
         try:
-            ret = countries.get(alpha2=country).name
+            ret = countries.get(alpha2=country_iso).name
         except KeyError:
             pass
     return ret
 
 
-def lead_name_to_user_id(lead):
+def lead_name_to_user_id(lead_name):
     ret = "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
-    if lead.strip():
-        user = pipedrive.User(sync.get_pipedrive_client(), lead, "name")
+    if lead_name.strip():
+        user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")
         ret = user.id or ret
     return ret
 
@@ -41,7 +53,7 @@ def datetime_to_date(datetime_):
     return ret
 
 
-def industry_name_to_code(industry):
+def industry_name_to_code(industry_name):
     ret = ""
     industries = {
         "Agriculture": "151",
@@ -77,8 +89,8 @@ def industry_name_to_code(industry):
         "Transportation": "181",
         "Utilities": "182"
         }
-    if industry and industry in industries:
-        ret = industries[industry]
+    if industry_name and industry_name in industries:
+        ret = industries[industry_name]
     return ret
 
 
@@ -96,27 +108,20 @@ def split_name_get_last(name):
     return split[-1] if split else ""
 
 
-def country_name_to_iso(country):
+def country_name_to_iso(country_name):
     ret = ""
-    if country:
+    if country_name:
         try:
-            ret = countries.get(name=country).alpha2
+            ret = countries.get(name=country_name).alpha2
         except KeyError:
             pass
     return ret
 
 
-def organization_to_name(organization):
+def organization_to_external_id(organization):
     ret = ""
     if organization is not None:
-        ret = organization.name
-    return ret
-
-
-def organization_name_to_external_id(organization):
-    ret = ""
-    if organization:
-        res = sync.create_or_update_company_in_marketo(organization)
+        res = sync.create_or_update_company_in_marketo(organization.name)
         ret = res["externalId"] if res and "externalId" in res else ret
     return ret
 
@@ -142,7 +147,7 @@ def user_to_last_name(user):
     return ret
 
 
-def industry_code_to_name(industry):
+def industry_code_to_name(industry_code):
     ret = ""
     industries = {
         "151": "Agriculture",
@@ -178,12 +183,12 @@ def industry_code_to_name(industry):
         "181": "Transportation",
         "182": "Utilities"
         }
-    if industry and industry in industries:
-        ret = industries[industry]
+    if industry_code and industry_code in industries:
+        ret = industries[industry_code]
     return ret
 
 
-def type_code_to_name(type_):
+def type_code_to_name(type_code):
     ret = ""
     types = {
         "4": "New Business",
@@ -191,8 +196,8 @@ def type_code_to_name(type_):
         "6": "Renewal",
         "129": "Consulting"
     }
-    if type_ and type_ in types:
-        ret = types[type_]
+    if type_code and type_code in types:
+        ret = types[type_code]
     return ret
 
 

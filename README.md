@@ -67,14 +67,14 @@ pd = pipedrive.PipedriveClient(secret.PD_API_TOKEN)
 # Get a person by ID
 person = pipedrive.Person(pd, "12345")
 
+# Get an organization by name
+organization = pipedrive.Organization(pd, "MyCompany", "name")
+
 # Get a person custom field with its nicer name
 person.lead_score  # or getattr(person, {HASH KEY})
 
 # Get a person related organization
 organization = person.organization
-
-# Get an organization by name
-organization = pipedrive.Organization(pd, "MyCompany", "name")
 
 # Update person data
 person.name = "New Name"
@@ -110,11 +110,20 @@ All routes require authentication using an API key as GET parameter.
 
 A mapping file describes how Marketo and Pipedrive resource fields should be matched.
 
-If several fields are provided for matching depending on the provided "mode" they are joined using a space ("join") or it is first not null value ("choose").
-
-It is possible to use a "pre" or a "post adapter" (defined in a separate adapters file) for each field mapping.
-
-The pre adapter will be processed on each separate matching field whereas the post adapter will run for the final value.
+##### Schema
+```
+MAPPING_NAME = {
+    to_field_key_1: {
+        "fields": [from_field_key_1, [from_field_key_2...]],
+        ["mode": "join"/"choose",]
+        ["pre_adapter": function,]
+        ["post_adapter": function]
+    },
+    to_field_key_2: {
+        "transformer": function
+    }
+}
+```
 
 ### Usage
 

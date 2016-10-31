@@ -93,7 +93,7 @@ class Lead(Resource):
                 name = field["rest"]["name"]
                 self._fields.append(name)
                 setattr(self, name, None)  # Initialize field
-                self._id_field = "id"  # idField is not specified in return data for lead so manually set it
+                self._id_field = "id"  # id field is not specified in return data for lead so manually set it
         else:
             raise InitializationError("Load fields", "No data returned")
 

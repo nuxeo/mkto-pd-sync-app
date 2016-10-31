@@ -29,8 +29,8 @@ def is_marketo_guid(id):
     return p.match(id) is not None
 
 
-def compute_external_id(pd_resource_name, id_):
-    return "pd-" + pd_resource_name + "-" + str(id_)
+def compute_external_id(pd_resource_name, id_, prefix="pd"):
+    return prefix + "-" + pd_resource_name + "-" + str(id_)
 
 
 if __name__ == '__main__':

@@ -192,7 +192,7 @@ class Stage(Resource):
         return {}
 
     def _load_fields(self):
-        # Cannot automatically load fields because "stageFields" not implemented
+        # Cannot automatically load fields bc "stageFields" endpoint not implemented
         fields = [
             "id",
             "order_nr",

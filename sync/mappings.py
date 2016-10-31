@@ -2,10 +2,14 @@ from adapters import *
 
 
 """
-"fields" is mandatory
-"mode" ("join" or "choose") should be provided if several fields are
-"pre-adapter" is run for each raw field
-"post-adapter" is run on final string value
+Either "fields" or "transformer" should be provided.
+Transformers and adapters are functions that are used for data computation.
+The whole resource will be passed as the "transformer" parameter.
+For "fields", the field raw value will be passed as the "pre-adapter" parameter
+and the final string value will be passed as the "post-adapter" parameter.
+"mode" ("join" or "choose") should be provided if several fields are.
+"join" mode will join field string values using space before post-adapting.
+"choose" mode will chose the first non empty field string value before post-adapting.
 """
 
 # To send from Marketo to Pipedrive
@@ -19,8 +23,7 @@ PERSON_TO_LEAD = {
         "fields": ["email"]
     },
     "org_id": {
-        "fields": ["company"],
-        "post_adapter": company_name_to_org_id
+        "transformer": company_name_to_org_id
     },
     "title": {
         "fields": ["title"]
@@ -98,8 +101,7 @@ LEAD_TO_PERSON = {
     },
     "externalCompanyId": {
         "fields": ["organization"],
-        "pre_adapter": organization_to_name,
-        "post_adapter": organization_name_to_external_id
+        "pre_adapter": organization_to_external_id,
     },
     "title": {
         "fields": ["title"]

@@ -65,7 +65,7 @@ def pipedrive_deal_to_marketo_opportunity_and_role(deal_id):
 
 
 def create_or_update_person_in_pipedrive(lead_id):
-    """Creates or update a person in Pipedrive with data from the
+    """Creates or updates a person in Pipedrive with data from the
     lead found in Marketo with the given id.
     Update can be performed if the lead is already associated to a person
     (field pipedriveId is populated).
@@ -89,7 +89,7 @@ def create_or_update_person_in_pipedrive(lead_id):
             sync.app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
             person.save()
 
-            if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):
+            if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):  # Compare value string representations
                 sync.app.logger.debug("Updating Pipedrive ID in Marketo")
                 lead.pipedriveId = person.id
                 lead.save()
@@ -111,7 +111,7 @@ def create_or_update_person_in_pipedrive(lead_id):
 
 
 def create_or_update_organization_in_pipedrive(company_name):
-    """Creates or update an organization in Pipedrive with data from the
+    """Creates or updates an organization in Pipedrive with data from the
     company found in Marketo with the given name.
     Update can be performed if the organization and the company share the same name.
     Data to set is defined in mappings.
@@ -152,7 +152,7 @@ def create_or_update_organization_in_pipedrive(company_name):
 
 
 def create_or_update_lead_in_marketo(person_id):
-    """Creates or update a lead in Marketo with data from the
+    """Creates or updates a lead in Marketo with data from the
     person found in Pipedrive with the given id.
     Update can be performed if the person is already associated to a lead
     (field marketoid is populated).
@@ -176,7 +176,7 @@ def create_or_update_lead_in_marketo(person_id):
             sync.app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
             lead.save()
 
-            if person.marketoid is None or str(person.marketoid) != str(lead.id):
+            if person.marketoid is None or str(person.marketoid) != str(lead.id):  # Compare value string representations
                 sync.app.logger.debug("Updating Marketo ID in Pipedrive")
                 person.marketoid = lead.id
                 person.save()
@@ -198,7 +198,7 @@ def create_or_update_lead_in_marketo(person_id):
 
 
 def create_or_update_company_in_marketo(organization_name):
-    """Creates or update a company in Marketo with data from the
+    """Creates or updates a company in Marketo with data from the
     organization found in Pipedrive with the given name.
     Update can be performed if the company and the organization share the same name.
     Data to set is defined in mappings.
@@ -246,7 +246,7 @@ def create_or_update_company_in_marketo(organization_name):
 
 
 def create_or_update_opportunity_in_marketo(deal_id):
-    """Creates or update an opportunity and an opportunity role in Marketo with data from the
+    """Creates or updates an opportunity and an opportunity role in Marketo with data from the
     deal found in Pipedrive with the given id.
     Update can be performed if the deal is already associated to an opportunity
     (externalOpportunityId is computed from deal id).
@@ -286,7 +286,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
         # Role
         role = None
-        if deal.contact_person.marketoid is not None:  # Ensure has existed in Marketo # TODO: create if not?
+        if deal.contact_person.marketoid is not None:  # Ensure person has existed in Marketo # TODO: create if not?
             # Role will be automatically created or updated using these 3 fields ("dedupeFields")
             role = marketo.Role(sync.get_marketo_client())
             role.externalOpportunityId = opportunity.externalOpportunityId
@@ -334,21 +334,29 @@ def update_field(from_resource, to_resource, to_field, mapping):
 
 def get_new_attr(from_resource, mapping):
     from_values = []
-    for from_field in mapping["fields"]:
-        from_attr = getattr(from_resource, from_field)
 
-        # Call pre adapter on field value
-        if "pre_adapter" in mapping and callable(mapping["pre_adapter"]):
-            sync.app.logger.debug("And pre-adapting value %s", from_attr)
-            from_attr = mapping["pre_adapter"](from_attr)
+    if "fields" in mapping:
+        for from_field in mapping["fields"]:
+            from_attr = getattr(from_resource, from_field)
 
-        from_values.append(str(from_attr) if from_attr is not None else "")
+            # Call pre adapter on field raw value
+            if "pre_adapter" in mapping and callable(mapping["pre_adapter"]):
+                sync.app.logger.debug("And pre-adapting value %s", from_attr)
+                from_attr = mapping["pre_adapter"](from_attr)
 
+            from_values.append(str(from_attr) if from_attr is not None else "")
+    else:
+        # Use whole resource
+        if "transformer" in mapping and callable(mapping["transformer"]):
+            sync.app.logger.debug("And transforming resource %s", from_resource)
+            from_attr = mapping["transformer"](from_resource)
+            from_values.append(str(from_attr) if from_attr is not None else "")
+
+    # Starting from here processed values are strings
     ret = ""
     if len(from_values):
         ret = from_values[0]  # Assume first value is the right one
-        if len(from_values) > 1:
-            # Otherwise if several fields are provided then mode should be supplied
+        if len(from_values) > 1:  # Unless a mode is provided
             if "mode" in mapping:
                 if mapping["mode"] == "join":
                     # For join mode assume separator is space
@@ -357,7 +365,7 @@ def get_new_attr(from_resource, mapping):
                     # Get first non empty value
                     ret = next((value for value in from_values if value is not ""), "")
 
-    # Call post adapter on result value
+    # Call post adapter on result
     if "post_adapter" in mapping and callable(mapping["post_adapter"]):
         sync.app.logger.debug("And post-adapting result %s", ret)
         ret = mapping["post_adapter"](ret)
