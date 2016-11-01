@@ -17,6 +17,10 @@ def company_name_to_org_id(lead):
             company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
             company.company = lead.company
             # TODO: address fields
+            company.mainPhone = lead.mainPhone
+            company.industry = lead.industry
+            company.annualRevenue = lead.annualRevenue
+            company.numberOfEmployees = lead.numberOfEmployees
             company.save()
             lead.externalCompanyId = company.externalCompanyId
             lead.save()
@@ -50,6 +54,25 @@ def datetime_to_date(datetime_):
             ret = datetime.strptime(datetime_, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
         except ValueError:
             pass
+    return ret
+
+
+def lead_status_to_code(lead_status):
+    ret = ""
+    statuses = {
+        "New": "187",
+        "Prospect": "188",
+        "MQL": "189",
+        "SQL": "190",
+        "Qualified Deal": "191",
+        "Customer": "192",
+        "Former Customer": "193",
+        "Partner": "194",
+        "Recycled": "195",
+        "Disqualified": "196"
+        }
+    if lead_status and lead_status in statuses:
+        ret = statuses[lead_status]
     return ret
 
 
@@ -144,6 +167,25 @@ def user_to_last_name(user):
     ret = ""
     if user is not None:
         ret = split_name_get_last(user.name)
+    return ret
+
+
+def lead_code_to_status(lead_code):
+    ret = ""
+    statuses = {
+        "187": "New",
+        "188": "Prospect",
+        "189": "MQL",
+        "190": "SQL",
+        "191": "Qualified Deal",
+        "192": "Customer",
+        "193": "Former Customer",
+        "194": "Partner",
+        "195": "Recycled",
+        "196": "Disqualified"
+        }
+    if lead_code and lead_code in statuses:
+        ret = statuses[lead_code]
     return ret
 
 

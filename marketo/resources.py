@@ -162,6 +162,8 @@ class Company(Resource):
         return {
             "externalCompanyId": None,
             "company": None,
+            "mainPhone": None,
             "industry": None,
+            "annualRevenue": None,
             "numberOfEmployees": None
         }

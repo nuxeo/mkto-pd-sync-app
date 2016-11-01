@@ -362,6 +362,7 @@ def update_field(from_resource, to_resource, to_field, mapping):
     updated = False
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field) or ""
+        sync.app.logger.debug("Old attribute was %s and new is %s", old_attr, new_attr)
         if str(new_attr) != str(old_attr):  # Compare value string representations bc not sure of type
             setattr(to_resource, to_field, new_attr)
             updated = True

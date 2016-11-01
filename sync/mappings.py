@@ -65,6 +65,10 @@ PERSON_TO_LEAD = {
     "date_sql": {
         "fields": ["mKTODateSQL"],
         "post_adapter": datetime_to_date
+    },
+    "lead_status": {
+        "fields": ["leadStatus"],
+        "post_adapter": lead_status_to_code
     }
 }
 
@@ -72,11 +76,18 @@ ORGANIZATION_TO_COMPANY = {
     "name": {
         "fields": ["company"]
     },
+    "company_phone": {
+        "fields": ["mainPhone"]
+    },
     "industry": {
         "fields": ["industry"],
         "post_adapter": industry_name_to_code
     },
-    "people_count": {
+    "annual_revenue": {
+        "fields": ["annualRevenue"],
+        "post_adapter": number_to_float
+    },
+    "number_of_employees": {
         "fields": ["numberOfEmployees"]
     },
     "owner_id": {
@@ -126,6 +137,10 @@ LEAD_TO_PERSON = {
     },
     "pipedriveId": {
         "fields": ["id"]
+    },
+    "leadStatus": {
+        "fields": ["lead_status"],
+        "post_adapter": lead_code_to_status
     }
 }
 
@@ -133,12 +148,18 @@ COMPANY_TO_ORGANIZATION = {
     "company": {
         "fields": ["name"]
     },
+    "mainPhone": {
+        "fields": ["company_phone"]
+    },
     "industry": {
         "fields": ["industry"],
         "post_adapter": industry_code_to_name
     },
+    "annualRevenue": {
+        "fields": ["annual_revenue"]
+    },
     "numberOfEmployees": {
-        "fields": ["people_count"]
+        "fields": ["number_of_employees"]
     }
 }
 
