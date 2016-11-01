@@ -129,7 +129,7 @@ def create_or_update_person_in_pipedrive(lead_id):
             sync.app.logger.debug("Sending to Pipedrive%s", " with id %s" % str(person.id) if person.id is not None else "")
             person.save()
 
-            if lead.pipedriveId is None or str(lead.id) != str(person.marketoid):  # Compare value string representations
+            if lead.pipedriveId is None or lead.pipedriveId != person.id:
                 sync.app.logger.debug("Updating Pipedrive id in Marketo")
                 lead.pipedriveId = person.id
                 lead.save()
@@ -216,7 +216,7 @@ def create_or_update_lead_in_marketo(person_id):
             sync.app.logger.debug("Sending to Marketo%s", " with id %s" % str(person.id) if person.id is not None else "")
             lead.save()
 
-            if person.marketoid is None or str(person.marketoid) != str(lead.id):  # Compare value string representations
+            if person.marketoid is None or int(person.marketoid) != lead.id:
                 sync.app.logger.debug("Updating Marketo id in Pipedrive")
                 person.marketoid = lead.id
                 person.save()
