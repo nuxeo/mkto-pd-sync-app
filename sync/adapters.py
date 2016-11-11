@@ -9,7 +9,7 @@ import sync
 def company_name_to_org_id(lead):
     ret = ""
     if lead.company:  # Case Company object
-        res = sync.create_or_update_organization_in_pipedrive(lead.company)
+        res = sync.create_or_update_organization_in_pipedrive(lead.company, country=lead.country)
         if res and "id" in res:
             ret = res["id"]
         else:  # Case company form fields
@@ -23,19 +23,23 @@ def company_name_to_org_id(lead):
             company.numberOfEmployees = lead.numberOfEmployees
             company.save()
             lead.externalCompanyId = company.externalCompanyId
+            lead.companyCountry = country_iso_to_name(lead.country)  # FIXME: temporary until Marketo fixes the company country field update
             lead.save()
-            res = sync.create_or_update_organization_in_pipedrive(company.company)
+            res = sync.create_or_update_organization_in_pipedrive(company.company, country=lead.country)
             ret = res["id"] if res and "id" in res else ret
     return ret
 
 
-def country_iso_to_name(country_iso):
+def country_iso_to_name(country_iso_or_name):
     ret = ""
-    if country_iso:
+    if country_iso_or_name:
         try:
-            ret = countries.get(alpha2=country_iso).name
+            ret = countries.get(alpha2=country_iso_or_name).name
         except KeyError:
-            pass
+            try:
+                ret = countries.get(name=country_iso_or_name).name
+            except KeyError:
+                pass
     return ret
 
 
@@ -186,6 +190,13 @@ def lead_code_to_status(lead_code):
         }
     if lead_code and lead_code in statuses:
         ret = statuses[lead_code]
+    return ret
+
+
+def organization_to_country(organization):
+    ret = ""
+    if organization is not None:
+        ret = organization.country
     return ret
 
 

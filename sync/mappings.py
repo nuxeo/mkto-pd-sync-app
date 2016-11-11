@@ -141,6 +141,11 @@ LEAD_TO_PERSON = {
     "leadStatus": {
         "fields": ["lead_status"],
         "post_adapter": lead_code_to_status
+    },
+    "companyCountry": {  # FIXME: temporary until Marketo fixes the company country field update
+        "fields": ["organization"],
+        "pre_adapter": organization_to_country,
+        "post_adapter": country_iso_to_name
     }
 }
 

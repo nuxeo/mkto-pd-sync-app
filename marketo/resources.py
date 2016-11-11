@@ -115,7 +115,8 @@ class Lead(Resource):
             "conversicaLeadOwnerLastName": None,
             "pipedriveId": None,
             "leadStatus": None,
-            "toDelete": False
+            "toDelete": False,
+            "companyCountry": None  # FIXME: temporary until Marketo fixes the company country field update
         }
 
 
