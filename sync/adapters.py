@@ -44,7 +44,7 @@ def country_iso_to_name(country_iso_or_name):
 
 
 def lead_name_to_user_id(lead_name):
-    ret = "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
+    ret = big_bot_id()
     if lead_name.strip():
         user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")
         ret = user.id or ret
@@ -121,8 +121,8 @@ def industry_name_to_code(industry_name):
     return ret
 
 
-def big_bot_id(empty_str):
-    return "1628545"  # Not Big Bot yet, still my ID (Helene Jonin)!
+def big_bot_id(empty_str=""):
+    return "208823"
 
 
 def split_name_get_first(name):
