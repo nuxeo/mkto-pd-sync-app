@@ -1,7 +1,25 @@
+from functools import wraps
 from helpers import *
 from requests import Session
 
 import logging
+
+
+def memoize_one_arg(function):
+    memo = {}
+
+    @wraps(function)
+    def wrapper(*args):
+        if len(args) == 2:
+            if args[1] in memo:
+                return memo[args[1]]
+            else:
+                rv = function(*args)
+                memo[args[1]] = rv
+        else:
+            rv = function(*args)
+        return rv
+    return wrapper
 
 
 class MarketoClient:
@@ -39,6 +57,7 @@ class MarketoClient:
                           (auth_data['access_token'], auth_data['expires_in']))
         return auth_data['access_token']
 
+    @memoize_one_arg
     def get_resource_fields(self, resource_name):
         return self._fetch_data(resource_name, "describe")
 
