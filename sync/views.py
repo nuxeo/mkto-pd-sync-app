@@ -435,7 +435,7 @@ def update_field(from_resource, to_resource, to_field, mapping):
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field) or ""
         sync.app.logger.debug("Old attribute for field %s was %s and new is %s", to_field, old_attr, new_attr)
-        if str(new_attr) != str(old_attr):  # Compare value string representations bc not sure of type
+        if new_attr != str(old_attr):  # Convert old attribute to string before comparing because new attribute is
             setattr(to_resource, to_field, new_attr)
             updated = True
     else:
@@ -457,13 +457,13 @@ def get_new_attr(from_resource, mapping):
                 sync.app.logger.debug("And pre-adapting value %s", from_attr)
                 from_attr = mapping["pre_adapter"](from_attr)
 
-            from_values.append(str(from_attr) if from_attr is not None else "")
+            from_values.append(get_string_value(from_attr))
     else:
-        # Use whole resource
+        # Pass the whole resource
         if "transformer" in mapping and callable(mapping["transformer"]):
             sync.app.logger.debug("And transforming resource %s", from_resource)
             from_attr = mapping["transformer"](from_resource)
-            from_values.append(str(from_attr) if from_attr is not None else "")
+            from_values.append(get_string_value(from_attr))
 
     # Starting from here processed values are strings
     ret = ""
@@ -473,14 +473,23 @@ def get_new_attr(from_resource, mapping):
             if "mode" in mapping:
                 if mapping["mode"] == "join":
                     # For join mode assume separator is space
-                    ret = " ".join(from_values)
+                    ret = " ".join(value for value in from_values if value)
                 elif mapping["mode"] == "choose":
                     # Get first non empty value
-                    ret = next((value for value in from_values if value is not ""), "")
+                    ret = next((value for value in from_values if value), "")
 
     # Call post adapter on result
     if "post_adapter" in mapping and callable(mapping["post_adapter"]):
         sync.app.logger.debug("And post-adapting result %s", ret)
         ret = mapping["post_adapter"](ret)
 
+    return ret
+
+
+def get_string_value(value):
+    ret = ""
+    if value is not None:
+        if isinstance(value, unicode):  # JSON strings are unicode
+            value = value.encode('utf-8')
+        ret = str(value)
     return ret

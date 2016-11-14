@@ -11,7 +11,7 @@ BIG_BOT_ID = 208823
 
 def default_name_if_empty(name):
     ret = name
-    if not ret.strip():
+    if not name:
         ret = "Unknown Unknown"
     return ret
 
