@@ -76,6 +76,19 @@ ORGANIZATION_TO_COMPANY = {
     "name": {
         "fields": ["company"]
     },
+    "address": {
+        "fields": ["billingStreet"]
+    },
+    "city": {
+        "fields": ["billingCity"]
+    },
+    "state": {
+        "fields": ["billingState"]
+    },
+    "country": {
+        "fields": ["billingCountry"],
+        "pre_adapter": country_iso_to_name
+    },
     "company_phone": {
         "fields": ["mainPhone"]
     },
@@ -89,10 +102,6 @@ ORGANIZATION_TO_COMPANY = {
     },
     "number_of_employees": {
         "fields": ["numberOfEmployees"]
-    },
-    "owner_id": {
-        "fields": [],
-        "post_adapter": big_bot_id
     }
 }
 
@@ -141,17 +150,25 @@ LEAD_TO_PERSON = {
     "leadStatus": {
         "fields": ["lead_status"],
         "post_adapter": lead_code_to_status
-    },
-    "companyCountry": {  # FIXME: temporary until Marketo fixes the company country field update
-        "fields": ["organization"],
-        "pre_adapter": organization_to_country,
-        "post_adapter": country_iso_to_name
     }
 }
 
 COMPANY_TO_ORGANIZATION = {
     "company": {
         "fields": ["name"]
+    },
+    "billingStreet": {
+        "fields": ["address"]
+    },
+    "billingCity": {
+        "fields": ["city"]
+    },
+    "billingState": {
+        "fields": ["state"]
+    },
+    "billingCountry": {
+        "fields": ["country"],
+        "pre_adapter": country_iso_to_name
     },
     "mainPhone": {
         "fields": ["company_phone"]

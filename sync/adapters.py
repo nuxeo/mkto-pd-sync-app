@@ -6,26 +6,31 @@ import pipedrive
 import sync
 
 
+BIG_BOT_ID = 208823
+
+
 def company_name_to_org_id(lead):
     ret = ""
     if lead.company:  # Case Company object
-        res = sync.create_or_update_organization_in_pipedrive(lead.company, country=lead.country)
+        res = sync.create_or_update_organization_in_pipedrive(lead.company)
         if res and "id" in res:
             ret = res["id"]
         else:  # Case company form fields
             company = marketo.Company(sync.get_marketo_client())
             company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
             company.company = lead.company
-            # TODO: address fields
+            company.billingStreet = lead.street
+            company.billingCity = lead.city
+            company.billingState = lead.state
+            company.billingCountry = lead.country
             company.mainPhone = lead.mainPhone
             company.industry = lead.industry
             company.annualRevenue = lead.annualRevenue
             company.numberOfEmployees = lead.numberOfEmployees
             company.save()
             lead.externalCompanyId = company.externalCompanyId
-            lead.companyCountry = country_iso_to_name(lead.country)  # FIXME: temporary until Marketo fixes the company country field update
             lead.save()
-            res = sync.create_or_update_organization_in_pipedrive(company.company, country=lead.country)
+            res = sync.create_or_update_organization_in_pipedrive(company.company)
             ret = res["id"] if res and "id" in res else ret
     return ret
 
@@ -44,7 +49,7 @@ def country_iso_to_name(country_iso_or_name):
 
 
 def lead_name_to_user_id(lead_name):
-    ret = big_bot_id()
+    ret = BIG_BOT_ID
     if lead_name.strip():
         user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")
         ret = user.id or ret
@@ -119,10 +124,6 @@ def industry_name_to_code(industry_name):
     if industry_name and industry_name in industries:
         ret = industries[industry_name]
     return ret
-
-
-def big_bot_id(empty_str=""):
-    return "208823"
 
 
 def split_name_get_first(name):

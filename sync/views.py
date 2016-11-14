@@ -2,7 +2,6 @@ from flask import jsonify, request
 from functools import wraps
 from secret import *
 
-import adapters
 import mappings
 import marketo
 import pipedrive
@@ -213,7 +212,7 @@ def create_or_update_person_in_pipedrive(lead_id):
     return ret
 
 
-def create_or_update_organization_in_pipedrive(company_name, **kwargs):
+def create_or_update_organization_in_pipedrive(company_name):
     """Creates or updates an organization in Pipedrive with data from the
     company found in Marketo with the given name.
     Update can be performed if the organization and the company share the same name.
@@ -231,13 +230,6 @@ def create_or_update_organization_in_pipedrive(company_name, **kwargs):
         for pd_field in mappings.ORGANIZATION_TO_COMPANY:
             data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field])\
                            or data_changed
-
-        # In Marketo, address fields belong to lead
-        if "country" in kwargs:
-            country = adapters.country_iso_to_name(kwargs["country"])
-            if country != organization.country:
-                organization.country = country
-                data_changed = True
 
         if data_changed:
             # Perform the update only if data actually changed
