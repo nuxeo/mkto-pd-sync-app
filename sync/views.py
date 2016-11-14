@@ -118,7 +118,7 @@ def delete_marketo_lead(pipedrive_marketo_id):
 def delete_marketo_lead_with_params():
     ret = {}
     params = request.get_json()
-    # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID
+    # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID hash key
     if params is not None and "previous" in params and "9a9714c55a34f5faf2956584040ca245b7ab641b" in params["previous"] and params["previous"]["9a9714c55a34f5faf2956584040ca245b7ab641b"] is not None:
         try:
             pipedrive_marketo_id = int(params["previous"]["9a9714c55a34f5faf2956584040ca245b7ab641b"])

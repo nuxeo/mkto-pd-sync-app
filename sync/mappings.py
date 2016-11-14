@@ -151,6 +151,10 @@ LEAD_TO_PERSON = {
     "leadStatus": {
         "fields": ["lead_status"],
         "post_adapter": lead_code_to_status
+    },
+    "toDelete": {
+        "fields": ["active_flag"],
+        "post_adapter": toggle_boolean
     }
 }
 

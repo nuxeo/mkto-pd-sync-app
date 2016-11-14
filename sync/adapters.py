@@ -201,6 +201,10 @@ def lead_code_to_status(lead_code):
     return ret
 
 
+def toggle_boolean(boolean):
+    return not boolean if boolean else ""
+
+
 def organization_to_country(organization):
     ret = ""
     if organization is not None:
