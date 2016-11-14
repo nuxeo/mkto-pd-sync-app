@@ -234,7 +234,7 @@ def create_or_update_organization_in_pipedrive(company_name):
         if data_changed:
             # Perform the update only if data actually changed
             sync.app.logger.debug("Sending to Pipedrive%s", " with id %s"
-                                                       % str(organization.id) if organization.id is not None else "")
+                                                            % str(organization.id) if organization.id is not None else "")
             organization.save()
         else:
             sync.app.logger.debug("Nothing to do")
@@ -361,52 +361,62 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
     if deal.id is not None:
 
-        # Opportunity
-        external_id = marketo.compute_external_id("deal", deal.id)
-        opportunity = marketo.Opportunity(sync.get_marketo_client(), external_id, "externalOpportunityId")
+        # Filter deals
+        pipeline = pipedrive.Pipeline(sync.get_pipedrive_client(), deal.pipeline_id)
+        if pipeline.name == "NX Subscription (New and Upsell)":
 
-        data_changed = False
-        if opportunity.id is None:
-            opportunity_status = "created"
-            opportunity.externalOpportunityId = external_id
-            data_changed = True
-        else:
-            opportunity_status = "updated"
+            # Opportunity
+            external_id = marketo.compute_external_id("deal", deal.id)
+            opportunity = marketo.Opportunity(sync.get_marketo_client(), external_id, "externalOpportunityId")
 
-        for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
-            data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field])\
-                           or data_changed
+            data_changed = False
+            if opportunity.id is None:
+                opportunity_status = "created"
+                opportunity.externalOpportunityId = external_id
+                data_changed = True
+            else:
+                opportunity_status = "updated"
 
-        if data_changed:
-            # Perform the update only if data actually changed
-            sync.app.logger.debug("Sending to Marketo (opportunity)%s",
-                             " with id %s" % str(opportunity.id) if opportunity.id is not None else "")
-            opportunity.save()
-        else:
-            sync.app.logger.debug("Nothing to do")
-            opportunity_status = "skipped"
+            for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
+                data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field])\
+                               or data_changed
 
-        # Role
-        role = None
-        if deal.contact_person.marketoid is not None:  # Ensure person has existed in Marketo # TODO: create if not?
-            # Role will be automatically created or updated using these 3 fields ("dedupeFields")
-            role = marketo.Role(sync.get_marketo_client())
-            role.externalOpportunityId = opportunity.externalOpportunityId
-            role.leadId = deal.contact_person.marketoid
-            role.role = deal.champion.title if deal.champion and deal.champion.title else "Default Role"
-            role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
-            sync.app.logger.debug("Sending to Marketo (role)")
-            role.save()
+            if data_changed:
+                # Perform the update only if data actually changed
+                sync.app.logger.debug("Sending to Marketo (opportunity)%s",
+                                      " with id %s" % str(opportunity.id) if opportunity.id is not None else "")
+                opportunity.save()
+            else:
+                sync.app.logger.debug("Nothing to do")
+                opportunity_status = "skipped"
 
-        ret = {
-            "opportunity": {
-                "status": opportunity_status,
-                "id": opportunity.id
-            },
-            "role": {
-                "id": role.id
+            # Role
+            role = None
+            if deal.contact_person.marketoid is not None:  # Ensure person has existed in Marketo # TODO: create if not?
+                # Role will be automatically created or updated using these 3 fields ("dedupeFields")
+                role = marketo.Role(sync.get_marketo_client())
+                role.externalOpportunityId = opportunity.externalOpportunityId
+                role.leadId = deal.contact_person.marketoid
+                role.role = deal.champion.title if deal.champion and deal.champion.title else "Default Role"
+                role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
+                sync.app.logger.debug("Sending to Marketo (role)")
+                role.save()
+
+            ret = {
+                "opportunity": {
+                    "status": opportunity_status,
+                    "id": opportunity.id
+                },
+                "role": {
+                    "id": role.id
+                }
             }
-        }
+
+        else:
+            ret = {
+                "status": "skipped",
+                "message": "Deal sync not allowed for pipeline %s" % pipeline.name
+            }
 
     else:
         ret = {

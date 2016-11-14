@@ -212,3 +212,28 @@ class Stage(Resource):
         for field in fields:
             self._field_keys[field] = field
             setattr(self, field, None)  # Initialize field
+
+
+class Pipeline(Resource):
+
+    @property
+    def related_resources(self):
+        return {}
+
+    def _load_fields(self):
+        # Cannot automatically load fields bc "pipelineFields" endpoint not implemented
+        fields = [
+            "id",
+            "name",
+            "url_title",
+            "order_nr",
+            "active",
+            "add_time",
+            "update_time",
+            "selected"
+        ]
+        self._field_keys = {}
+        self._field_types = {}
+        for field in fields:
+            self._field_keys[field] = field
+            setattr(self, field, None)  # Initialize field

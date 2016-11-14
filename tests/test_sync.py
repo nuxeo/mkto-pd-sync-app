@@ -80,6 +80,7 @@ class SyncTestCase(unittest.TestCase):
         deal.title = "Test Flask Deal"
         deal.person_id = cls.linked_person.id
         deal.user_id = 1628545  # my (Helene Jonin) owner id
+        deal.stage_id = 34  # First stage id of "NX Subscription (New and Upsell)" pipeline
         deal.save()
         cls.deal = deal
 
@@ -88,6 +89,7 @@ class SyncTestCase(unittest.TestCase):
         linked_deal.title = "Test Flask Linked Deal"
         linked_deal.person_id = cls.linked_person.id
         linked_deal.user_id = 1628545  # my (Helene Jonin) owner id
+        linked_deal.stage_id = 34  # First stage id of "NX Subscription (New and Upsell)" pipeline
         linked_deal.save()
         cls.linked_deal = linked_deal
 
@@ -95,7 +97,7 @@ class SyncTestCase(unittest.TestCase):
         linked_opportunity = marketo.Opportunity(sync.get_marketo_client())
         linked_opportunity.externalOpportunityId = marketo.compute_external_id("deal", linked_deal.id)
         linked_opportunity.name = "Test Flask Linked Deal"
-        linked_opportunity.stage = "Active Customer"  # Default value
+        linked_opportunity.stage = "Sales Qualified Lead"  # First stage of "NX Subscription (New and Upsell)" pipeline
         linked_opportunity.save()
         cls.linked_opportunity = linked_opportunity
         linked_role = marketo.Role(sync.get_marketo_client())

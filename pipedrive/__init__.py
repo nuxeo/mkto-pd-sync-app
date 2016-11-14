@@ -3,6 +3,7 @@ from .resources import Person
 from .resources import Organization
 from .resources import Deal
 from .resources import User
+from .resources import Pipeline
 
 
 # Set default logging handler to avoid "No handler found" warnings.
