@@ -17,8 +17,7 @@ and the final string value will be passed as the "post-adapter" parameter.
 PERSON_TO_LEAD = {
     "name": {
         "fields": ["firstName", "lastName"],
-        "mode": "join",
-        "post_adapter": default_name_if_empty
+        "mode": "join"
     },
     "email": {
         "fields": ["email"]

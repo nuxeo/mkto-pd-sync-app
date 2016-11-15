@@ -70,7 +70,7 @@ class Resource:
         data = {}
         for name in self._field_keys:
             key = self._field_keys[name]
-            attr = getattr(self, key)
+            attr = getattr(self, key) or self._field_defaults.get(key, None)
             value = attr
             if isinstance(attr, Resource):
                 value = getattr(attr, "id")  # "Flatten" related resources - keep id only
@@ -78,6 +78,14 @@ class Resource:
                 value = attr["id"]
             data[key] = value
         return data
+
+    @property
+    def _field_defaults(self):
+        """
+        Get mandatory resource fields for update as a dictionary.
+        :return: A dictionary of fields mapped against their default value
+        """
+        return {}
 
     @abstractproperty
     def related_resources(self):
@@ -153,6 +161,12 @@ class Resource:
 
 
 class Person(Resource):
+
+    @property
+    def _field_defaults(self):
+        return {
+            "name": "Unknown Unknown"
+        }
 
     @property
     def related_resources(self):

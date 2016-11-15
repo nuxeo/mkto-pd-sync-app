@@ -9,13 +9,6 @@ import sync
 BIG_BOT_ID = 208823
 
 
-def default_name_if_empty(name):
-    ret = name
-    if not name:
-        ret = "Unknown Unknown"
-    return ret
-
-
 def company_name_to_org_id(lead):
     ret = ""
     if lead.company:  # Case Company object

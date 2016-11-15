@@ -37,7 +37,7 @@ class Resource:
     @abstractproperty
     def _resource_fields_to_update(self):
         """
-        Get resource fields we want to be able to set.
+        Get resource fields we want to be able to set as a dictionary.
         :return: A dictionary of fields mapped against their default value
         """
         pass

@@ -75,6 +75,18 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("person", person.id)
 
+    def test_save_person_no_name(self):
+        person = pipedrive.Person(self.pd)
+        person.name = ""
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
+        person.save()
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.id)
+        self.assertEquals(person.name, "Unknown Unknown")
+        # Delete created person
+        self.pd.delete_resource("person", person.id)
+
     def test_update_person(self):
         # Get person first
         person = pipedrive.Person(self.pd, 63080)
