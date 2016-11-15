@@ -134,13 +134,19 @@ def industry_name_to_code(industry_name):
 
 
 def split_name_get_first(name):
-    split = name.split()
-    return " ".join(split[:-1]) if len(split) > 1 else ""
+    ret = ""
+    if name:
+        split = name.split()
+        ret = " ".join(split[:-1]) if len(split) > 1 else ret
+    return ret
 
 
 def split_name_get_last(name):
-    split = name.split()
-    return split[-1] if split else ""
+    ret = ""
+    if name:
+        split = name.split()
+        ret = split[-1] if split else ret
+    return ret
 
 
 def country_name_to_iso(country_name):
