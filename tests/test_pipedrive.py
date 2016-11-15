@@ -34,6 +34,11 @@ class PipedriveTestCase(unittest.TestCase):
         with self.assertRaises(AttributeError):
             person.fake_field
 
+    def test_load_person_get_enum(self):
+        person = pipedrive.Person(self.pd, 63080)
+        self.assertIsNotNone(person)
+        self.assertEqual(person.lead_status, "Recycled")
+
     def test_load_person_undefined(self):
         person = pipedrive.Person(self.pd, -1)
         self.assertIsNotNone(person)
@@ -84,6 +89,33 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person)
         self.assertIsNotNone(person.id)
         self.assertEquals(person.name, "Unknown Unknown")
+        # Delete created person
+        self.pd.delete_resource("person", person.id)
+
+    def test_save_person_enum(self):
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 6"
+        person.lead_status = "Recycled"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
+        person.save()
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.id)
+        self.assertEquals(person.lead_status, "Recycled")
+        # Delete created person
+        self.pd.delete_resource("person", person.id)
+
+    def test_save_person_undefined_enum(self):
+        person = pipedrive.Person(self.pd)
+        person.name = "Test Person 7"
+        person.lead_status = "Fake status"
+        person.owner_id = 1628545  # my (Helene Jonin) owner id
+        self.assertIsNone(person.id)
+        person.save()
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(person.id)
+        self.assertEquals(person.name, "Test Person 7")
+        self.assertEquals(person.lead_status, None)
         # Delete created person
         self.pd.delete_resource("person", person.id)
 

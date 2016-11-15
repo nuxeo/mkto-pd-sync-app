@@ -67,8 +67,7 @@ PERSON_TO_LEAD = {
         "post_adapter": datetime_to_date
     },
     "lead_status": {
-        "fields": ["leadStatus"],
-        "post_adapter": lead_status_to_code
+        "fields": ["leadStatus"]
     }
 }
 
@@ -93,8 +92,7 @@ ORGANIZATION_TO_COMPANY = {
         "fields": ["mainPhone"]
     },
     "industry": {
-        "fields": ["industry"],
-        "post_adapter": industry_name_to_code
+        "fields": ["industry"]
     },
     "annual_revenue": {
         "fields": ["annualRevenue"],
@@ -148,8 +146,7 @@ LEAD_TO_PERSON = {
         "fields": ["id"]
     },
     "leadStatus": {
-        "fields": ["lead_status"],
-        "post_adapter": lead_code_to_status
+        "fields": ["lead_status"]
     },
     "toDelete": {
         "fields": ["active_flag"],
@@ -178,8 +175,7 @@ COMPANY_TO_ORGANIZATION = {
         "fields": ["company_phone"]
     },
     "industry": {
-        "fields": ["industry"],
-        "post_adapter": industry_code_to_name
+        "fields": ["industry"]
     },
     "annualRevenue": {
         "fields": ["annual_revenue"]
@@ -194,8 +190,7 @@ DEAL_TO_OPPORTUNITY = {
         "fields": ["title"]
     },
     "type": {
-        "fields": ["type"],
-        "post_adapter": type_code_to_name
+        "fields": ["type"]
     },
     "description": {
         "fields": ["deal_description"]

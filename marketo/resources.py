@@ -30,8 +30,10 @@ class Resource:
         data = {}
         for key in self._fields:
             if key in self._resource_fields_to_update:
-                data[key] = getattr(self, key)\
-                            or self._resource_fields_to_update[key]  # Set default value if any to avoid system errors
+                attr = getattr(self, key)
+                if attr is None:
+                    attr = self._resource_fields_to_update[key]  # Set default value if any to avoid system errors
+                data[key] = attr
         return data
 
     @abstractproperty

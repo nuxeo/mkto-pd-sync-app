@@ -43,6 +43,13 @@ class Resource:
 
                         setattr(self, key, attr)  # Cache related resource to prevent from further reloading
 
+                # Look for enum
+                if key in self._field_options:
+                    try:
+                        attr = self._field_options[key][int(attr)]
+                    except TypeError:  # In case attribute is not an integer
+                        pass
+
                 return attr
             else:
                 raise AttributeError("No attribute found with name %s" % name)
@@ -70,13 +77,14 @@ class Resource:
         data = {}
         for name in self._field_keys:
             key = self._field_keys[name]
-            attr = getattr(self, key) or self._field_defaults.get(key, None)
-            value = attr
-            if isinstance(attr, Resource):
-                value = getattr(attr, "id")  # "Flatten" related resources - keep id only
+            attr = getattr(self, key)
+            if attr is None or attr == "":
+                attr = self._field_defaults.get(key, attr)
+            elif isinstance(attr, Resource):
+                attr = getattr(attr, "id")  # "Flatten" related resources - keep id only
             elif type(attr) is dict and "id" in attr:  # In case of dict, keep id only as well
-                value = attr["id"]
-            data[key] = value
+                attr = attr["id"]
+            data[key] = attr
         return data
 
     @property
@@ -99,12 +107,19 @@ class Resource:
         fields = self._client.get_resource_fields(self.resource_name)
         self._field_keys = {}
         self._field_types = {}
+        self._field_options = {}
         if fields:
             for field in fields:
                 key = field["key"]
                 name = to_snake_case(field["name"])
                 self._field_keys[name] = key
                 self._field_types[key] = field["field_type"]
+
+                if "options" in field:
+                    self._field_options[key] = {}
+                    for option in field["options"]:
+                        self._field_options[key][option["id"]] = option["label"]
+
                 setattr(self, key, None)  # Initialize field
         else:
             raise InitializationError("Load fields", "No data returned")
