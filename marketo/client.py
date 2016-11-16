@@ -74,6 +74,9 @@ class MarketoClient:
         data_array = self._fetch_data(resource_name, resource_id, filter_type, resource_fields)
         ret = {}
         if data_array:
+            if len(data_array) > 1:
+                self._logger.warning("More than one resource %s found with %s %s",
+                                     resource_name, filter_type, resource_id)
             ret = data_array[0]  # Only one resource handled at a time for now
         return ret
 

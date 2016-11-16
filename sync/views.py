@@ -310,7 +310,7 @@ def create_or_update_company_in_marketo(organization_name):
     organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_name, "name")
 
     if organization.id is not None:
-        company = marketo.Company(sync.get_marketo_client(), organization_name, "company")
+        company = marketo.Company(sync.get_marketo_client(), organization_name, "company")  # TODO try externalCompanyId if not found
 
         data_changed = False
         if company.id is None:

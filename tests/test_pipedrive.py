@@ -152,11 +152,22 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.owner.id)
 
     def test_load_organization_with_name(self):
-        organization = pipedrive.Organization(self.pd, "MyCompany", "name")
+        organization = pipedrive.Organization(self.pd, "Test company", "name")
         self.assertIsNotNone(organization)
         self.assertIsNotNone(organization.id)
-        self.assertEqual(organization.name, "MyCompany")
-        self.assertEqual(organization.people_count, 12)
+        self.assertEqual(organization.name, "Test company")
+        self.assertEqual(organization.number_of_employees, 10)
+
+    def test_load_organization_with_name_non_unique_result(self):
+        organization = pipedrive.Organization(self.pd, "MyCompany", "name")
+        self.assertIsNotNone(organization)
+        self.assertIsNone(organization.id)
+
+    def test_load_organization_with_email_domain(self):
+        organization = pipedrive.Organization(self.pd, "test-company.com", "email_domain")
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.name, "Test company")
 
     def test_load_organization_undefined_with_name(self):
         organization = pipedrive.Organization(self.pd, "MyCompany2", "name")
@@ -201,10 +212,13 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
 
-    def test_create_filter(self):
-        filter_data = self.pd.create_organization_email_domain_filter("company.com")
+    def test_create_and_use_filter(self):
+        filter_data = self.pd.get_organization_email_domain_filter("test-company.com")
         self.assertTrue(filter_data)  # Assert not empty
         self.assertEquals(filter_data["name"], "Real Time API filter")
+        filtered_data_array = self.pd.get_resource_data("organization", None, {"filter_id": filter_data["id"]})
+        self.assertEquals(len(filtered_data_array), 1)
+        self.assertEquals(filtered_data_array[0]["name"], 'Test company')
 
 
 if __name__ == '__main__':

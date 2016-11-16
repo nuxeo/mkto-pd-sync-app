@@ -164,7 +164,7 @@ class PipedriveClient:
     def _get_filters(self):
         return self._fetch_data("filters")
 
-    def create_organization_email_domain_filter(self, filter_value):
+    def get_organization_email_domain_filter(self, filter_value):
         filters = self._get_filters()
 
         filter_name = "Real Time API filter"
@@ -199,8 +199,7 @@ class PipedriveClient:
                     }
                 ]
             },
-            "type": "org",
-            "user_id": "1628545"  # TODO: try no user id
+            "type": "org"
         }
 
         ret = self._push_data_json("filters",  r_data, filter_id)  # Create or update filter

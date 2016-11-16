@@ -127,31 +127,46 @@ class Resource:
     def _load_data(self, id_, id_field):
         id_to_look_for = id_
 
-        # Find resource id first if id_field was provided as "name"
-        if id_field == "name" and id_.strip():
-            data_array = self._client.get_resource_data(self.resource_name, "find", {"term": id_})
+        # Find resource id first if id_field was provided
+        if id_field == "name":
+            id_to_look_for = self._find_by_name(id_) or id_
+        elif id_field:
+            id_to_look_for = self._find_by_filter(id_field, id_) or id_
+
+        if id_to_look_for is not None:
+            try:
+                data = self._client.get_resource_data(self.resource_name, id_to_look_for)
+                if data and\
+                        ("active_flag" in data and data["active_flag"] or "active_flag" not in data):  # Prevent from loading deleted resource
+                    for key in data:
+                        setattr(self, key, self._get_data_value(data[key]))
+                else:
+                    self._logger.warning("No data could be loaded for resource %s with id %s",
+                                         self.resource_name, id_to_look_for)
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    self._logger.warning("No data could be loaded for resource %s with id %s",
+                                         self.resource_name, id_to_look_for)
+                else:
+                    raise e
+
+    def _find_by_name(self, name):
+        id_ = None
+        name = name.strip()
+        if name:
+            data_array = self._client.get_resource_data(self.resource_name, "find", {"term": name})
             if data_array:
-                id_to_look_for = data_array[0]["id"]  # Assume first result is the right one
+                if len(data_array) == 1:
+                    id_ = data_array[0]["id"]
+                else:
+                    self._logger.warning("More than one resource %s found with name %s", self.resource_name, name)
             else:
                 self._logger.warning("No resource %s found with name %s",
-                                     self.resource_name, id_)
-                return
+                                     self.resource_name, name)
+        return id_
 
-        try:
-            data = self._client.get_resource_data(self.resource_name, id_to_look_for)
-            if data and\
-                    ("active_flag" in data and data["active_flag"] or "active_flag" not in data):  # Prevent from loading deleted resource
-                for key in data:
-                    setattr(self, key, self._get_data_value(data[key]))
-            else:
-                self._logger.warning("No data could be loaded for resource %s with id %s",
-                                     self.resource_name, id_to_look_for)
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                self._logger.warning("No data could be loaded for resource %s with id %s",
-                                     self.resource_name, id_to_look_for)
-            else:
-                raise e
+    def _find_by_filter(self, filter_name, filter_value):
+        return None
 
     def save(self):
         """
@@ -196,6 +211,24 @@ class Organization(Resource):
     @property
     def related_resources(self):
         return {}
+
+    def _find_by_filter(self, filter_name, filter_value):
+        id_ = None
+        if filter_name == "email_domain":
+            filter_value = filter_value.strip()
+            if filter_value:
+                filter_data = self._client.get_organization_email_domain_filter(filter_value)
+                filtered_data_array = self._client.get_resource_data("organization", None, {"filter_id": filter_data["id"]})
+                if filtered_data_array:
+                    if len(filtered_data_array) == 1:
+                        id_ = filtered_data_array[0]["id"]
+                    else:
+                        self._logger.warning("More than one resource %s found with %s %s",
+                                             self.resource_name, filter_name, filter_value)
+                else:
+                    self._logger.warning("No resource %s found with %s %s",
+                                         self.resource_name, filter_name, filter_value)
+        return id_
 
 
 class Deal(Resource):
