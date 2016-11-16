@@ -1,3 +1,4 @@
+# coding=UTF-8
 from .context import marketo
 from .context import secret
 
@@ -57,14 +58,16 @@ class MarketoTestCase(unittest.TestCase):
     def test_save_lead(self):
         lead = marketo.Lead(self.mkto)
         lead.firstName = "Test"
-        lead.lastName = "Lead 2"
+        lead.lastName = "L€ad 2"  # Try non ASCII character
         lead.email = "lead@test2.com"
         self.assertIsNone(lead.id)
         lead.save()
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
+        # Reload lead before checking bc properties are not updated from result after saving
+        lead = marketo.Lead(self.mkto, lead.id)
         self.assertEquals(lead.firstName, "Test")
-        self.assertEquals(lead.lastName, "Lead 2")
+        self.assertEquals(lead.lastName, u"L€ad 2")  # JSON strings are unicode
         self.assertEquals(lead.email, "lead@test2.com")
         # Delete created lead
         self.mkto.delete_resource("lead", lead.id)
@@ -130,12 +133,15 @@ class MarketoTestCase(unittest.TestCase):
         opportunity = marketo.Opportunity(self.mkto)
         opportunity.externalOpportunityId = "testOpportunity1"
         opportunity.name = "Test opportunity 1"
+        #  Test some fields
+        opportunity.lastActivityDate = "2016-11-16"
         self.assertIsNone(opportunity.id)
         opportunity.save()
         self.assertIsNotNone(opportunity)
         self.assertIsNotNone(opportunity.id)
         self.assertEquals(opportunity.externalOpportunityId, "testOpportunity1")
         self.assertEquals(opportunity.name, "Test opportunity 1")
+        self.assertEquals(opportunity.lastActivityDate, "2016-11-16")
 
         role = marketo.Role(self.mkto)
         role.externalOpportunityId = "testOpportunity1"

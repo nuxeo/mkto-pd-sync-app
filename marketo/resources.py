@@ -117,7 +117,9 @@ class Lead(Resource):
             "conversicaLeadOwnerLastName": None,
             "pipedriveId": None,
             "leadStatus": None,
-            "toDelete": False
+            "toDelete": False,
+            "leadScore": None,
+            "mKTODateSQL": None
         }
 
 
@@ -127,7 +129,7 @@ class Opportunity(Resource):
     def _resource_fields_to_update(self):
         return {
             "externalOpportunityId": None,
-            "name": None,
+            "name": "Default opportunity name",
             "type": None,
             "description": None,
             "lastActivityDate": None,

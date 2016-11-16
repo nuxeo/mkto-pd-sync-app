@@ -23,6 +23,9 @@ if not app.debug:
             logger.addHandler(file_handler)
     except IOError:
         logging.error("Could no create log file with name %s (make sure directory exists)", file_name)
+        logging.basicConfig()
+        for logger in loggers:
+            logger.setLevel(logging.DEBUG)
 
 
 def create_marketo_client():

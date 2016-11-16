@@ -49,7 +49,8 @@ PERSON_TO_LEAD = {
         "post_adapter": datetime_to_date
     },
     "marketoid": {
-        "fields": ["id"]
+        "fields": ["id"],
+        "post_adapter": number_to_string
     },
     "state": {
         "fields": ["inferredStateRegion", "state"],

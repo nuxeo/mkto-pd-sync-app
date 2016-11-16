@@ -93,7 +93,7 @@ class MarketoClient:
             "input": [resource_data]
         }
         if resource_id is not None:  # Update
-            if not is_marketo_guid(str(resource_id)):
+            if not is_marketo_guid(resource_id):
                 r_data["lookupField"] = "id"  # Otherwise default would have been "email" for a lead
 
         data_array = self._push_data(resource_name, r_data)
@@ -178,7 +178,7 @@ class MarketoClient:
         url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION,
                             simple_pluralize(r_name))  # Resource name should be plural form
         if r_action is not None:
-            url += "/" + str(r_action)
+            url += "/" + r_action
         url += ".json"
         return url
 
@@ -187,7 +187,7 @@ class MarketoClient:
         self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
 
         r_data = {}
-        if is_marketo_guid(str(r_id)):
+        if is_marketo_guid(r_id):
             r_data["deleteBy"] = "idField"
             r_id_field = "marketoGUID"
         else:

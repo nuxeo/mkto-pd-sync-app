@@ -1,3 +1,4 @@
+# coding=UTF-8
 from .context import pipedrive
 from .context import secret
 
@@ -57,13 +58,16 @@ class PipedriveTestCase(unittest.TestCase):
 
     def test_save_person(self):
         person = pipedrive.Person(self.pd)
-        person.name = "Test Person 2"
+        person.name = "Test Persón 2"  # Try non ASCII character
         person.owner_id = 1628545  # my (Helene Jonin) owner id
+        #  Test some fields
+        person.lead_score = 10
         self.assertIsNone(person.id)
         person.save()
         self.assertIsNotNone(person)
         self.assertIsNotNone(person.id)
-        self.assertEquals(person.name, "Test Person 2")
+        self.assertEquals(person.name, u"Test Persón 2")  # JSON strings are unicode
+        self.assertEquals(person.lead_score, 10)
         # Delete created person
         self.pd.delete_resource("person", person.id)
 
@@ -82,7 +86,7 @@ class PipedriveTestCase(unittest.TestCase):
 
     def test_save_person_no_name(self):
         person = pipedrive.Person(self.pd)
-        person.name = ""
+        person.name = None
         person.owner_id = 1628545  # my (Helene Jonin) owner id
         self.assertIsNone(person.id)
         person.save()
@@ -169,6 +173,12 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(organization.id)
         self.assertEqual(organization.name, "Test company")
 
+    def test_load_organization_with_id(self):
+        organization = pipedrive.Organization(self.pd, 19828)
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.name, "Test company")
+
     def test_load_organization_undefined_with_name(self):
         organization = pipedrive.Organization(self.pd, "MyCompany2", "name")
         self.assertIsNotNone(organization)
@@ -204,11 +214,17 @@ class PipedriveTestCase(unittest.TestCase):
         deal.title = "Test deal 1"
         deal.person_id = 63080
         deal.user_id = 1628545  # my (Helene Jonin) owner id
+        deal.last_activity_date = "2016-11-16"
         self.assertIsNone(deal.id)
         deal.save()
         self.assertIsNotNone(deal)
         self.assertIsNotNone(deal.id)
         self.assertEquals(deal.title, "Test deal 1")
+        self.assertEquals(deal.last_activity_date, "2016-11-16")
+        #  Test update some fields
+        deal.last_activity_date = "2016-11-17"
+        deal.save()
+        # self.assertEquals(deal.last_activity_date, "2016-11-17")  # FIXME not updateable?
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
 

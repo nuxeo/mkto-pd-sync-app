@@ -92,6 +92,29 @@ def pipedrive_person_to_marketo_lead_with_params():
     return jsonify(**ret)
 
 
+@sync.app.route('/pipedrive/organization/<int:organization_id>', methods=['POST'])
+@authenticate
+def pipedrive_organization_to_marketo_lead(organization_id):
+    ret = create_or_update_company_in_marketo(organization_id)
+    return jsonify(**ret)
+
+
+@sync.app.route('/pipedrive/organization', methods=['POST'])
+@authenticate
+def pipedrive_organization_to_marketo_company_with_params():
+    ret = {}
+    params = request.get_json()
+    if params is not None and "current" in params and "id" in params["current"] and params["current"]["id"] is not None:
+        try:
+            organization_id = int(params["current"]["id"])
+            ret = create_or_update_company_in_marketo(organization_id)
+        except ValueError:
+            ret = {
+                "error": "Incorrect id %s" % str(params["current"]["id"])
+            }
+    return jsonify(**ret)
+
+
 @sync.app.route('/pipedrive/person/<int:pipedrive_marketo_id>/delete', methods=['POST'])
 @authenticate
 def delete_marketo_lead(pipedrive_marketo_id):
@@ -212,18 +235,25 @@ def create_or_update_person_in_pipedrive(lead_id):
     return ret
 
 
-def create_or_update_organization_in_pipedrive(company_name):
+def create_or_update_organization_in_pipedrive(company_external_id):
     """Creates or updates an organization in Pipedrive with data from the
     company found in Marketo with the given name.
     Update can be performed if the organization and the company share the same name.
     Data to set is defined in mappings.
     If the organization is already up-to-date with any associated company, does nothing.
     """
-    sync.app.logger.debug("Getting company data from Marketo with name %s", str(company_name))
-    company = marketo.Company(sync.get_marketo_client(), company_name, "company")
+    sync.app.logger.debug("Getting company data from Marketo with external id %s", str(company_external_id))
+    company = marketo.Company(sync.get_marketo_client(), company_external_id, "externalCompanyId")
 
     if company.id is not None:
-        organization = pipedrive.Organization(sync.get_pipedrive_client(), company_name, "name")
+        # Search organization in Pipedrive
+        organization_id = marketo.get_id_part_from_external(company.externalCompanyId)
+        if organization_id:  # Try id
+            organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
+        if not organization_id or organization.id is None:  # Then name
+            organization = pipedrive.Organization(sync.get_pipedrive_client(), company.company, "name")
+        if organization.id is None:  # Finally Email domain
+            organization = pipedrive.Organization(sync.get_pipedrive_client(), company.website, "email_domain")
         status = "created" if organization.id is None else "updated"
 
         data_changed = False
@@ -247,7 +277,7 @@ def create_or_update_organization_in_pipedrive(company_name):
 
     else:
         ret = {
-            "error": "No company found with name %s" % str(company_name)
+            "error": "No company found with external id %s" % str(company_external_id)
         }
 
     return ret
@@ -299,18 +329,23 @@ def create_or_update_lead_in_marketo(person_id):
     return ret
 
 
-def create_or_update_company_in_marketo(organization_name):
+def create_or_update_company_in_marketo(organization_id):
     """Creates or updates a company in Marketo with data from the
     organization found in Pipedrive with the given name.
     Update can be performed if the company and the organization share the same name.
     Data to set is defined in mappings.
     If the company is already up-to-date with any associated organization, does nothing.
     """
-    sync.app.logger.debug("Getting organization data from Pipedrive with name %s", str(organization_name))
-    organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_name, "name")
+    sync.app.logger.debug("Getting organization data from Pipedrive with id %s", str(organization_id))
+    organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
 
     if organization.id is not None:
-        company = marketo.Company(sync.get_marketo_client(), organization_name, "company")  # TODO try externalCompanyId if not found
+        # Search organization in Pipedrive
+        # Try external id
+        company = marketo.Company(sync.get_marketo_client(),
+                                  marketo.compute_external_id("organization", organization.id), "externalCompanyId")
+        if company.id is None:  # Or name
+            company = marketo.Company(sync.get_marketo_client(), organization.name, "company")
 
         data_changed = False
         if company.id is None:
@@ -341,7 +376,7 @@ def create_or_update_company_in_marketo(organization_name):
 
     else:
         ret = {
-            "error": "No organization found with name %s" % str(organization_name)
+            "error": "No organization found with id %s" % str(organization_id)
         }
 
     return ret
@@ -433,9 +468,9 @@ def update_field(from_resource, to_resource, to_field, mapping):
 
     updated = False
     if hasattr(to_resource, to_field):
-        old_attr = getattr(to_resource, to_field) or ""
+        old_attr = getattr(to_resource, to_field)
         sync.app.logger.debug("Old attribute for field %s was %s and new is %s", to_field, old_attr, new_attr)
-        if new_attr != str(old_attr):  # Convert old attribute to string before comparing because new attribute is
+        if new_attr != old_attr:
             setattr(to_resource, to_field, new_attr)
             updated = True
     else:
@@ -457,16 +492,15 @@ def get_new_attr(from_resource, mapping):
                 sync.app.logger.debug("And pre-adapting value %s", from_attr)
                 from_attr = mapping["pre_adapter"](from_attr)
 
-            from_values.append(get_string_value(from_attr))
+            from_values.append(from_attr)
     else:
         # Pass the whole resource
         if "transformer" in mapping and callable(mapping["transformer"]):
             sync.app.logger.debug("And transforming resource %s", from_resource)
             from_attr = mapping["transformer"](from_resource)
-            from_values.append(get_string_value(from_attr))
+            from_values.append(from_attr)
 
-    # Starting from here processed values are strings
-    ret = ""
+    ret = None
     if len(from_values):
         ret = from_values[0]  # Assume first value is the right one
         if len(from_values) > 1:  # Unless a mode is provided
@@ -474,22 +508,14 @@ def get_new_attr(from_resource, mapping):
                 if mapping["mode"] == "join":
                     # For join mode assume separator is space
                     ret = " ".join(value for value in from_values if value)
+                    ret = ret if ret.strip() else None
                 elif mapping["mode"] == "choose":
                     # Get first non empty value
-                    ret = next((value for value in from_values if value), "")
+                    ret = next((value for value in from_values if value), None)
 
     # Call post adapter on result
     if "post_adapter" in mapping and callable(mapping["post_adapter"]):
         sync.app.logger.debug("And post-adapting result %s", ret)
         ret = mapping["post_adapter"](ret)
 
-    return ret
-
-
-def get_string_value(value):
-    ret = ""
-    if value is not None:
-        if isinstance(value, unicode):  # JSON strings are unicode
-            value = value.encode('utf-8')
-        ret = str(value)
     return ret

@@ -234,6 +234,12 @@ class Organization(Resource):
 class Deal(Resource):
 
     @property
+    def _field_defaults(self):
+        return {
+            "title": "Default deal title"
+        }
+
+    @property
     def related_resources(self):
         return {
             "people": Person,
