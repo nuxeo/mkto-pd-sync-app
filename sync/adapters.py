@@ -11,9 +11,9 @@ BIG_BOT_ID = 208823
 
 def company_name_to_org_id(lead):
     ret = ""
-    if lead.company:  # Case Company object
+    if lead.company:
         res = sync.create_or_update_organization_in_pipedrive(lead.company)
-        if res and "id" in res:
+        if res and "id" in res:  # Case Company object
             ret = res["id"]
         else:  # Case company form fields
             company = marketo.Company(sync.get_marketo_client())

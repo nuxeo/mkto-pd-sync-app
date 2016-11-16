@@ -201,6 +201,11 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         self.pd.delete_resource("deal", deal.id)
 
+    def test_create_filter(self):
+        filter_data = self.pd.create_organization_email_domain_filter("company.com")
+        self.assertTrue(filter_data)  # Assert not empty
+        self.assertEquals(filter_data["name"], "Real Time API filter")
+
 
 if __name__ == '__main__':
     logging.basicConfig()

@@ -5,21 +5,21 @@ from requests import Session
 import logging
 
 
-def memoize_one_arg(function):
-    memo = {}
+def memoize(function_name):
 
-    @wraps(function)
-    def wrapper(*args):
-        if len(args) == 2:
-            if args[1] in memo:
-                return memo[args[1]]
+    def decorator(function):
+        @wraps(function)
+        def wrapper(self, *args):
+            if function_name in self._memo and args in self._memo[function_name]:
+                rv = self._memo[function_name][args]
             else:
-                rv = function(*args)
-                memo[args[1]] = rv
-        else:
-            rv = function(*args)
-        return rv
-    return wrapper
+                if function_name not in self._memo:
+                    self._memo[function_name] = {}
+                rv = function(self, *args)
+                self._memo[function_name][args] = rv
+            return rv
+        return wrapper
+    return decorator
 
 
 class MarketoClient:
@@ -27,6 +27,7 @@ class MarketoClient:
 
     def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint):
         self._logger = logging.getLogger(__name__)
+        self._memo = {}
 
         self._identity_endpoint = identity_endpoint
         self._client_id = client_id
@@ -57,7 +58,7 @@ class MarketoClient:
                           (auth_data['access_token'], auth_data['expires_in']))
         return auth_data['access_token']
 
-    @memoize_one_arg
+    @memoize(function_name="get_resource_fields")
     def get_resource_fields(self, resource_name):
         return self._fetch_data(resource_name, "describe")
 
