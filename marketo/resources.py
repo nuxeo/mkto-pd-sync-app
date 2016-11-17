@@ -102,13 +102,11 @@ class Lead(Resource):
     @property
     def _resource_fields_to_update(self):
         # Marketo won't let us update all fields
-        # Especially some that cannot be updated while other are
-        return {
+        ret = {
             "id": None,  # id is mandatory for updating
             "firstName": None,
             "lastName": None,
-            "email": None,
-            "externalCompanyId": None,
+            "email": "unknown@unknown.com",  # If no default value, experiencing weird behaviours (e.g. duplicate companies)
             "title": None,
             "phone": None,
             "leadSource": None,
@@ -121,6 +119,13 @@ class Lead(Resource):
             "leadScore": None,
             "mKTODateSQL": None
         }
+        # Especially some that cannot be updated while other are
+        if self.externalCompanyId:
+            ret["externalCompanyId"] = None
+        else:
+            ret["website"] = None
+            ret["country"] = None
+        return ret
 
 
 class Opportunity(Resource):

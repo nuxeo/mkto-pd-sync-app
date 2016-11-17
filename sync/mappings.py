@@ -42,7 +42,7 @@ PERSON_TO_LEAD = {
     "owner_id": {
         "fields": ["conversicaLeadOwnerFirstName", "conversicaLeadOwnerLastName"],
         "mode": "join",
-        "post_adapter": lead_name_to_user_id
+        "post_adapter": user_name_to_user_id
     },
     "created_date": {
         "fields": ["createdAt"],

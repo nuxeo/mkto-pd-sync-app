@@ -17,7 +17,7 @@ class SyncTestCase(unittest.TestCase):
         cls.context = sync.app.app_context()
         cls.context.push()
 
-        # Create company to be linked with a Marketo lead
+        # Create company to be linked with Marketo lead
         company = marketo.Company(sync.get_marketo_client())
         company.externalCompanyId = "testFlaskCompany"
         company.company = "Test Flask Company"
@@ -54,7 +54,18 @@ class SyncTestCase(unittest.TestCase):
         lead.save()
         cls.lead = lead
 
-        # Create organization to be linked with a Pipedrive person
+        # Create another lead in Marketo not linked with any person in Pipedrive
+        lead_company_form_fields = marketo.Lead(sync.get_marketo_client())
+        lead_company_form_fields.firstName = "Test Other Flask"
+        lead_company_form_fields.lastName = "Lead"
+        lead_company_form_fields.email = "lead2@testflask.com"
+        # Company form fields
+        lead_company_form_fields.website = "another-flask-company.com"
+        lead_company_form_fields.country = "Canada"
+        lead_company_form_fields.save()
+        cls.lead_company_form_fields = lead_company_form_fields
+
+        # Create organization to be linked with Pipedrive person
         organization = pipedrive.Organization(sync.get_pipedrive_client())
         organization.name = "Test Flask Organization"
         organization.address = "Rue Mouffetard"
@@ -87,13 +98,26 @@ class SyncTestCase(unittest.TestCase):
         person.save()
         cls.person = person
 
+        # Create organization to be linked with Pipedrive linked person and linked with a company in Marketo
+        linked_organization = pipedrive.Organization(sync.get_pipedrive_client())
+        linked_organization.save()
+        cls.linked_organization = linked_organization
+
+        # Create company to be linked with Marketo linked lead and linked with an organization in Pipedrive
+        linked_company = marketo.Company(sync.get_marketo_client())
+        linked_company.externalCompanyId = marketo.compute_external_id("organization", cls.linked_organization.id)
+        linked_company.save()
+        cls.linked_company = linked_company
+
         # Create lead in Marketo linked with a person in Pipedrive
         linked_lead = marketo.Lead(sync.get_marketo_client())
+        linked_lead.externalCompanyId = cls.linked_company.externalCompanyId
         linked_lead.save()
         cls.linked_lead = linked_lead
 
         # Create person in Pipedrive linked with a lead in Marketo
         linked_person = pipedrive.Person(sync.get_pipedrive_client())
+        linked_person.org_id = cls.linked_organization.id
         linked_person.save()
         cls.linked_person = linked_person
 
@@ -137,41 +161,31 @@ class SyncTestCase(unittest.TestCase):
         linked_role.save()
         cls.linked_role = linked_role
 
-        # Initialize class variables
-        cls.new_lead = None
-        cls.new_person = None
-        cls.new_opportunity = None
-        cls.new_role = None
-        cls.new_organization = None
-        cls.new_company = None
-
     @classmethod
     def tearDownClass(cls):
         # Delete created resources
         sync.get_marketo_client().delete_resource("lead", cls.lead.id)
+        sync.get_marketo_client().delete_resource("lead", cls.lead_company_form_fields.id)
         sync.get_pipedrive_client().delete_resource("person", cls.person.id)
         sync.get_marketo_client().delete_resource("lead", cls.linked_lead.id)
         sync.get_pipedrive_client().delete_resource("person", cls.linked_person.id)
-        if cls.new_lead is not None:
-            sync.get_marketo_client().delete_resource("lead", cls.new_lead.id)
-        if cls.new_person is not None:
-            sync.get_pipedrive_client().delete_resource("person", cls.new_person.id)
         sync.get_pipedrive_client().delete_resource("deal", cls.deal.id)
         sync.get_marketo_client().delete_resource("opportunity", cls.linked_opportunity.id)
         sync.get_marketo_client().delete_resource("opportunities/role", cls.linked_role.id)
         sync.get_pipedrive_client().delete_resource("deal", cls.linked_deal.id)
-        if cls.new_opportunity is not None:
-            sync.get_marketo_client().delete_resource("opportunity", cls.new_opportunity.id)
-        if cls.new_role is not None:
-            sync.get_marketo_client().delete_resource("opportunities/role", cls.new_role.id)
-        sync.get_marketo_client().delete_resource("company", cls.company.id)
+        sync.get_marketo_client().delete_resource("company", cls.company.externalCompanyId, "externalCompanyId")
         sync.get_pipedrive_client().delete_resource("organization", cls.organization.id)
-        if cls.new_company is not None:
-            sync.get_marketo_client().delete_resource("company", cls.new_company.id)
-        if cls.new_organization is not None:
-            sync.get_pipedrive_client().delete_resource("organization", cls.new_organization.id)
+        sync.get_marketo_client().delete_resource("company", cls.linked_company.externalCompanyId, "externalCompanyId")
+        sync.get_pipedrive_client().delete_resource("organization", cls.linked_organization.id)
 
         cls.context.pop()
+
+    def test_authentication_error(self):
+        with sync.app.test_client() as c:
+            # rv = c.post('/marketo/lead/' + str(self.lead.id))
+            rv = c.post('/marketo/lead/1')
+            rv.status_code = 401
+            rv.message = "Authentication required"
 
     def test_create_person_in_pipedrive(self):
         with sync.app.test_client() as c:
@@ -180,12 +194,11 @@ class SyncTestCase(unittest.TestCase):
             self.assertIsNotNone(person_id)  # Pipedrive id has been updated
 
             person = pipedrive.Person(sync.get_pipedrive_client(), person_id)
-            self.new_person = person
             self.assertIsNotNone(person)  # Person has been created
             self.assertIsNotNone(person.id)
             self.assertEquals(person.name, "Test Flask Lead")
             self.assertEquals(person.email, "lead@testflask.com")
-            # self.assertEquals(person.org_id, "")
+            self.assertIsNotNone(person.org_id)
             self.assertEquals(person.title, "Manager")
             self.assertEquals(person.phone, "9876543210")
             self.assertEquals(person.inferred_country, "United States")
@@ -198,7 +211,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(person.date_sql, "2016-11-16")
             self.assertEquals(person.lead_status, "Recycled")
 
-            self.new_organization = person.organization
+            # Test Organization sync
             self.assertIsNotNone(person.organization)  # Organization has been created
             self.assertEquals(person.organization.name, "Test Flask Company")
             self.assertEquals(person.organization.address, "11th St")
@@ -215,12 +228,15 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "created")
             self.assertEquals(data["id"], person.id)
 
+            # Delete created resources
+            sync.get_pipedrive_client().delete_resource("person", person.id)
+            sync.get_pipedrive_client().delete_resource("organization", person.organization.id)
+
     def test_update_person_in_pipedrive(self):
         # Set linked lead
         self.linked_lead.firstName = "Test Linked Flask"
         self.linked_lead.lastName = "Lead"
         self.linked_lead.email = "lead@testlinkedflask.com"
-        # self.linked_lead.externalCompanyId = cls.company.externalCompanyId  # TODO?
         self.linked_lead.title = "Accountant"
         self.linked_lead.phone = "1357924680"
         self.linked_lead.leadSource = "Product"
@@ -235,12 +251,14 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.leadScore = 13
         self.linked_lead.mKTODateSQL = "2016-11-16 04:06:00"
         self.linked_lead.save()
+        self.linked_company.company = "Test Flask Linked Company"
+        self.linked_company.save()
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/' + str(self.linked_lead.id) + self.AUTHENTICATION_PARAM)
             person = pipedrive.Person(sync.get_pipedrive_client(), self.linked_person.id)
             self.assertEquals(person.name, "Test Linked Flask Lead")  # Person has been updated
             self.assertEquals(person.email, "lead@testlinkedflask.com")
-            # self.assertEquals(person.org_id, "")
+            self.assertIsNotNone(person.org_id)
             self.assertEquals(person.title, "Accountant")
             self.assertEquals(person.phone, "1357924680")
             # self.assertEquals(person.inferred_country, "Spain")  # Because not updateable
@@ -253,7 +271,9 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(person.date_sql, "2016-11-16")
             self.assertEquals(person.lead_status, "Prospect")
 
-            # TODO: test organization updated?
+            # Test Organization sync
+            organization = pipedrive.Organization(sync.get_pipedrive_client(), person.organization.id)  # Force reload
+            self.assertEquals(organization.name, "Test Flask Linked Company")  # Organization has been updated
 
             # Test return data
             data = json.loads(rv.data)
@@ -265,7 +285,6 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.firstName = "Test Linked Flask"
         self.linked_lead.lastName = "Person"
         self.linked_lead.email = "person@testlinkedflask.com"
-        # self.linked_lead.externalCompanyId = cls.company.externalCompanyId  # TODO?
         self.linked_lead.title = "Consultant"
         self.linked_lead.phone = "2468013579"
         self.linked_lead.leadSource = "Web Referral"
@@ -282,7 +301,6 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.save()
         self.linked_person.name = "Test Linked Flask Person"
         self.linked_person.email = "person@testlinkedflask.com"
-        # self.linked_person.org_id = cls.organization.id  # TODO?
         self.linked_person.title = "Consultant"
         self.linked_person.phone = "2468013579"
         self.linked_person.inferred_country = None  # Because not updateable
@@ -311,13 +329,12 @@ class SyncTestCase(unittest.TestCase):
             self.assertIsNotNone(lead_id)  # Marketo id has been updated
 
             lead = marketo.Lead(sync.get_marketo_client(), lead_id)
-            self.new_lead = lead
             self.assertIsNotNone(lead)  # Lead has been created
             self.assertIsNotNone(lead.id)
             self.assertEquals(lead.firstName, "Test Flask")
             self.assertEquals(lead.lastName, "Person")
             self.assertEquals(lead.email, "person@testflask.com")
-            # self.assertEquals(lead.externalCompanyId, "")
+            self.assertIsNotNone(lead.externalCompanyId)
             self.assertEquals(lead.title, "Dev")
             self.assertEquals(lead.phone, "5647382910")
             self.assertEquals(lead.leadSource, "Direct Traffic")
@@ -326,8 +343,8 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(lead.conversicaLeadOwnerLastName, "Jonin")
             self.assertEquals(lead.leadStatus, "Disqualified")
 
+            # Test Company sync
             company = marketo.Company(sync.get_marketo_client(), lead.externalCompanyId, "externalCompanyId")
-            self.new_company = company
             self.assertIsNotNone(company)  # Company has been created
             self.assertEquals(company.company, "Test Flask Organization")
             self.assertEquals(company.billingStreet, "Rue Mouffetard")
@@ -344,11 +361,14 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(data["status"], "created")
             self.assertEquals(data["id"], lead.id)
 
+            # Delete created resources
+            sync.get_marketo_client().delete_resource("lead", lead.id)
+            sync.get_marketo_client().delete_resource("company", company.externalCompanyId, "externalCompanyId")
+
     def test_update_lead_in_marketo(self):
         # Set linked person
         self.linked_person.name = "Test Linked Flask Person"
         self.linked_person.email = "person@testlinkedflask.com"
-        # self.linked_person.org_id = cls.organization.id  # TODO?
         self.linked_person.title = "Consultant"
         self.linked_person.phone = "2468013579"
         self.linked_person.inferred_country = "United Kingdom"
@@ -361,13 +381,15 @@ class SyncTestCase(unittest.TestCase):
         self.linked_person.date_sql = "2016-11-16T03:20:00Z"
         self.linked_person.lead_status = "MQL"
         self.linked_person.save()
+        self.linked_organization.name = "Test Flask Linked Organization"
+        self.linked_organization.save()
         with sync.app.test_client() as c:
             rv = c.post('/pipedrive/person/' + str(self.linked_person.id) + self.AUTHENTICATION_PARAM)
             lead = marketo.Lead(sync.get_marketo_client(), self.linked_lead.id)
             self.assertEquals(lead.firstName, "Test Linked Flask")  # Lead has been updated
             self.assertEquals(lead.lastName, "Person")
             self.assertEquals(lead.email, "person@testlinkedflask.com")
-            # self.assertEquals(lead.externalCompanyId, "")
+            self.assertEquals(lead.externalCompanyId, self.linked_company.externalCompanyId)
             self.assertEquals(lead.title, "Consultant")
             self.assertEquals(lead.phone, "2468013579")
             self.assertEquals(lead.leadSource, "Web Referral")
@@ -376,7 +398,10 @@ class SyncTestCase(unittest.TestCase):
             self.assertEquals(lead.conversicaLeadOwnerLastName, "Jonin")
             self.assertEquals(lead.leadStatus, "MQL")
 
-            # TODO: test organization updated?
+            # Test Company sync
+            company = marketo.Company(sync.get_marketo_client(), self.linked_company.externalCompanyId, "externalCompanyId")
+            self.assertEquals(company.id, self.linked_company.id)
+            self.assertEquals(company.company, "Test Flask Linked Organization")  # Company has been updated
 
             # Test return data
             data = json.loads(rv.data)
@@ -387,7 +412,6 @@ class SyncTestCase(unittest.TestCase):
         # Sync values
         self.linked_person.name = "Test Linked Flask Lead"
         self.linked_person.email = "lead@testlinkedflask.com"
-        # self.linked_person.org_id = cls.organization.id  # TODO?
         self.linked_person.title = "Accountant"
         self.linked_person.phone = "1357924680"
         # self.linked_person.inferred_country = "Spain"  # Because not updateable
@@ -403,7 +427,6 @@ class SyncTestCase(unittest.TestCase):
         self.linked_lead.firstName = "Test Linked Flask"
         self.linked_lead.lastName = "Lead"
         self.linked_lead.email = "lead@testlinkedflask.com"
-        # linked_lead.externalCompanyId = cls.company.externalCompanyId  # TODO?
         self.linked_lead.title = "Accountant"
         self.linked_lead.phone = "1357924680"
         self.linked_lead.leadSource = "Product"
@@ -434,7 +457,6 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             opportunity_id = data["opportunity"]["id"]
             opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_id)
-            self.new_opportunity = opportunity
             self.assertIsNotNone(opportunity)  # Opportunity has been created
             self.assertIsNotNone(opportunity.id)
             self.assertEquals(opportunity.externalOpportunityId, marketo.compute_external_id("deal", self.deal.id))
@@ -452,7 +474,6 @@ class SyncTestCase(unittest.TestCase):
 
             role_id = data["role"]["id"]
             role = marketo.Role(sync.get_marketo_client(), role_id)
-            self.new_role = role
             self.assertIsNotNone(role)  # Role has been created
             self.assertIsNotNone(role.id)
             self.assertEquals(role.externalOpportunityId, marketo.compute_external_id("deal", self.deal.id))
@@ -461,6 +482,10 @@ class SyncTestCase(unittest.TestCase):
 
             # Test return data
             self.assertEquals(data["opportunity"]["status"], "created")
+
+            # Delete created resources
+            sync.get_marketo_client().delete_resource("opportunity", opportunity.id)
+            sync.get_marketo_client().delete_resource("opportunities/role", role.id)
 
     def test_update_opportunity_in_marketo(self):
         # Set linked deal
@@ -548,6 +573,67 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             self.assertEquals(data["status"], "Ready for deletion")
             self.assertEquals(data["id"], self.lead.id)
+
+    def test_create_person_in_pipedrive_company_form_fields(self):
+        with sync.app.test_client() as c:
+            rv = c.post('/marketo/lead/' + str(self.lead_company_form_fields.id) + self.AUTHENTICATION_PARAM)
+            lead = marketo.Lead(sync.get_marketo_client(), self.lead_company_form_fields.id)
+            self.assertIsNotNone(lead.externalCompanyId)  # Company has been created
+            company = marketo.Company(sync.get_marketo_client(), lead.externalCompanyId, "externalCompanyId")
+            self.assertEquals(company.company, "another-flask-company.com")
+            self.assertEquals(company.billingCountry, "Canada")
+
+            person_id = lead.pipedriveId
+            self.assertIsNotNone(person_id)  # Pipedrive id has been updated
+
+            person = pipedrive.Person(sync.get_pipedrive_client(), person_id)
+            self.assertIsNotNone(person)  # Person has been created
+            self.assertIsNotNone(person.id)
+            self.assertEquals(person.name, "Test Other Flask Lead")
+            self.assertEquals(person.email, "lead2@testflask.com")
+            self.assertIsNotNone(person.org_id)
+
+            # Test Organization sync
+            self.assertIsNotNone(person.organization)  # Organization has been created
+            self.assertEquals(person.organization.name, "another-flask-company.com")
+            self.assertEquals(person.organization.country, "Canada")
+
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "created")
+            self.assertEquals(data["id"], person.id)
+
+            # Delete created resources
+            sync.get_pipedrive_client().delete_resource("person", person.id)
+            sync.get_pipedrive_client().delete_resource("organization", person.organization.id)
+
+    def test_update_company_in_marketo_find_by_name(self):
+        # Create company and organization with same name but not linked together
+        company = marketo.Company(sync.get_marketo_client())
+        company.externalCompanyId = "testFlaskUnlinkedOrganization"
+        company.company = "Test Flask Unlinked Organization"
+        company.numberOfEmployees = 14
+        company.save()
+        organization = pipedrive.Organization(sync.get_pipedrive_client())
+        organization.name = "Test Flask Unlinked Organization"
+        organization.number_of_employees = 15
+        organization.save()
+        with sync.app.test_client() as c:
+            rv = c.post('/pipedrive/organization/' + str(organization.id) + self.AUTHENTICATION_PARAM)
+
+            updated_company = marketo.Company(sync.get_marketo_client(), company.externalCompanyId, "externalCompanyId")
+            self.assertEquals(updated_company.id, company.id)
+            self.assertEquals(updated_company.company, company.company)
+            self.assertEquals(updated_company.numberOfEmployees, 15)  # Company has been updated
+
+            # Test return data
+            data = json.loads(rv.data)
+            self.assertEquals(data["status"], "updated")
+            self.assertEquals(data["id"], updated_company.id)
+
+            # Delete created resources
+            sync.get_marketo_client().delete_resource("company", company.externalCompanyId, "externalCompanyId")
+            sync.get_pipedrive_client().delete_resource("organization", organization.id)
 
 
 if __name__ == '__main__':

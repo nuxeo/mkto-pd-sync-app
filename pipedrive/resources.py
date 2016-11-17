@@ -44,7 +44,7 @@ class Resource:
                         setattr(self, key, attr)  # Cache related resource to prevent from further reloading
 
                 # Look for enum
-                if key in self._field_options:
+                if key in self._field_options and attr:
                     try:
                         attr = self._field_options[key][int(attr)]
                     except TypeError:  # In case attribute is not an integer
@@ -207,6 +207,12 @@ class Person(Resource):
 
 
 class Organization(Resource):
+
+    @property
+    def _field_defaults(self):
+        return {
+            "name": "Default organization name"
+        }
 
     @property
     def related_resources(self):

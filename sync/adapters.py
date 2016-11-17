@@ -11,14 +11,14 @@ BIG_BOT_ID = 208823
 
 def company_name_to_org_id(lead):
     ret = None
-    if lead.company:
+    if lead.company or lead.website:
         res = sync.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
         if res and "id" in res:  # Case Company object
             ret = res["id"]
         else:  # Case company form fields
             company = marketo.Company(sync.get_marketo_client())
             company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
-            company.company = lead.company
+            company.company = lead.company or lead.website
             company.billingStreet = lead.street
             company.billingCity = lead.city
             company.billingState = lead.state
@@ -48,9 +48,9 @@ def country_iso_to_name(country_iso_or_name):
     return ret
 
 
-def lead_name_to_user_id(lead_name):
+def user_name_to_user_id(lead_name):
     ret = BIG_BOT_ID
-    if lead_name.strip():
+    if lead_name and lead_name.strip():
         user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")  # TODO: use existing value if not found
         ret = user.id or ret
     return ret
@@ -120,13 +120,6 @@ def user_to_last_name(user):
 
 def toggle_boolean(boolean):
     return not boolean
-
-
-def organization_to_country(organization):
-    ret = None
-    if organization is not None:
-        ret = organization.country
-    return ret
 
 
 def is_closed(status):

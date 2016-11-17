@@ -60,6 +60,9 @@ class MarketoTestCase(unittest.TestCase):
         lead.firstName = "Test"
         lead.lastName = "L€ad 2"  # Try non ASCII character
         lead.email = "lead@test2.com"
+        #  Test some fields
+        lead.website = "test-company-website.com"
+        lead.country = "France"
         self.assertIsNone(lead.id)
         lead.save()
         self.assertIsNotNone(lead)
@@ -69,6 +72,8 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(lead.firstName, "Test")
         self.assertEquals(lead.lastName, u"L€ad 2")  # JSON strings are unicode
         self.assertEquals(lead.email, "lead@test2.com")
+        self.assertEquals(lead.website, "test-company-website.com")
+        self.assertEquals(lead.country, "France")
         # Delete created lead
         self.mkto.delete_resource("lead", lead.id)
 
@@ -219,7 +224,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(company.externalCompanyId, "testCompany1")
         self.assertEqual(company.company, "Test company 1")
         # Delete created company
-        self.mkto.delete_resource("company", company.id)
+        self.mkto.delete_resource("company", company.externalCompanyId, "externalCompanyId")
 
     def test_update_company(self):
         # Get company first
@@ -255,7 +260,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(lead.id)
         # Delete created lead and company
         self.mkto.delete_resource("lead", lead.id)
-        self.mkto.delete_resource("company", company.id)
+        self.mkto.delete_resource("company", company.externalCompanyId, "externalCompanyId")
 
 
 if __name__ == '__main__':

@@ -187,6 +187,7 @@ class PipedriveTestCase(unittest.TestCase):
     def test_load_person_related_organization(self):
         person = pipedrive.Person(self.pd, 63080)
         self.assertIsNotNone(person)
+        self.assertIsNotNone(person.org_id)
         self.assertIsNotNone(person.organization)
         self.assertEqual(person.organization.name, "MyCompany")
 

@@ -26,6 +26,7 @@ class InvalidUsage(Exception):
         return rv
 
 
+# Register an error handler to prevent from resulting in an internal server error
 @sync.app.errorhandler(InvalidUsage)
 def handle_authentication_error(error):
     response = jsonify(error.to_dict())
@@ -94,7 +95,7 @@ def pipedrive_person_to_marketo_lead_with_params():
 
 @sync.app.route('/pipedrive/organization/<int:organization_id>', methods=['POST'])
 @authenticate
-def pipedrive_organization_to_marketo_lead(organization_id):
+def pipedrive_organization_to_marketo_company(organization_id):
     ret = create_or_update_company_in_marketo(organization_id)
     return jsonify(**ret)
 

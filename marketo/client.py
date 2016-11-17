@@ -183,21 +183,34 @@ class MarketoClient:
         return url
 
     # Play carefully with this method!
-    def delete_resource(self, r_name, r_id):
-        self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
-
-        r_data = {}
-        if is_marketo_guid(r_id):
-            r_data["deleteBy"] = "idField"
-            r_id_field = "marketoGUID"
-        else:
-            r_id_field = "id"
-        r_data["input"] = [{r_id_field: r_id}]
-
-        data_array = self._push_data(r_name, r_data, "delete")
-
+    def delete_resource(self, r_name, r_id, r_id_dedupe_field=None):
         ret = {}
-        if data_array:
-            ret = data_array[0]  # Only one resource handled at a time for now
+
+        if r_id:
+            self._logger.warning("Deleting resource %s with id %s", r_name, str(r_id))
+
+            r_data = {}
+            if r_id_dedupe_field:
+                r_id_field = r_id_dedupe_field
+                r_data["deleteBy"] = "dedupeFields"
+            else:
+                if is_marketo_guid(r_id):
+                    r_id_field = "marketoGUID"
+                    r_data["deleteBy"] = "idField"
+                else:
+                    r_id_field = "id"
+            r_data["input"] = [{r_id_field: r_id}]
+
+            data_array = self._push_data(r_name, r_data, "delete")
+
+            if data_array:
+                ret = data_array[0]  # Only one resource handled at a time for now
+                if ret["status"] == "skipped":
+                    reason = ret["reasons"][0]  # Only one resource handled at a time for now
+                    self._logger.warning(reason["message"])
+                else:
+                    self._logger.info("Resource has been %s", ret["status"])
+        else:
+            self._logger.warning("Null id given")
 
         return ret

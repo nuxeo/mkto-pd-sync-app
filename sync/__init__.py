@@ -57,4 +57,5 @@ def get_pipedrive_client():
 
 
 import sync.views
-from .views import create_or_update_company_in_marketo, create_or_update_organization_in_pipedrive  # Export these methods for adapters
+# Export methods for adapters
+from .views import create_or_update_company_in_marketo, create_or_update_organization_in_pipedrive
