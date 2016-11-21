@@ -1,24 +1,7 @@
-from functools import wraps
+from common import memoize
 from requests import Session, HTTPError
 
 import logging
-
-
-def memoize(function_name):
-
-    def decorator(function):
-        @wraps(function)
-        def wrapper(self, *args):
-            if function_name in self._memo and args in self._memo[function_name]:
-                rv = self._memo[function_name][args]
-            else:
-                if function_name not in self._memo:
-                    self._memo[function_name] = {}
-                rv = function(self, *args)
-                self._memo[function_name][args] = rv
-            return rv
-        return wrapper
-    return decorator
 
 
 class PipedriveClient:
@@ -84,7 +67,7 @@ class PipedriveClient:
                            " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         url = self._build_url(r_name, r_id_or_action)
 
-        if r_id_or_action is None:  # Create
+        if not r_id_or_action:  # Create
             r = self._session.post(url, data=r_data)
         else:  # Update
             r = self._session.put(url, json=r_data)
@@ -107,7 +90,7 @@ class PipedriveClient:
                            " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         url = self._build_url(r_name, r_id_or_action)
 
-        if r_id_or_action is None:  # Create
+        if not r_id_or_action:  # Create
             r = self._session.post(url, json=r_data)
         else:  # Update
             r = self._session.put(url, json=r_data)
@@ -127,7 +110,7 @@ class PipedriveClient:
 
     def _build_url(self, r_name, r_id_or_action=None):
         url = self.API_ENDPOINT + "/" + r_name
-        if r_id_or_action is not None:
+        if r_id_or_action:
             url += "/" + str(r_id_or_action)
         return url
 
@@ -170,7 +153,7 @@ class PipedriveClient:
         filter_name = "Real Time API filter"
         # Search for existing filter
         filter_id = next((filter_["id"] for filter_ in filters if filter_["name"] == filter_name), None)
-        if filter_id is not None:
+        if filter_id:
             filter_ = self._fetch_data("filters", filter_id)  # Ensure filter still exists
             if not filter_:  # Case it does not
                 filter_id = None
@@ -204,7 +187,7 @@ class PipedriveClient:
 
         ret = self._push_data_json("filters",  r_data, filter_id)  # Create or update filter
 
-        if filter_id is None and ret:
+        if not filter_id and ret:
             self._memo["get_filters"] = {}  # Reset cache because a filter has been created
 
         return ret

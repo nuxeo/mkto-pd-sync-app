@@ -1,6 +1,6 @@
-from .errors import *
 
 from abc import ABCMeta, abstractproperty
+from common import InitializationError, SavingError
 
 import logging
 

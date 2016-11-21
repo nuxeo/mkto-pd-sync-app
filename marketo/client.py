@@ -1,25 +1,8 @@
-from functools import wraps
+from common import memoize
 from helpers import *
 from requests import Session
 
 import logging
-
-
-def memoize(function_name):
-
-    def decorator(function):
-        @wraps(function)
-        def wrapper(self, *args):
-            if function_name in self._memo and args in self._memo[function_name]:
-                rv = self._memo[function_name][args]
-            else:
-                if function_name not in self._memo:
-                    self._memo[function_name] = {}
-                rv = function(self, *args)
-                self._memo[function_name][args] = rv
-            return rv
-        return wrapper
-    return decorator
 
 
 class MarketoClient:
@@ -92,7 +75,7 @@ class MarketoClient:
             "action": "createOrUpdate",
             "input": [resource_data]
         }
-        if resource_id is not None:  # Update
+        if resource_id:  # Update
             if not is_marketo_guid(resource_id):
                 r_data["lookupField"] = "id"  # Otherwise default would have been "email" for a lead
 
@@ -114,7 +97,7 @@ class MarketoClient:
                            " with id/action %s" % str(r_id_or_action) if r_id_or_action is not None else "")
         payload = {}
 
-        if r_filter_type is not None:  # Case id
+        if r_filter_type:  # Case id
             url = self._build_url(r_name)
             payload["filterValues"] = r_id_or_action
             payload["filterType"] = r_filter_type
@@ -122,7 +105,7 @@ class MarketoClient:
             url = self._build_url(r_name, r_id_or_action)
 
         # Fields to be retrieved should be specified otherwise not all will be by default
-        if r_fields is not None:
+        if r_fields:
             payload["fields"] = r_fields
 
         headers = {"Authorization": "Bearer %s" % self._auth_token}
@@ -177,7 +160,7 @@ class MarketoClient:
     def _build_url(self, r_name, r_action=None):
         url = "%s/%s/%s" % (self._api_endpoint, self.API_VERSION,
                             simple_pluralize(r_name))  # Resource name should be plural form
-        if r_action is not None:
+        if r_action:
             url += "/" + r_action
         url += ".json"
         return url

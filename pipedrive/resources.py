@@ -1,6 +1,5 @@
-from .errors import *
-
 from abc import ABCMeta, abstractproperty
+from common import InitializationError, SavingError
 from helpers import *
 from requests import HTTPError
 
@@ -133,7 +132,7 @@ class Resource:
         elif id_field:
             id_to_look_for = self._find_by_filter(id_field, id_) or id_
 
-        if id_to_look_for is not None:
+        if id_to_look_for:
             try:
                 data = self._client.get_resource_data(self.resource_name, id_to_look_for)
                 if data and\
@@ -152,8 +151,8 @@ class Resource:
 
     def _find_by_name(self, name):
         id_ = None
-        name = name.strip()
-        if name:
+        if name and name.strip():
+            name = name.strip()
             data_array = self._client.get_resource_data(self.resource_name, "find", {"term": name})
             if data_array:
                 if len(data_array) == 1:
@@ -220,7 +219,7 @@ class Organization(Resource):
 
     def _find_by_filter(self, filter_name, filter_value):
         id_ = None
-        if filter_name == "email_domain":
+        if filter_name == "email_domain" and filter_value:
             filter_value = filter_value.strip()
             if filter_value:
                 filter_data = self._client.get_organization_email_domain_filter(filter_value)

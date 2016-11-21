@@ -26,7 +26,7 @@ def is_marketo_guid(id):
     False
     """
     p = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
-    return p.match(str(id)) is not None
+    return p.match(str(id))
 
 
 def compute_external_id(pd_resource_name, id_, prefix="pd"):
