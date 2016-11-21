@@ -607,16 +607,14 @@ class SyncTestCase(unittest.TestCase):
             sync.get_pipedrive_client().delete_resource("person", person.id)
             sync.get_pipedrive_client().delete_resource("organization", person.organization.id)
 
-    def test_update_company_in_marketo_find_by_name(self):
+    def test_update_company_in_marketo_find_by_name_no_change(self):
         # Create company and organization with same name but not linked together
         company = marketo.Company(sync.get_marketo_client())
         company.externalCompanyId = "testFlaskUnlinkedOrganization"
         company.company = "Test Flask Unlinked Organization"
-        company.numberOfEmployees = 14
         company.save()
         organization = pipedrive.Organization(sync.get_pipedrive_client())
         organization.name = "Test Flask Unlinked Organization"
-        organization.number_of_employees = 15
         organization.save()
         with sync.app.test_client() as c:
             rv = c.post('/pipedrive/organization/' + str(organization.id) + self.AUTHENTICATION_PARAM)
@@ -624,11 +622,10 @@ class SyncTestCase(unittest.TestCase):
             updated_company = marketo.Company(sync.get_marketo_client(), company.externalCompanyId, "externalCompanyId")
             self.assertEquals(updated_company.id, company.id)
             self.assertEquals(updated_company.company, company.company)
-            self.assertEquals(updated_company.numberOfEmployees, 15)  # Company has been updated
 
             # Test return data
             data = json.loads(rv.data)
-            self.assertEquals(data["status"], "updated")
+            self.assertEquals(data["status"], "skipped")
             self.assertEquals(data["id"], updated_company.id)
 
             # Delete created resources
