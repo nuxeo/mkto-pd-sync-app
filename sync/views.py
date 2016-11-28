@@ -470,8 +470,8 @@ def update_field(from_resource, to_resource, to_field, mapping):
     updated = False
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field)
-        sync.app.logger.debug("Old attribute for field %s was %s and new is %s", to_field, old_attr, new_attr)
-        if new_attr != old_attr:
+        sync.app.logger.debug("Old attribute for field %s was *%s* and new is *%s*", to_field, old_attr, new_attr)
+        if new_attr != old_attr and new_attr is not None and new_attr != "":
             setattr(to_resource, to_field, new_attr)
             updated = True
     else:
