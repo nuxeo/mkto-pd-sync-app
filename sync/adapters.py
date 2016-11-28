@@ -18,7 +18,7 @@ def company_name_to_org_id(lead):
         else:  # Case company form fields
             company = marketo.Company(sync.get_marketo_client())
             company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
-            company.company = lead.company or lead.website
+            company.company = lead.company
             company.billingStreet = lead.street
             company.billingCity = lead.city
             company.billingState = lead.state
