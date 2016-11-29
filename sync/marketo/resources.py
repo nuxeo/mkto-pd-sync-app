@@ -1,6 +1,6 @@
+from ..common import InitializationError, SavingError
 
 from abc import ABCMeta, abstractproperty
-from common import InitializationError, SavingError
 
 import logging
 

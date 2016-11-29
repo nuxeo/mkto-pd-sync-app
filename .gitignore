@@ -1,7 +1,6 @@
 *.log
 *.pyc
-/.idea/
-/secret.py
 .coverage
 coverage*
-venv/
+/.idea/
+/instance/*

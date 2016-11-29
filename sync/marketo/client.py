@@ -1,5 +1,6 @@
-from common import memoize
-from helpers import *
+from ..common import memoize
+from .helpers import is_marketo_guid, simple_pluralize
+
 from requests import Session
 
 import logging

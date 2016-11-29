@@ -1,4 +1,5 @@
-import re
+from re import compile
+
 import string
 
 
@@ -17,8 +18,8 @@ def to_snake_case(label):
     # TODO: add cases
     # "MarketoId" -> "marketo_id" (now "marketoid")
     # "No. of Employees (Range)" (now "no__of_employees__range_")
-    filterpunct = re.compile("[%s\ ]" % string.punctuation)
-    alphafilter = re.compile("[%s%s_-]" % (string.digits,
+    filterpunct = compile("[%s\ ]" % string.punctuation)
+    alphafilter = compile("[%s%s_-]" % (string.digits,
                              string.ascii_letters))
     name = filterpunct.sub("_", label.lower())
     return "".join(alphafilter.findall(name))

@@ -1,5 +1,6 @@
-from common import memoize
-from requests import Session, HTTPError
+from ..common import memoize
+
+from requests import HTTPError, Session
 
 import logging
 

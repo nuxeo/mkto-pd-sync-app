@@ -1,4 +1,4 @@
-import re
+from re import compile, search
 
 
 def simple_pluralize(word):
@@ -25,7 +25,7 @@ def is_marketo_guid(id):
     >>> is_marketo_guid("7591021")
     False
     """
-    p = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
+    p = compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
     return p.match(str(id))
 
 
@@ -44,7 +44,7 @@ def get_id_part_from_external(external_id):
         ''
         """
     ret = ""
-    match = re.search(r'-(\d*)$', external_id)
+    match = search(r'-(\d*)$', external_id)
     if match:
         ret = match.group(1)
     return ret

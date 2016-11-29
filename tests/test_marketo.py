@@ -1,6 +1,5 @@
 # coding=UTF-8
-from .context import marketo
-from .context import secret
+from .context import get_config, marketo
 
 import logging
 import unittest
@@ -10,8 +9,8 @@ class MarketoTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.mkto = marketo.MarketoClient(secret.IDENTITY_ENDPOINT, secret.CLIENT_ID, secret.CLIENT_SECRET,
-                                         secret.API_ENDPOINT)
+        cls.mkto = marketo.MarketoClient(get_config()['IDENTITY_ENDPOINT'], get_config()['CLIENT_ID'],
+                                         get_config()['CLIENT_SECRET'], get_config()['API_ENDPOINT'])
 
     def test_load_lead(self):
         lead = marketo.Lead(self.mkto, 7591021)

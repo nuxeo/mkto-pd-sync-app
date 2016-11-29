@@ -1,11 +1,11 @@
-from flask import Flask, g
-from secret import *
+from flask import g, Flask
 
 import marketo
 import pipedrive
 
-
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('config')
+app.config.from_pyfile('config.py')  # Override configuration with your own objects
 
 if not app.debug:
     import logging
@@ -30,12 +30,13 @@ if not app.debug:
 
 def create_marketo_client():
     """Creates the Marketo client."""
-    return marketo.MarketoClient(IDENTITY_ENDPOINT, CLIENT_ID, CLIENT_SECRET, API_ENDPOINT)
+    return marketo.MarketoClient(get_config()['IDENTITY_ENDPOINT'], get_config()['CLIENT_ID'],
+                                 get_config()['CLIENT_SECRET'], get_config()['API_ENDPOINT'])
 
 
 def create_pipedrive_client():
     """Creates the Pipedrive client."""
-    return pipedrive.PipedriveClient(PD_API_TOKEN)
+    return pipedrive.PipedriveClient(get_config()['PD_API_TOKEN'])
 
 
 def get_marketo_client():
@@ -56,6 +57,11 @@ def get_pipedrive_client():
     return g.pipedrive_client
 
 
+def get_config():
+    return app.config
+
+
+def get_logger():
+    return app.logger
+
 import sync.views
-# Export methods for adapters
-from .views import create_or_update_company_in_marketo, create_or_update_organization_in_pipedrive

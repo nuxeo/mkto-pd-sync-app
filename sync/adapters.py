@@ -3,7 +3,6 @@ from pycountry import countries
 
 import marketo
 import pipedrive
-import sync
 
 
 BIG_BOT_ID = 208823
@@ -11,11 +10,13 @@ BIG_BOT_ID = 208823
 
 def company_name_to_org_id(lead):
     ret = None
-    if lead.company or lead.website:
-        res = sync.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
+    if lead.company:
+        import views
+        res = views.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
         if res and "id" in res:  # Case Company object
             ret = res["id"]
         else:  # Case company form fields
+            import sync
             company = marketo.Company(sync.get_marketo_client())
             company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
             company.company = lead.company
@@ -30,7 +31,7 @@ def company_name_to_org_id(lead):
             company.save()
             lead.externalCompanyId = company.externalCompanyId
             lead.save()
-            res = sync.create_or_update_organization_in_pipedrive(company.externalCompanyId)
+            res = views.create_or_update_organization_in_pipedrive(company.externalCompanyId)
             ret = res["id"] if res and "id" in res else ret
     return ret
 
@@ -51,6 +52,7 @@ def country_iso_to_name(country_iso_or_name):
 def user_name_to_user_id(lead_name):
     ret = BIG_BOT_ID
     if lead_name and lead_name.strip():
+        import sync
         user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")  # TODO: use existing value if not found
         ret = user.id or ret
     return ret
@@ -92,7 +94,8 @@ def split_name_get_last(name):
 def organization_to_external_id(organization):
     ret = None
     if organization is not None:
-        res = sync.create_or_update_company_in_marketo(organization.id)
+        import views
+        res = views.create_or_update_company_in_marketo(organization.id)
         ret = res["externalId"] if res and "externalId" in res else ret
     return ret
 
