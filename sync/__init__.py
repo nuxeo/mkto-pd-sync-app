@@ -1,4 +1,5 @@
 from flask import g, Flask
+from redis import Redis
 
 import marketo
 import pipedrive
@@ -7,6 +8,7 @@ import pipedrive
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('config.py')  # Override configuration with your own objects
+app.config['REDIS_QUEUE_KEY'] = 'sync_message_queue'
 
 if not app.debug:
     import logging
@@ -40,6 +42,10 @@ def create_pipedrive_client():
     return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
 
 
+def create_redis():
+    return Redis()
+
+
 def get_marketo_client():
     """Creates a new Marketo client if there is none yet for the
     current application context.
@@ -56,6 +62,12 @@ def get_pipedrive_client():
     if not hasattr(g, 'pipedrive_client'):
         g.pipedrive_client = create_pipedrive_client()
     return g.pipedrive_client
+
+
+def get_redis():
+    if not hasattr(g, 'redis'):
+        g.redis = create_redis()
+    return g.redis
 
 
 def get_config(key):

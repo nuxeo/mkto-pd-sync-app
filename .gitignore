@@ -4,3 +4,4 @@
 coverage*
 /.idea/
 /instance/*
+dump.rdb
