@@ -7,7 +7,7 @@ import unittest
 
 
 class SyncTestCase(unittest.TestCase):
-    AUTHENTICATION_PARAM = "?api_key=" + get_config()['FLASK_AUTHORIZED_KEYS'][0]
+    AUTHENTICATION_PARAM = "?api_key=" + get_config("FLASK_AUTHORIZED_KEYS")[0]
 
     @classmethod
     def setUpClass(cls):

@@ -9,7 +9,7 @@ class PipedriveTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.pd = pipedrive.PipedriveClient(get_config()['PD_API_TOKEN'])
+        cls.pd = pipedrive.PipedriveClient(get_config("PD_API_TOKEN"))
 
     def test_load_person(self):
         person = pipedrive.Person(self.pd, 63080)
