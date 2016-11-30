@@ -23,7 +23,7 @@ if not app.debug:
         for logger in loggers:
             logger.addHandler(file_handler)
     except IOError:
-        logging.error("Could no create log file with name %s (make sure directory exists)", file_name)
+        logging.error('Could no create log file with name %s (make sure directory exists)', file_name)
         logging.basicConfig()
         for logger in loggers:
             logger.setLevel(logging.DEBUG)
@@ -31,13 +31,13 @@ if not app.debug:
 
 def create_marketo_client():
     """Creates the Marketo client."""
-    return marketo.MarketoClient(get_config("IDENTITY_ENDPOINT"), get_config("CLIENT_ID"),
-                                 get_config("CLIENT_SECRET"), get_config("API_ENDPOINT"))
+    return marketo.MarketoClient(get_config('IDENTITY_ENDPOINT'), get_config('CLIENT_ID'),
+                                 get_config('CLIENT_SECRET'), get_config('API_ENDPOINT'))
 
 
 def create_pipedrive_client():
     """Creates the Pipedrive client."""
-    return pipedrive.PipedriveClient(get_config("PD_API_TOKEN"))
+    return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
 
 
 def get_marketo_client():
@@ -63,7 +63,7 @@ def get_config(key):
     try:
         value = app.config[key]
     except KeyError:
-        get_logger().warning("Undefined configuration key %s", key)
+        get_logger().warning('Undefined configuration key %s', key)
     return value
 
 

@@ -13,12 +13,12 @@ def company_name_to_org_id(lead):
     if lead.company:
         import views
         res = views.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
-        if res and "id" in res:  # Case Company object
-            ret = res["id"]
+        if res and 'id' in res:  # Case Company object
+            ret = res['id']
         else:  # Case company form fields
             import sync
             company = marketo.Company(sync.get_marketo_client())
-            company.externalCompanyId = marketo.compute_external_id("lead-company", lead.id, "mkto")
+            company.externalCompanyId = marketo.compute_external_id('lead-company', lead.id, 'mkto')
             company.company = lead.company
             company.billingStreet = lead.street
             company.billingCity = lead.city
@@ -32,7 +32,7 @@ def company_name_to_org_id(lead):
             lead.externalCompanyId = company.externalCompanyId
             lead.save()
             res = views.create_or_update_organization_in_pipedrive(company.externalCompanyId)
-            ret = res["id"] if res and "id" in res else ret
+            ret = res['id'] if res and 'id' in res else ret
     return ret
 
 
@@ -53,7 +53,7 @@ def user_name_to_user_id(lead_name):
     ret = BIG_BOT_ID
     if lead_name and lead_name.strip():
         import sync
-        user = pipedrive.User(sync.get_pipedrive_client(), lead_name, "name")  # TODO: use existing value if not found
+        user = pipedrive.User(sync.get_pipedrive_client(), lead_name, 'name')  # TODO: use existing value if not found
         ret = user.id or ret
     return ret
 
@@ -62,7 +62,7 @@ def datetime_to_date(datetime_):
     ret = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
+            ret = datetime.strptime(datetime_, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d')
         except ValueError:
             pass
     return ret
@@ -79,7 +79,7 @@ def split_name_get_first(name):
     ret = name
     if name:
         split = name.split()
-        ret = " ".join(split[:-1]) if len(split) > 1 else ret
+        ret = ' '.join(split[:-1]) if len(split) > 1 else ret
     return ret
 
 
@@ -96,7 +96,7 @@ def organization_to_external_id(organization):
     if organization is not None:
         import views
         res = views.create_or_update_company_in_marketo(organization.id)
-        ret = res["externalId"] if res and "externalId" in res else ret
+        ret = res['externalId'] if res and 'externalId' in res else ret
     return ret
 
 
@@ -127,14 +127,14 @@ def toggle_boolean(boolean):
 
 def is_closed(status):
     ret = False
-    if status == "lost" or status == "won":
+    if status == 'lost' or status == 'won':
         ret = True
     return ret
 
 
 def is_won(status):
     ret = False
-    if status == "won":
+    if status == 'won':
         ret = True
     return ret
 
@@ -150,10 +150,10 @@ def datetime_to_date2(datetime_):
     ret = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+            ret = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
         except ValueError:
             try:
-                ret = datetime.strptime(datetime_, "%Y-%m-%d").strftime("%Y-%m-%d")
+                ret = datetime.strptime(datetime_, '%Y-%m-%d').strftime('%Y-%m-%d')
             except ValueError:
                 pass
     return ret
@@ -170,10 +170,10 @@ def datetime_to_quarter(datetime_):
     ret = None
     if datetime_:
         try:
-            ret = (datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").month - 1) // 3 + 1
+            ret = (datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').month - 1) // 3 + 1
         except ValueError:
             try:
-                ret = (datetime.strptime(datetime_, "%Y-%m-%d").month - 1) // 3 + 1
+                ret = (datetime.strptime(datetime_, '%Y-%m-%d').month - 1) // 3 + 1
             except ValueError:
                 pass
     return ret
@@ -183,10 +183,10 @@ def datetime_to_year(datetime_):
     ret = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, "%Y-%m-%d %H:%M:%S").year
+            ret = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').year
         except ValueError:
             try:
-                ret = datetime.strptime(datetime_, "%Y-%m-%d").year
+                ret = datetime.strptime(datetime_, '%Y-%m-%d').year
             except ValueError:
                 pass
     return ret

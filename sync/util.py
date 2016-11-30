@@ -25,7 +25,7 @@ class InvalidUsage(Exception):
 def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if request.args.get('api_key') and request.args.get('api_key') in get_config("FLASK_AUTHORIZED_KEYS"):
+        if request.args.get('api_key') and request.args.get('api_key') in get_config('FLASK_AUTHORIZED_KEYS'):
             return f(*args, **kwargs)
         else:
             raise InvalidUsage('Authentication required', 401)

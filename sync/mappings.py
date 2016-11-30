@@ -15,219 +15,219 @@ and the final string value will be passed as the "post-adapter" parameter.
 # To send from Marketo to Pipedrive
 
 PERSON_TO_LEAD = {
-    "name": {
-        "fields": ["firstName", "lastName"],
-        "mode": "join"
+    'name': {
+        'fields': ['firstName', 'lastName'],
+        'mode': 'join'
     },
-    "email": {
-        "fields": ["email"]
+    'email': {
+        'fields': ['email']
     },
-    "org_id": {
-        "transformer": company_name_to_org_id
+    'org_id': {
+        'transformer': company_name_to_org_id
     },
-    "title": {
-        "fields": ["title"]
+    'title': {
+        'fields': ['title']
     },
-    "phone": {
-        "fields": ["phone"]
+    'phone': {
+        'fields': ['phone']
     },
-    "inferred_country": {
-        "fields": ["inferredCountry", "country"],
-        "mode": "choose",
-        "pre_adapter": country_iso_to_name
+    'inferred_country': {
+        'fields': ['inferredCountry', 'country'],
+        'mode': 'choose',
+        'pre_adapter': country_iso_to_name
     },
-    "lead_source": {
-        "fields": ["leadSource"]
+    'lead_source': {
+        'fields': ['leadSource']
     },
-    "owner_id": {
-        "fields": ["conversicaLeadOwnerFirstName", "conversicaLeadOwnerLastName"],
-        "mode": "join",
-        "post_adapter": user_name_to_user_id
+    'owner_id': {
+        'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
+        'mode': 'join',
+        'post_adapter': user_name_to_user_id
     },
-    "created_date": {
-        "fields": ["createdAt"],
-        "post_adapter": datetime_to_date
+    'created_date': {
+        'fields': ['createdAt'],
+        'post_adapter': datetime_to_date
     },
-    "marketoid": {
-        "fields": ["id"],
-        "post_adapter": number_to_string
+    'marketoid': {
+        'fields': ['id'],
+        'post_adapter': number_to_string
     },
-    "state": {
-        "fields": ["inferredStateRegion", "state"],
-        "mode": "choose"
+    'state': {
+        'fields': ['inferredStateRegion', 'state'],
+        'mode': 'choose'
     },
-    "city": {
-        "fields": ["inferredCity", "city"],
-        "mode": "choose"
+    'city': {
+        'fields': ['inferredCity', 'city'],
+        'mode': 'choose'
     },
-    "lead_score": {
-        "fields": ["leadScore"]
+    'lead_score': {
+        'fields': ['leadScore']
     },
-    "date_sql": {
-        "fields": ["mKTODateSQL"],
-        "post_adapter": datetime_to_date
+    'date_sql': {
+        'fields': ['mKTODateSQL'],
+        'post_adapter': datetime_to_date
     },
-    "lead_status": {
-        "fields": ["leadStatus"]
+    'lead_status': {
+        'fields': ['leadStatus']
     }
 }
 
 ORGANIZATION_TO_COMPANY = {
-    "name": {
-        "fields": ["company"]
+    'name': {
+        'fields': ['company']
     },
-    "address": {
-        "fields": ["billingStreet"]
+    'address': {
+        'fields': ['billingStreet']
     },
-    "city": {
-        "fields": ["billingCity"]
+    'city': {
+        'fields': ['billingCity']
     },
-    "state": {
-        "fields": ["billingState"]
+    'state': {
+        'fields': ['billingState']
     },
-    "country": {
-        "fields": ["billingCountry"],
-        "pre_adapter": country_iso_to_name
+    'country': {
+        'fields': ['billingCountry'],
+        'pre_adapter': country_iso_to_name
     },
-    "company_phone": {
-        "fields": ["mainPhone"]
+    'company_phone': {
+        'fields': ['mainPhone']
     },
-    "industry": {
-        "fields": ["industry"]
+    'industry': {
+        'fields': ['industry']
     },
-    "annual_revenue": {
-        "fields": ["annualRevenue"],
-        "post_adapter": number_to_float
+    'annual_revenue': {
+        'fields': ['annualRevenue'],
+        'post_adapter': number_to_float
     },
-    "number_of_employees": {
-        "fields": ["numberOfEmployees"]
+    'number_of_employees': {
+        'fields': ['numberOfEmployees']
     }
 }
 
 # To send from Pipedrive to Marketo
 
 LEAD_TO_PERSON = {
-    "firstName": {
-        "fields": ["name"],
-        "post_adapter": split_name_get_first
+    'firstName': {
+        'fields': ['name'],
+        'post_adapter': split_name_get_first
     },
-    "lastName": {
-        "fields": ["name"],
-        "post_adapter": split_name_get_last
+    'lastName': {
+        'fields': ['name'],
+        'post_adapter': split_name_get_last
     },
-    "email": {
-        "fields": ["email"]
+    'email': {
+        'fields': ['email']
     },
-    "externalCompanyId": {
-        "fields": ["organization"],
-        "pre_adapter": organization_to_external_id,
+    'externalCompanyId': {
+        'fields': ['organization'],
+        'pre_adapter': organization_to_external_id,
     },
-    "title": {
-        "fields": ["title"]
+    'title': {
+        'fields': ['title']
     },
-    "phone": {
-        "fields": ["phone"]
+    'phone': {
+        'fields': ['phone']
     },
-    "leadSource": {
-        "fields": ["lead_source"]
+    'leadSource': {
+        'fields': ['lead_source']
     },
-    "conversicaLeadOwnerEmail": {
-        "fields": ["owner"],
-        "pre_adapter": user_to_email
+    'conversicaLeadOwnerEmail': {
+        'fields': ['owner'],
+        'pre_adapter': user_to_email
     },
-    "conversicaLeadOwnerFirstName": {
-        "fields": ["owner"],
-        "pre_adapter": user_to_first_name
+    'conversicaLeadOwnerFirstName': {
+        'fields': ['owner'],
+        'pre_adapter': user_to_first_name
     },
-    "conversicaLeadOwnerLastName": {
-        "fields": ["owner"],
-        "pre_adapter": user_to_last_name
+    'conversicaLeadOwnerLastName': {
+        'fields': ['owner'],
+        'pre_adapter': user_to_last_name
     },
-    "pipedriveId": {
-        "fields": ["id"]
+    'pipedriveId': {
+        'fields': ['id']
     },
-    "leadStatus": {
-        "fields": ["lead_status"]
+    'leadStatus': {
+        'fields': ['lead_status']
     },
-    "toDelete": {
-        "fields": ["active_flag"],
-        "post_adapter": toggle_boolean
+    'toDelete': {
+        'fields': ['active_flag'],
+        'post_adapter': toggle_boolean
     }
 }
 
 COMPANY_TO_ORGANIZATION = {
-    "company": {
-        "fields": ["name"]
+    'company': {
+        'fields': ['name']
     },
-    "billingStreet": {
-        "fields": ["address"]
+    'billingStreet': {
+        'fields': ['address']
     },
-    "billingCity": {
-        "fields": ["city"]
+    'billingCity': {
+        'fields': ['city']
     },
-    "billingState": {
-        "fields": ["state"]
+    'billingState': {
+        'fields': ['state']
     },
-    "billingCountry": {
-        "fields": ["country"],
-        "pre_adapter": country_iso_to_name
+    'billingCountry': {
+        'fields': ['country'],
+        'pre_adapter': country_iso_to_name
     },
-    "mainPhone": {
-        "fields": ["company_phone"]
+    'mainPhone': {
+        'fields': ['company_phone']
     },
-    "industry": {
-        "fields": ["industry"]
+    'industry': {
+        'fields': ['industry']
     },
-    "annualRevenue": {
-        "fields": ["annual_revenue"]
+    'annualRevenue': {
+        'fields': ['annual_revenue']
     },
-    "numberOfEmployees": {
-        "fields": ["number_of_employees"]
+    'numberOfEmployees': {
+        'fields': ['number_of_employees']
     }
 }
 
 DEAL_TO_OPPORTUNITY = {
-    "name": {
-        "fields": ["title"]
+    'name': {
+        'fields': ['title']
     },
-    "type": {
-        "fields": ["type"]
+    'type': {
+        'fields': ['type']
     },
-    "description": {
-        "fields": ["deal_description"]
+    'description': {
+        'fields': ['deal_description']
     },
-    "lastActivityDate": {
-        "fields": ["last_activity_date"]
+    'lastActivityDate': {
+        'fields': ['last_activity_date']
     },
-    "isClosed": {
-        "fields": ["status"],
-        "post_adapter": is_closed
+    'isClosed': {
+        'fields': ['status'],
+        'post_adapter': is_closed
     },
-    "isWon": {
-        "fields": ["status"],
-        "post_adapter": is_won
+    'isWon': {
+        'fields': ['status'],
+        'post_adapter': is_won
     },
-    "amount": {
-        "fields": ["value"],
-        "post_adapter": number_to_float
+    'amount': {
+        'fields': ['value'],
+        'post_adapter': number_to_float
     },
-    "closeDate": {
-        "fields": ["close_time", "expected_close_date"],
-        "mode": "choose",
-        "post_adapter": datetime_to_date2
+    'closeDate': {
+        'fields': ['close_time', 'expected_close_date'],
+        'mode': 'choose',
+        'post_adapter': datetime_to_date2
     },
-    "stage": {
-        "fields": ["stage"],
-        "pre_adapter": stage_to_name
+    'stage': {
+        'fields': ['stage'],
+        'pre_adapter': stage_to_name
     },
-    "fiscalQuarter": {
-        "fields": ["close_time", "expected_close_date"],
-        "mode": "choose",
-        "post_adapter": datetime_to_quarter
+    'fiscalQuarter': {
+        'fields': ['close_time', 'expected_close_date'],
+        'mode': 'choose',
+        'post_adapter': datetime_to_quarter
     },
-    "fiscalYear": {
-        "fields": ["close_time", "expected_close_date"],
-        "mode": "choose",
-        "post_adapter": datetime_to_year
+    'fiscalYear': {
+        'fields': ['close_time', 'expected_close_date'],
+        'mode': 'choose',
+        'post_adapter': datetime_to_year
     }
 }

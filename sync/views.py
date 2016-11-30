@@ -39,13 +39,13 @@ def pipedrive_person_to_marketo_lead(person_id):
 def pipedrive_person_to_marketo_lead_with_params():
     ret = {}
     params = request.get_json()
-    if params is not None and "current" in params and "id" in params["current"] and params["current"]["id"] is not None:
+    if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
         try:
-            person_id = int(params["current"]["id"])
+            person_id = int(params['current']['id'])
             ret = create_or_update_lead_in_marketo(person_id)
         except ValueError:
             ret = {
-                "error": "Incorrect id %s" % str(params["current"]["id"])
+                'error': 'Incorrect id %s' % str(params['current']['id'])
             }
     return jsonify(**ret)
 
@@ -62,13 +62,13 @@ def pipedrive_organization_to_marketo_company(organization_id):
 def pipedrive_organization_to_marketo_company_with_params():
     ret = {}
     params = request.get_json()
-    if params is not None and "current" in params and "id" in params["current"] and params["current"]["id"] is not None:
+    if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
         try:
-            organization_id = int(params["current"]["id"])
+            organization_id = int(params['current']['id'])
             ret = create_or_update_company_in_marketo(organization_id)
         except ValueError:
             ret = {
-                "error": "Incorrect id %s" % str(params["current"]["id"])
+                'error': 'Incorrect id %s' % str(params['current']['id'])
             }
     return jsonify(**ret)
 
@@ -86,13 +86,13 @@ def delete_marketo_lead_with_params():
     ret = {}
     params = request.get_json()
     # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID hash key
-    if params is not None and "previous" in params and "9a9714c55a34f5faf2956584040ca245b7ab641b" in params["previous"] and params["previous"]["9a9714c55a34f5faf2956584040ca245b7ab641b"] is not None:
+    if params is not None and 'previous' in params and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params['previous'] and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:
         try:
-            pipedrive_marketo_id = int(params["previous"]["9a9714c55a34f5faf2956584040ca245b7ab641b"])
+            pipedrive_marketo_id = int(params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'])
             ret = delete_lead_in_marketo(pipedrive_marketo_id)
         except ValueError:
             ret = {
-                "error": "Incorrect id %s" % str(params["previous"]["9a9714c55a34f5faf2956584040ca245b7ab641b"])
+                'error': 'Incorrect id %s' % str(params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'])
             }
     return jsonify(**ret)
 
@@ -109,12 +109,12 @@ def pipedrive_deal_to_marketo_opportunity_and_role(deal_id):
 def pipedrive_deal_to_marketo_opportunity_and_role_with_params():
     ret = {}
     params = request.get_json()
-    if params is not None and "current" in params and "id" in params["current"] and params["current"]["id"] is not None:
+    if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
         try:
-            deal_id = int(params["current"]["id"])
+            deal_id = int(params['current']['id'])
             ret = create_or_update_opportunity_in_marketo(deal_id)
         except ValueError:
             ret = {
-                "error": "Incorrect id %s" % str(params["current"]["id"])
+                'error': 'Incorrect id %s' % str(params['current']['id'])
             }
     return jsonify(**ret)

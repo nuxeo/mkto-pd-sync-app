@@ -48,15 +48,15 @@ class Resource:
         data = self._client.get_resource_fields(self.resource_name)
         self._fields = []
         if data:
-            self._id_field = data[0]["idField"]
-            if self._id_field != "id":
+            self._id_field = data[0]['idField']
+            if self._id_field != 'id':
                 self.id = None  # Resource should always have an id
-            for field in data[0]["fields"]:
-                self._fields.append(field["name"])
-                setattr(self, field["name"], None)  # Initialize field
+            for field in data[0]['fields']:
+                self._fields.append(field['name'])
+                setattr(self, field['name'], None)  # Initialize field
 
         else:
-            raise InitializationError("Load fields", "No data returned")
+            raise InitializationError('Load fields', 'No data returned')
 
     def _load_data(self, id_, id_field):
         id_field_to_look_for = id_field or self._id_field
@@ -64,10 +64,10 @@ class Resource:
         if data:
             for key in data:
                 setattr(self, key, data[key])
-            if self._id_field != "id":
+            if self._id_field != 'id':
                 self.id = getattr(self, self._id_field)  # Set id value with id field value
         else:
-            self._logger.warning("No data could be loaded for resource %s with id %s (looking for id field \"%s\")",
+            self._logger.warning('No data could be loaded for resource %s with id %s (looking for id field "%s")',
                                  self.resource_name, id_, id_field_to_look_for)
 
     def save(self):
@@ -78,10 +78,10 @@ class Resource:
         # Only id field is returned so update id and id field only
         if data and self._id_field in data:
             setattr(self, self._id_field, data[self._id_field])
-            if self._id_field != "id":
-                setattr(self, "id", data[self._id_field])  # Set id value with id field value
+            if self._id_field != 'id':
+                setattr(self, 'id', data[self._id_field])  # Set id value with id field value
         else:
-            raise SavingError("Save resource", "No data returned")
+            raise SavingError('Save resource', 'No data returned')
 
 
 class Lead(Resource):
@@ -92,39 +92,39 @@ class Lead(Resource):
         self._fields = []
         if fields:
             for field in fields:
-                name = field["rest"]["name"]
+                name = field['rest']['name']
                 self._fields.append(name)
                 setattr(self, name, None)  # Initialize field
-                self._id_field = "id"  # id field is not specified in return data for lead so manually set it
+                self._id_field = 'id'  # id field is not specified in return data for lead so manually set it
         else:
-            raise InitializationError("Load fields", "No data returned")
+            raise InitializationError('Load fields', 'No data returned')
 
     @property
     def _resource_fields_to_update(self):
         # Marketo won't let us update all fields
         ret = {
-            "id": None,  # id is mandatory for updating
-            "firstName": None,
-            "lastName": None,
-            "email": "unknown@unknown.com",  # If no default value, experiencing weird behaviours (e.g. duplicate companies)
-            "title": None,
-            "phone": None,
-            "leadSource": None,
-            "conversicaLeadOwnerEmail": None,
-            "conversicaLeadOwnerFirstName": None,
-            "conversicaLeadOwnerLastName": None,
-            "pipedriveId": None,
-            "leadStatus": None,
-            "toDelete": False,
-            "leadScore": None,
-            "mKTODateSQL": None
+            'id': None,  # id is mandatory for updating
+            'firstName': None,
+            'lastName': None,
+            'email': 'unknown@unknown.com',  # If no default value, experiencing weird behaviours (e.g. duplicate companies)
+            'title': None,
+            'phone': None,
+            'leadSource': None,
+            'conversicaLeadOwnerEmail': None,
+            'conversicaLeadOwnerFirstName': None,
+            'conversicaLeadOwnerLastName': None,
+            'pipedriveId': None,
+            'leadStatus': None,
+            'toDelete': False,
+            'leadScore': None,
+            'mKTODateSQL': None
         }
         # Especially some that cannot be updated while other are
         if self.externalCompanyId:
-            ret["externalCompanyId"] = None
+            ret['externalCompanyId'] = None
         else:
-            ret["website"] = None
-            ret["country"] = None
+            ret['website'] = None
+            ret['country'] = None
         return ret
 
 
@@ -133,18 +133,18 @@ class Opportunity(Resource):
     @property
     def _resource_fields_to_update(self):
         return {
-            "externalOpportunityId": None,
-            "name": "Default opportunity name",
-            "type": None,
-            "description": None,
-            "lastActivityDate": None,
-            "isClosed": None,
-            "isWon": None,
-            "amount": None,
-            "closeDate": None,
-            "stage": None,
-            "fiscalQuarter": None,
-            "fiscalYear": None
+            'externalOpportunityId': None,
+            'name': 'Default opportunity name',
+            'type': None,
+            'description': None,
+            'lastActivityDate': None,
+            'isClosed': None,
+            'isWon': None,
+            'amount': None,
+            'closeDate': None,
+            'stage': None,
+            'fiscalQuarter': None,
+            'fiscalYear': None
         }
 
 
@@ -152,15 +152,15 @@ class Role(Resource):
 
     @property
     def resource_name(self):
-        return "opportunities/" + self.__class__.__name__.lower()
+        return 'opportunities/' + self.__class__.__name__.lower()
 
     @property
     def _resource_fields_to_update(self):
         return {
-            "externalOpportunityId": None,
-            "leadId": None,
-            "role": None,
-            "isPrimary": False  # Marketo also requires a default value (no null) for certain fields (boolean fields?)
+            'externalOpportunityId': None,
+            'leadId': None,
+            'role': None,
+            'isPrimary': False  # Marketo also requires a default value (no null) for certain fields (boolean fields?)
         }
 
 
@@ -169,14 +169,14 @@ class Company(Resource):
     @property
     def _resource_fields_to_update(self):
         return {
-            "externalCompanyId": None,
-            "company": None,
-            "billingStreet": None,
-            "billingCity": None,
-            "billingState": None,
-            "billingCountry": None,
-            "mainPhone": None,
-            "industry": None,
-            "annualRevenue": None,
-            "numberOfEmployees": None
+            'externalCompanyId': None,
+            'company': None,
+            'billingStreet': None,
+            'billingCity': None,
+            'billingState': None,
+            'billingCountry': None,
+            'mainPhone': None,
+            'industry': None,
+            'annualRevenue': None,
+            'numberOfEmployees': None
         }
