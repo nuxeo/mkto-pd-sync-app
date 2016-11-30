@@ -1,10 +1,11 @@
-from . import get_logger, get_marketo_client, get_pipedrive_client
+from . import celery, get_logger, get_marketo_client, get_pipedrive_client
 from .mappings import *
 
 import marketo
 import pipedrive
 
 
+@celery.task()
 def create_or_update_person_in_pipedrive(lead_id):
     """Creates or updates a person in Pipedrive with data from the
     lead found in Marketo with the given id.
@@ -51,6 +52,7 @@ def create_or_update_person_in_pipedrive(lead_id):
     return ret
 
 
+@celery.task()
 def delete_person_in_pipedrive(lead_pipedrive_id):
     data = get_pipedrive_client().delete_resource('person', lead_pipedrive_id)
 
@@ -68,6 +70,7 @@ def delete_person_in_pipedrive(lead_pipedrive_id):
     return ret
 
 
+@celery.task()
 def create_or_update_organization_in_pipedrive(company_external_id):
     """Creates or updates an organization in Pipedrive with data from the
     company found in Marketo with the given name.
@@ -116,6 +119,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
     return ret
 
 
+@celery.task()
 def create_or_update_lead_in_marketo(person_id):
     """Creates or updates a lead in Marketo with data from the
     person found in Pipedrive with the given id.
@@ -162,6 +166,7 @@ def create_or_update_lead_in_marketo(person_id):
     return ret
 
 
+@celery.task()
 def create_or_update_company_in_marketo(organization_id):
     """Creates or updates a company in Marketo with data from the
     organization found in Pipedrive with the given name.
@@ -215,6 +220,7 @@ def create_or_update_company_in_marketo(organization_id):
     return ret
 
 
+@celery.task()
 def delete_lead_in_marketo(pipedrive_marketo_id):
     lead = marketo.Lead(get_marketo_client(), pipedrive_marketo_id)
 
@@ -234,6 +240,7 @@ def delete_lead_in_marketo(pipedrive_marketo_id):
     return ret
 
 
+@celery.task()
 def create_or_update_opportunity_in_marketo(deal_id):
     """Creates or updates an opportunity and an opportunity role in Marketo with data from the
     deal found in Pipedrive with the given id.

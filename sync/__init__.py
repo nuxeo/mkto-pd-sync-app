@@ -1,12 +1,13 @@
 from flask import g, Flask
 
+import celery
 import marketo
 import pipedrive
-
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('config.py')  # Override configuration with your own objects
+celery = celery.make_celery(app)
 
 if not app.debug:
     import logging
