@@ -36,6 +36,10 @@ class Resource:
                 data[key] = attr
         return data
 
+    @property
+    def _resource_fields_to_load(self):
+        return self._fields
+
     @abstractproperty
     def _resource_fields_to_update(self):
         """
@@ -60,7 +64,7 @@ class Resource:
 
     def _load_data(self, id_, id_field):
         id_field_to_look_for = id_field or self._id_field
-        data = self._client.get_resource_data(self.resource_name, id_, id_field_to_look_for, self._fields)
+        data = self._client.get_resource_data(self.resource_name, id_, id_field_to_look_for, self._resource_fields_to_load)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -98,6 +102,30 @@ class Lead(Resource):
                 self._id_field = 'id'  # id field is not specified in return data for lead so manually set it
         else:
             raise InitializationError('Load fields', 'No data returned')
+
+    # Override bc too many fields -> URL is too long
+    @property
+    def _resource_fields_to_load(self):
+        return {
+            'id',
+            'firstName',
+            'lastName',
+            'email',  # If no default value, experiencing weird behaviours (e.g. duplicate companies)
+            'title',
+            'phone',
+            'leadSource',
+            'conversicaLeadOwnerEmail',
+            'conversicaLeadOwnerFirstName',
+            'conversicaLeadOwnerLastName',
+            'pipedriveId',
+            'leadStatus',
+            'toDelete',
+            'leadScore',
+            'mKTODateSQL',
+            'externalCompanyId',
+            'website',
+            'country'
+        }
 
     @property
     def _resource_fields_to_update(self):

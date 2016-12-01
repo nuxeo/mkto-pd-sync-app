@@ -32,12 +32,12 @@ if not app.debug:
 def create_marketo_client():
     """Creates the Marketo client."""
     return marketo.MarketoClient(get_config('IDENTITY_ENDPOINT'), get_config('CLIENT_ID'),
-                                 get_config('CLIENT_SECRET'), get_config('API_ENDPOINT'))
+                                 get_config('CLIENT_SECRET'), get_config('API_ENDPOINT'), True)
 
 
 def create_pipedrive_client():
     """Creates the Pipedrive client."""
-    return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
+    return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'), True)
 
 
 def get_marketo_client():
