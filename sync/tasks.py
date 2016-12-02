@@ -1,6 +1,6 @@
-from . import get_logger, get_marketo_client, get_pipedrive_client
-from .mappings import *
+from .gae_handler import get_gae_logger, get_marketo_client, get_pipedrive_client
 
+import mappings
 import marketo
 import pipedrive
 
@@ -13,7 +13,7 @@ def create_or_update_person_in_pipedrive(lead_id):
     Data to set is defined in mappings.
     If the person is already up-to-date with any associated lead, does nothing.
     """
-    get_logger().debug('Getting lead data from Marketo with id %s', str(lead_id))
+    get_gae_logger().debug('Getting lead data from Marketo with id %s', str(lead_id))
     lead = marketo.Lead(get_marketo_client(), lead_id)
 
     if lead.id is not None:
@@ -21,21 +21,21 @@ def create_or_update_person_in_pipedrive(lead_id):
         status = 'created' if person.id is None else 'updated'
 
         data_changed = False
-        for pd_field in PERSON_TO_LEAD:
-            data_changed = update_field(lead, person, pd_field, PERSON_TO_LEAD[pd_field])\
+        for pd_field in mappings.PERSON_TO_LEAD:
+            data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field])\
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            get_logger().debug('Sending to Pipedrive%s', ' with id %s' % str(person.id) if person.id is not None else '')
+            get_gae_logger().debug('Sending to Pipedrive%s', ' with id %s' % str(person.id) if person.id is not None else '')
             person.save()
 
             if not lead.pipedriveId or lead.pipedriveId != person.id:
-                get_logger().debug('Updating Pipedrive id in Marketo')
+                get_gae_logger().debug('Updating Pipedrive id in Marketo')
                 lead.pipedriveId = person.id
                 lead.save()
         else:
-            get_logger().debug('Nothing to do')
+            get_gae_logger().debug('Nothing to do')
             status = 'skipped'
 
         ret = {
@@ -75,7 +75,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
     Data to set is defined in mappings.
     If the organization is already up-to-date with any associated company, does nothing.
     """
-    get_logger().debug('Getting company data from Marketo with external id %s', str(company_external_id))
+    get_gae_logger().debug('Getting company data from Marketo with external id %s', str(company_external_id))
     company = marketo.Company(get_marketo_client(), company_external_id, 'externalCompanyId')
 
     if company.id is not None:
@@ -90,17 +90,17 @@ def create_or_update_organization_in_pipedrive(company_external_id):
         status = 'created' if organization.id is None else 'updated'
 
         data_changed = False
-        for pd_field in ORGANIZATION_TO_COMPANY:
-            data_changed = update_field(company, organization, pd_field, ORGANIZATION_TO_COMPANY[pd_field])\
+        for pd_field in mappings.ORGANIZATION_TO_COMPANY:
+            data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field])\
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            get_logger().debug('Sending to Pipedrive%s', ' with id %s'
+            get_gae_logger().debug('Sending to Pipedrive%s', ' with id %s'
                                                             % str(organization.id) if organization.id is not None else '')
             organization.save()
         else:
-            get_logger().debug('Nothing to do')
+            get_gae_logger().debug('Nothing to do')
             status = 'skipped'
 
         ret = {
@@ -124,7 +124,7 @@ def create_or_update_lead_in_marketo(person_id):
     Data to set is defined in mappings.
     If the lead is already up-to-date with any associated person, does nothing.
     """
-    get_logger().debug('Getting person data from Pipedrive with id %s', str(person_id))
+    get_gae_logger().debug('Getting person data from Pipedrive with id %s', str(person_id))
     person = pipedrive.Person(get_pipedrive_client(), person_id)
 
     if person.id is not None:
@@ -132,21 +132,21 @@ def create_or_update_lead_in_marketo(person_id):
         status = 'created' if lead.id is None else 'updated'
 
         data_changed = False
-        for mkto_field in LEAD_TO_PERSON:
-            data_changed = update_field(person, lead, mkto_field, LEAD_TO_PERSON[mkto_field])\
+        for mkto_field in mappings.LEAD_TO_PERSON:
+            data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field])\
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            get_logger().debug('Sending to Marketo%s', ' with id %s' % str(person.id) if person.id is not None else '')
+            get_gae_logger().debug('Sending to Marketo%s', ' with id %s' % str(person.id) if person.id is not None else '')
             lead.save()
 
             if not person.marketoid or int(person.marketoid) != lead.id:
-                get_logger().debug('Updating Marketo id in Pipedrive')
+                get_gae_logger().debug('Updating Marketo id in Pipedrive')
                 person.marketoid = lead.id
                 person.save()
         else:
-            get_logger().debug('Nothing to do')
+            get_gae_logger().debug('Nothing to do')
             status = 'skipped'
 
         ret = {
@@ -169,7 +169,7 @@ def create_or_update_company_in_marketo(organization_id):
     Data to set is defined in mappings.
     If the company is already up-to-date with any associated organization, does nothing.
     """
-    get_logger().debug('Getting organization data from Pipedrive with id %s', str(organization_id))
+    get_gae_logger().debug('Getting organization data from Pipedrive with id %s', str(organization_id))
     organization = pipedrive.Organization(get_pipedrive_client(), organization_id)
 
     if organization.id is not None:
@@ -189,16 +189,16 @@ def create_or_update_company_in_marketo(organization_id):
         else:
             status = 'updated'
 
-        for mkto_field in COMPANY_TO_ORGANIZATION:
-            data_changed = update_field(organization, company, mkto_field, COMPANY_TO_ORGANIZATION[mkto_field])\
+        for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
+            data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field])\
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            get_logger().debug('Sending to Marketo%s', ' with id %s' % str(company.id) if company.id is not None else '')
+            get_gae_logger().debug('Sending to Marketo%s', ' with id %s' % str(company.id) if company.id is not None else '')
             company.save()
         else:
-            get_logger().debug('Nothing to do')
+            get_gae_logger().debug('Nothing to do')
             status = 'skipped'
 
         ret = {
@@ -243,7 +243,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
     Data to set is defined in mappings.
     If the opportunity is already up-to-date with any associated deal, does nothing.
     """
-    get_logger().debug('Getting deal data from Pipedrive with id %s', str(deal_id))
+    get_gae_logger().debug('Getting deal data from Pipedrive with id %s', str(deal_id))
     deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
 
     if deal.id is not None:
@@ -264,17 +264,17 @@ def create_or_update_opportunity_in_marketo(deal_id):
             else:
                 opportunity_status = 'updated'
 
-            for mkto_field in DEAL_TO_OPPORTUNITY:
-                data_changed = update_field(deal, opportunity, mkto_field, DEAL_TO_OPPORTUNITY[mkto_field])\
+            for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
+                data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field])\
                                or data_changed
 
             if data_changed:
                 # Perform the update only if data actually changed
-                get_logger().debug('Sending to Marketo (opportunity)%s',
+                get_gae_logger().debug('Sending to Marketo (opportunity)%s',
                                       ' with id %s' % str(opportunity.id) if opportunity.id is not None else '')
                 opportunity.save()
             else:
-                get_logger().debug('Nothing to do')
+                get_gae_logger().debug('Nothing to do')
                 opportunity_status = 'skipped'
 
             # Role
@@ -286,7 +286,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
                 role.leadId = deal.contact_person.marketoid
                 role.role = deal.champion.title if deal.champion and deal.champion.title else 'Default Role'
                 role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
-                get_logger().debug('Sending to Marketo (role)')
+                get_gae_logger().debug('Sending to Marketo (role)')
                 role.save()
 
             ret = {
@@ -314,14 +314,14 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
 
 def update_field(from_resource, to_resource, to_field, mapping):
-    get_logger().debug('Updating field %s', to_field)
+    get_gae_logger().debug('Updating field %s', to_field)
 
     new_attr = get_new_attr(from_resource, mapping)
 
     updated = False
     if hasattr(to_resource, to_field):
         old_attr = getattr(to_resource, to_field)
-        get_logger().debug('Old attribute for field %s was %s and new is %s', to_field, old_attr, new_attr)
+        get_gae_logger().debug('Old attribute for field %s was %s and new is %s', to_field, old_attr, new_attr)
         if new_attr != old_attr and new_attr is not None and new_attr != '':
             setattr(to_resource, to_field, new_attr)
             updated = True
@@ -341,14 +341,14 @@ def get_new_attr(from_resource, mapping):
 
             # Call pre adapter on field raw value
             if 'pre_adapter' in mapping and callable(mapping['pre_adapter']):
-                get_logger().debug('And pre-adapting value %s', from_attr)
+                get_gae_logger().debug('And pre-adapting value %s', from_attr)
                 from_attr = mapping['pre_adapter'](from_attr)
 
             from_values.append(from_attr)
     else:
         # Pass the whole resource
         if 'transformer' in mapping and callable(mapping['transformer']):
-            get_logger().debug('And transforming resource %s', from_resource)
+            get_gae_logger().debug('And transforming resource %s', from_resource)
             from_attr = mapping['transformer'](from_resource)
             from_values.append(from_attr)
 
@@ -367,7 +367,7 @@ def get_new_attr(from_resource, mapping):
 
     # Call post adapter on result
     if 'post_adapter' in mapping and callable(mapping['post_adapter']):
-        get_logger().debug('And post-adapting result %s', ret)
+        get_gae_logger().debug('And post-adapting result %s', ret)
         ret = mapping['post_adapter'](ret)
 
     return ret
