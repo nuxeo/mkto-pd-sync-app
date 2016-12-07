@@ -1,0 +1,195 @@
+{
+  "requestId": "10818#15807b34466",
+  "result": [
+    {
+      "name": "opportunity",
+      "displayName": "Opportunity",
+      "description": "Marketo Opportunity",
+      "createdAt": "2015-04-25T01:02:24Z",
+      "updatedAt": "2015-04-25T01:02:24Z",
+      "idField": "marketoGUID",
+      "dedupeFields": [
+        "externalOpportunityId"
+      ],
+      "searchableFields": [
+        [
+          "externalOpportunityId"
+        ],
+        [
+          "marketoGUID"
+        ],
+        [
+          "externalCompanyId"
+        ],
+        [
+          "externalSalesPersonId"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "createdAt",
+          "displayName": "createdAt",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "externalOpportunityId",
+          "displayName": "externalOpportunityId",
+          "dataType": "string",
+          "length": 50,
+          "updateable": false
+        },
+        {
+          "name": "marketoGUID",
+          "displayName": "marketoGUID",
+          "dataType": "string",
+          "length": 36,
+          "updateable": false
+        },
+        {
+          "name": "updatedAt",
+          "displayName": "updatedAt",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "amount",
+          "displayName": "amount",
+          "dataType": "currency",
+          "updateable": true
+        },
+        {
+          "name": "closeDate",
+          "displayName": "closeDate",
+          "dataType": "date",
+          "updateable": true
+        },
+        {
+          "name": "description",
+          "displayName": "description",
+          "dataType": "string",
+          "length": 2000,
+          "updateable": true
+        },
+        {
+          "name": "expectedRevenue",
+          "displayName": "expectedRevenue",
+          "dataType": "currency",
+          "updateable": true
+        },
+        {
+          "name": "externalCompanyId",
+          "displayName": "externalCompanyId",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true
+        },
+        {
+          "name": "externalCreatedDate",
+          "displayName": "externalCreatedDate",
+          "dataType": "datetime",
+          "updateable": true
+        },
+        {
+          "name": "externalSalesPersonId",
+          "displayName": "externalSalesPersonId",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true
+        },
+        {
+          "name": "fiscal",
+          "displayName": "fiscal",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "fiscalQuarter",
+          "displayName": "fiscalQuarter",
+          "dataType": "integer",
+          "updateable": true
+        },
+        {
+          "name": "fiscalYear",
+          "displayName": "fiscalYear",
+          "dataType": "integer",
+          "updateable": true
+        },
+        {
+          "name": "forecastCategoryName",
+          "displayName": "forecastCategoryName",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "isClosed",
+          "displayName": "isClosed",
+          "dataType": "boolean",
+          "updateable": true
+        },
+        {
+          "name": "isWon",
+          "displayName": "isWon",
+          "dataType": "boolean",
+          "updateable": true
+        },
+        {
+          "name": "lastActivityDate",
+          "displayName": "lastActivityDate",
+          "dataType": "date",
+          "updateable": true
+        },
+        {
+          "name": "leadSource",
+          "displayName": "leadSource",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "name",
+          "displayName": "name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "nextStep",
+          "displayName": "nextStep",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "probability",
+          "displayName": "probability",
+          "dataType": "integer",
+          "updateable": true
+        },
+        {
+          "name": "quantity",
+          "displayName": "quantity",
+          "dataType": "float",
+          "updateable": true
+        },
+        {
+          "name": "stage",
+          "displayName": "stage",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "type",
+          "displayName": "type",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        }
+      ]
+    }
+  ],
+  "success": true
+}

@@ -1,0 +1,27 @@
+{
+  "requestId": "8e33#158d62415e9",
+  "result": [
+    {
+      "seq": 0,
+      "id": 20,
+      "site": null,
+      "sicCode": null,
+      "createdAt": "2016-01-01T00:00:00Z",
+      "website": null,
+      "billingState": "NY",
+      "externalCompanyId": "pd-organization-20",
+      "numberOfEmployees": 10,
+      "billingCity": "New York",
+      "billingCountry": "United States",
+      "mainPhone": "0123456789",
+      "billingStreet": "11th St",
+      "company": "Test Flask Linked Company",
+      "annualRevenue": 1000000,
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "companyNotes": null,
+      "industry": "Finance",
+      "billingPostalCode": null
+    }
+  ],
+  "success": true
+}

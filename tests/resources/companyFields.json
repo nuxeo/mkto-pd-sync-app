@@ -1,0 +1,144 @@
+{
+  "requestId": "13f8e#15807aa085f",
+  "result": [
+    {
+      "name": "Company",
+      "description": "Map for API company fields",
+      "createdAt": "2015-06-20T01:18:37Z",
+      "updatedAt": "2015-06-20T01:18:37Z",
+      "idField": "id",
+      "dedupeFields": [
+        "externalCompanyId"
+      ],
+      "searchableFields": [
+        [
+          "externalCompanyId"
+        ],
+        [
+          "id"
+        ],
+        [
+          "externalSalesPersonId"
+        ],
+        [
+          "jigsawCompanyId"
+        ],
+        [
+          "jigsawCompanyStatus"
+        ],
+        [
+          "company"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "createdAt",
+          "displayName": "Created At",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "externalCompanyId",
+          "displayName": "External Company Id",
+          "dataType": "string",
+          "length": 50,
+          "updateable": false
+        },
+        {
+          "name": "id",
+          "displayName": "Id",
+          "dataType": "integer",
+          "updateable": false
+        },
+        {
+          "name": "updatedAt",
+          "displayName": "Updated At",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "annualRevenue",
+          "displayName": "Annual Revenue",
+          "dataType": "currency",
+          "updateable": true
+        },
+        {
+          "name": "company",
+          "displayName": "Company Name",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "companyNotes",
+          "displayName": "Company Notes",
+          "dataType": "text",
+          "updateable": true
+        },
+        {
+          "name": "externalSalesPersonId",
+          "displayName": "externalSalesPersonId",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true
+        },
+        {
+          "name": "industry",
+          "displayName": "Industry",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "jigsawCompanyId",
+          "displayName": "jigsawCompanyId",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true
+        },
+        {
+          "name": "jigsawCompanyStatus",
+          "displayName": "jigsawCompanyStatus",
+          "dataType": "string",
+          "length": 50,
+          "updateable": true
+        },
+        {
+          "name": "mainPhone",
+          "displayName": "Main Phone",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "numberOfEmployees",
+          "displayName": "Num Employees",
+          "dataType": "integer",
+          "updateable": true
+        },
+        {
+          "name": "sicCode",
+          "displayName": "SIC Code",
+          "dataType": "string",
+          "length": 40,
+          "updateable": true
+        },
+        {
+          "name": "site",
+          "displayName": "Site",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        },
+        {
+          "name": "website",
+          "displayName": "Website",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        }
+      ]
+    }
+  ],
+  "success": true
+}

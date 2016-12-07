@@ -1,0 +1,2850 @@
+{
+  "requestId": "175fa#158d5285060",
+  "result": [
+    {
+      "id": 2,
+      "displayName": "Company Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "company",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Company",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 3,
+      "displayName": "Site",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "site",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Site",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 4,
+      "displayName": "Address",
+      "dataType": "text",
+      "rest": {
+        "name": "street",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Street",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 5,
+      "displayName": "City",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "city",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "City",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 6,
+      "displayName": "State",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "state",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "State",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 7,
+      "displayName": "Country",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "country",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Country",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 8,
+      "displayName": "Postal Code",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "postalCode",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "PostalCode",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 9,
+      "displayName": "Website",
+      "dataType": "url",
+      "length": 255,
+      "rest": {
+        "name": "website",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Website",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 10,
+      "displayName": "Main Phone",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "mainPhone",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MainPhone",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 13,
+      "displayName": "Annual Revenue",
+      "dataType": "currency",
+      "rest": {
+        "name": "annualRevenue",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "AnnualRevenue",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 14,
+      "displayName": "Num Employees",
+      "dataType": "integer",
+      "rest": {
+        "name": "numberOfEmployees",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "NumberOfEmployees",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 15,
+      "displayName": "Industry",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "industry",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Industry",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 16,
+      "displayName": "SIC Code",
+      "dataType": "string",
+      "length": 40,
+      "rest": {
+        "name": "sicCode",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SICCode",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 18,
+      "displayName": "Company Notes",
+      "dataType": "text",
+      "rest": {
+        "name": "mktoCompanyNotes",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MktoCompanyNotes",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 30,
+      "displayName": "SFDC Account Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "sfdcAccountId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 33,
+      "displayName": "Id",
+      "dataType": "integer",
+      "rest": {
+        "name": "id",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Id",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 34,
+      "displayName": "Full Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "mktoName",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 35,
+      "displayName": "Person Type",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "personType",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "PersonType",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 37,
+      "displayName": "Is Partner",
+      "dataType": "boolean",
+      "rest": {
+        "name": "mktoIsPartner",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 38,
+      "displayName": "Is Lead",
+      "dataType": "boolean",
+      "rest": {
+        "name": "isLead",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "IsLead",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 39,
+      "displayName": "Is Customer",
+      "dataType": "boolean",
+      "rest": {
+        "name": "mktoIsCustomer",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 40,
+      "displayName": "Is Anonymous",
+      "dataType": "boolean",
+      "rest": {
+        "name": "isAnonymous",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 41,
+      "displayName": "Salutation",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "salutation",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Salutation",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 42,
+      "displayName": "First Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "firstName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "FirstName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 43,
+      "displayName": "Middle Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "middleName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MiddleName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 44,
+      "displayName": "Last Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "lastName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "LastName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 45,
+      "displayName": "Email Address",
+      "dataType": "email",
+      "length": 255,
+      "rest": {
+        "name": "email",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Email",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 46,
+      "displayName": "Phone Number",
+      "dataType": "phone",
+      "length": 255,
+      "rest": {
+        "name": "phone",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Phone",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 47,
+      "displayName": "Mobile Phone Number",
+      "dataType": "phone",
+      "length": 255,
+      "rest": {
+        "name": "mobilePhone",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MobilePhone",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 48,
+      "displayName": "Fax Number",
+      "dataType": "phone",
+      "length": 255,
+      "rest": {
+        "name": "fax",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Fax",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 49,
+      "displayName": "Job Title",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "title",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Title",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 50,
+      "displayName": "Contact Company",
+      "dataType": "reference",
+      "rest": {
+        "name": "contactCompany",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Contact Company",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 51,
+      "displayName": "Date of Birth",
+      "dataType": "date",
+      "rest": {
+        "name": "dateOfBirth",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "DateofBirth",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 52,
+      "displayName": "Primary Lead Interest",
+      "dataType": "reference",
+      "rest": {
+        "name": "personPrimaryLeadInterest",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "Person Primary Lead Interest",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 54,
+      "displayName": "Original Source Type",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "originalSourceType",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "OriginalSourceType",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 55,
+      "displayName": "Original Source Info",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "originalSourceInfo",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "OriginalSourceInfo",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 56,
+      "displayName": "Registration Source Type",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "registrationSourceType",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "RegistrationSourceType",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 57,
+      "displayName": "Registration Source Info",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "registrationSourceInfo",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "RegistrationSourceInfo",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 58,
+      "displayName": "Original Search Engine",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "originalSearchEngine",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "OriginalSearchEngine",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 59,
+      "displayName": "Original Search Phrase",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "originalSearchPhrase",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "OriginalSearchPhrase",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 60,
+      "displayName": "Original Referrer",
+      "dataType": "url",
+      "length": 255,
+      "rest": {
+        "name": "originalReferrer",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "OriginalReferrer",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 61,
+      "displayName": "Email Invalid",
+      "dataType": "boolean",
+      "rest": {
+        "name": "emailInvalid",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "EmailInvalid",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 62,
+      "displayName": "Email Invalid Cause",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "emailInvalidCause",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "EmailInvalidCause",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 63,
+      "displayName": "Unsubscribed",
+      "dataType": "boolean",
+      "rest": {
+        "name": "unsubscribed",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Unsubscribed",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 65,
+      "displayName": "Unsubscribed Reason",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "unsubscribedReason",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "UnsubscribedReason",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 66,
+      "displayName": "Do Not Call",
+      "dataType": "boolean",
+      "rest": {
+        "name": "doNotCall",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "DoNotCall",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 67,
+      "displayName": "Do Not Call Cause",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "mktoDoNotCallCause",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 68,
+      "displayName": "Do Not Call Reason",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "doNotCallReason",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "DoNotCallReason",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 73,
+      "displayName": "Person Notes",
+      "dataType": "text",
+      "rest": {
+        "name": "mktoPersonNotes",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MktoPersonNotes",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 74,
+      "displayName": "SFDC Type",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "sfdcType",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 82,
+      "displayName": "SFDC Contact Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "sfdcContactId",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 87,
+      "displayName": "Anonymous IP",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "anonymousIP",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "AnonymousIP",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 88,
+      "displayName": "Inferred Company",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredCompany",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "InferredCompany",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 89,
+      "displayName": "Inferred Country",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredCountry",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "InferredCountry",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 90,
+      "displayName": "Inferred City",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredCity",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 91,
+      "displayName": "Inferred State Region",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredStateRegion",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 92,
+      "displayName": "Inferred Postal Code",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredPostalCode",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 93,
+      "displayName": "Inferred Metropolitan Area",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredMetropolitanArea",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 94,
+      "displayName": "Inferred Phone Area Code",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "inferredPhoneAreaCode",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 108,
+      "displayName": "Created At",
+      "dataType": "datetime",
+      "rest": {
+        "name": "createdAt",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 109,
+      "displayName": "Updated At",
+      "dataType": "datetime",
+      "rest": {
+        "name": "updatedAt",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 111,
+      "displayName": "Lead Person",
+      "dataType": "reference",
+      "rest": {
+        "name": "leadPerson",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "Lead Person",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 113,
+      "displayName": "Role",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "leadRole",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "LeadRole",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 114,
+      "displayName": "Lead Source",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadSource",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "LeadSource",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 115,
+      "displayName": "Lead Status",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "LeadStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 116,
+      "displayName": "Lead Score",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadScore",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "LeadScore",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 117,
+      "displayName": "Urgency",
+      "dataType": "float",
+      "rest": {
+        "name": "urgency",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 118,
+      "displayName": "Priority",
+      "dataType": "integer",
+      "rest": {
+        "name": "priority",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 119,
+      "displayName": "Relative Score",
+      "dataType": "integer",
+      "rest": {
+        "name": "relativeScore",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 130,
+      "displayName": "Lead Rating",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "rating",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Rating",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 141,
+      "displayName": "SFDC Lead Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "sfdcLeadId",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 142,
+      "displayName": "SFDC Lead Owner Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "sfdcLeadOwnerId",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 406,
+      "displayName": "Lead Partition",
+      "dataType": "reference",
+      "rest": {
+        "name": "leadPartitionId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Lead Partition ID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 412,
+      "displayName": "Lead Revenue Cycle Model ID",
+      "dataType": "reference",
+      "rest": {
+        "name": "leadRevenueCycleModelId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Lead Revenue Cycle Model ID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 414,
+      "displayName": "Lead Revenue Stage ID",
+      "dataType": "reference",
+      "rest": {
+        "name": "leadRevenueStageId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Lead Revenue Stage ID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 516,
+      "displayName": "Acquisition Program",
+      "dataType": "reference",
+      "rest": {
+        "name": "acquisitionProgramId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Acquisition Program ID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 518,
+      "displayName": "Acquisition Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "mktoAcquisitionDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 560,
+      "displayName": "NxW Talk Title",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "NxWTalkTitle",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "NxWTalkTitle",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 561,
+      "displayName": "Marketo Data.com Status",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "jigsawContactStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Marketo Jigsaw Contact Status",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 562,
+      "displayName": "Marketo Data.com Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "jigsawContactId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Marketo Jigsaw Contact Id",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 564,
+      "displayName": "SFDC Id",
+      "dataType": "lead_function",
+      "length": 255,
+      "rest": {
+        "name": "sfdcId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 567,
+      "displayName": "Marketo Data.com Status",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "jigsawCompanyStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Marketo Jigsaw Company Status",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 568,
+      "displayName": "Marketo Data.com Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "jigsawCompanyId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Marketo Jigsaw Company Id",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 585,
+      "displayName": "Subscribe Mail Online Events",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailEvents",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailEvents",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 586,
+      "displayName": "Subscribe Mail Newsletter",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailNewsletter",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailNewsletter",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 587,
+      "displayName": "Subscribe Mail Product",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailProduct",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailProduct",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 631,
+      "displayName": "Marketo Social Gender",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "gender",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialGender",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 632,
+      "displayName": "Marketo Social Facebook Display Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "facebookDisplayName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookDisplayName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 633,
+      "displayName": "Marketo Social Twitter Display Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "twitterDisplayName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterDisplayName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 634,
+      "displayName": "Marketo Social LinkedIn Display Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "linkedInDisplayName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInDisplayName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 636,
+      "displayName": "Marketo Social Facebook Profile URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "facebookProfileURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookProfileURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 637,
+      "displayName": "Marketo Social Twitter Profile URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "twitterProfileURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterProfileURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 638,
+      "displayName": "Marketo Social LinkedIn Profile URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "linkedInProfileURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInProfileURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 640,
+      "displayName": "Marketo Social Facebook Photo URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "facebookPhotoURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookPhotoURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 641,
+      "displayName": "Marketo Social Twitter Photo URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "twitterPhotoURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterPhotoURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 642,
+      "displayName": "Marketo Social LinkedIn Photo URL",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "linkedInPhotoURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInPhotoURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 644,
+      "displayName": "Marketo Social Facebook Reach",
+      "dataType": "integer",
+      "rest": {
+        "name": "facebookReach",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookReach",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 645,
+      "displayName": "Marketo Social Twitter Reach",
+      "dataType": "integer",
+      "rest": {
+        "name": "twitterReach",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterReach",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 646,
+      "displayName": "Marketo Social LinkedIn Reach",
+      "dataType": "integer",
+      "rest": {
+        "name": "linkedInReach",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInReach",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 648,
+      "displayName": "Marketo Social Facebook Referred Visits",
+      "dataType": "integer",
+      "rest": {
+        "name": "facebookReferredVisits",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookReferredVisits",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 649,
+      "displayName": "Marketo Social Twitter Referred Visits",
+      "dataType": "integer",
+      "rest": {
+        "name": "twitterReferredVisits",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterReferredVisits",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 650,
+      "displayName": "Marketo Social LinkedIn Referred Visits",
+      "dataType": "integer",
+      "rest": {
+        "name": "linkedInReferredVisits",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInReferredVisits",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 652,
+      "displayName": "Marketo Social Total Referred Visits",
+      "dataType": "integer",
+      "rest": {
+        "name": "totalReferredVisits",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "MarketoSocialTotalReferredVisits",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 653,
+      "displayName": "Marketo Social Facebook Referred Enrollments",
+      "dataType": "integer",
+      "rest": {
+        "name": "facebookReferredEnrollments",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookReferredEnrollments",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 654,
+      "displayName": "Marketo Social Twitter Referred Enrollments",
+      "dataType": "integer",
+      "rest": {
+        "name": "twitterReferredEnrollments",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterReferredEnrollments",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 655,
+      "displayName": "Marketo Social LinkedIn Referred Enrollments",
+      "dataType": "integer",
+      "rest": {
+        "name": "linkedInReferredEnrollments",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInReferredEnrollments",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 657,
+      "displayName": "Marketo Social Total Referred Enrollments",
+      "dataType": "integer",
+      "rest": {
+        "name": "totalReferredEnrollments",
+        "readOnly": true
+      },
+      "soap": {
+        "name": "MarketoSocialTotalReferredEnrollments",
+        "readOnly": true
+      }
+    },
+    {
+      "id": 658,
+      "displayName": "Marketo Social Last Referred Visit",
+      "dataType": "datetime",
+      "rest": {
+        "name": "lastReferredVisit",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLastReferredVisit",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 659,
+      "displayName": "Marketo Social Last Referred Enrollment",
+      "dataType": "datetime",
+      "rest": {
+        "name": "lastReferredEnrollment",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLastReferredEnrollment",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 662,
+      "displayName": "Marketo Social Syndication Id",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "syndicationId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialSyndicationId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 728,
+      "displayName": "Subscribe Mail Press Release",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailPressReleases",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailPressReleases",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 729,
+      "displayName": "Subscribe Mail Client-only Events",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailClientOnlyEvents",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailClientOnlyEvents",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 730,
+      "displayName": "Subscribe Mail In Person Events",
+      "dataType": "boolean",
+      "rest": {
+        "name": "SubscribeMailInPersonEvents",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "SubscribeMailInPersonEvents",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 733,
+      "displayName": "Marketo Social Facebook Id",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "facebookId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialFacebookId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 734,
+      "displayName": "Marketo Social Twitter Id",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "twitterId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialTwitterId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 735,
+      "displayName": "Marketo Social LinkedIn Id",
+      "dataType": "string",
+      "length": 2000,
+      "rest": {
+        "name": "linkedInId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "MarketoSocialLinkedInId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 744,
+      "displayName": "Subscribe Mail Blogs",
+      "dataType": "boolean",
+      "rest": {
+        "name": "Subscribe_Mail_Blogs",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "Subscribe_Mail_Blogs",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 745,
+      "displayName": "Cookies",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "cookies",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 747,
+      "displayName": "application",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "application",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "application",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 748,
+      "displayName": "plan",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "plan",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "plan",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 749,
+      "displayName": "PipedriveId",
+      "dataType": "integer",
+      "rest": {
+        "name": "pipedriveId",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pipedriveId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 750,
+      "displayName": "Nuxeo Address",
+      "dataType": "text",
+      "rest": {
+        "name": "nuxeoAddress",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "nuxeoAddress",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 751,
+      "displayName": "MKTO-LeadStatus",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "mKTOLeadStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTOLeadStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 752,
+      "displayName": "MKTO Date Downloaded",
+      "dataType": "date",
+      "rest": {
+        "name": "mKTODateDownloaded",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateDownloaded",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 753,
+      "displayName": "MKTO Date Trial",
+      "dataType": "date",
+      "rest": {
+        "name": "mKTODateTrial",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateTrial",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 754,
+      "displayName": "MQL Date - First",
+      "dataType": "datetime",
+      "rest": {
+        "name": "mKTODateMQL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateMQL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 755,
+      "displayName": "MKTO Date SQL",
+      "dataType": "datetime",
+      "rest": {
+        "name": "mKTODateSQL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateSQL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 756,
+      "displayName": "MKTO Date QD",
+      "dataType": "datetime",
+      "rest": {
+        "name": "mKTODateQD",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateQD",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 757,
+      "displayName": "MKTO Date Registered n.io",
+      "dataType": "date",
+      "rest": {
+        "name": "mKTODateRegisterednio",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTODateRegisterednio",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 759,
+      "displayName": "MKTO PD Deal Stage",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "mKTOPDDealStage",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mKTOPDDealStage",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 760,
+      "displayName": "PD Sync Succeeded",
+      "dataType": "boolean",
+      "rest": {
+        "name": "pDSyncSucceeded",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDSyncSucceeded",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 762,
+      "displayName": "PD Title",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDTitle",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDTitle",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 763,
+      "displayName": "PD Deal Value",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDDealValue",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealValue",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 764,
+      "displayName": "PD Deal Created",
+      "dataType": "datetime",
+      "rest": {
+        "name": "pDDealCreated",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealCreated",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 765,
+      "displayName": "PD Deal Updated",
+      "dataType": "datetime",
+      "rest": {
+        "name": "pDDealUpdated",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealUpdated",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 766,
+      "displayName": "PD Deal Active",
+      "dataType": "boolean",
+      "rest": {
+        "name": "pDDealActive",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealActive",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 767,
+      "displayName": "PD Deal Status",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDDealStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 768,
+      "displayName": "PD Pipeline ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDPipelineID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDPipelineID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 769,
+      "displayName": "PD Deal Owner Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDDealOwnerName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealOwnerName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 770,
+      "displayName": "PD Deal ID",
+      "dataType": "integer",
+      "rest": {
+        "name": "pDDealID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 771,
+      "displayName": "PD Deal Stage",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "pDDealStage",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "pDDealStage",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 773,
+      "displayName": "Referrer URL",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "referrerURL",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "referrerURL",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 774,
+      "displayName": "Nuxeo Version",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "nuxeoVersion",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "nuxeoVersion",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 797,
+      "displayName": "RainKing Revenue",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "revenueRange",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "revenueRange",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 799,
+      "displayName": "Studio Save Events",
+      "dataType": "integer",
+      "rest": {
+        "name": "studioSaveEvents",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "studioSaveEvents",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 800,
+      "displayName": "Studio Last Important Activity Time",
+      "dataType": "datetime",
+      "rest": {
+        "name": "studioLastImportantActivityTime",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "studioLastImportantActivityTime",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 801,
+      "displayName": "Studio Page Views",
+      "dataType": "integer",
+      "rest": {
+        "name": "studioPageViews1",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "studioPageViews1",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 803,
+      "displayName": "Annual Revenue Range",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "annualRevenueRange",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "annualRevenueRange",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 805,
+      "displayName": "Publisher ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "publisherID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "publisherID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 806,
+      "displayName": "Vendor Qualifying Question 1",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "vendorQualifyingQuestion1",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "vendorQualifyingQuestion1",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 807,
+      "displayName": "Vendor Qualifying Question 2",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "vendorQualifyingQuestion2",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "vendorQualifyingQuestion2",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 808,
+      "displayName": "Vendor Lead ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "vendorLeadID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "vendorLeadID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 809,
+      "displayName": "Asset Viewed",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "assetViewed",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "assetViewed",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 810,
+      "displayName": "No. of Employees (Range)",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "noofEmployeesRange",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "noofEmployeesRange",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 811,
+      "displayName": "Vendor ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "vendorID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "vendorID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 812,
+      "displayName": "Behavioral Score",
+      "dataType": "integer",
+      "rest": {
+        "name": "behavioralScore",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "behavioralScore",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 813,
+      "displayName": "Demographic Score",
+      "dataType": "integer",
+      "rest": {
+        "name": "demographicScore",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "demographicScore",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 814,
+      "displayName": "MQL Date - Most Recent",
+      "dataType": "datetime",
+      "rest": {
+        "name": "mQLDateMostRecent",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "mQLDateMostRecent",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 817,
+      "displayName": "First Web Visit",
+      "dataType": "datetime",
+      "rest": {
+        "name": "firstWebVisit",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "firstWebVisit",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 818,
+      "displayName": "Login Days After Studio Registration",
+      "dataType": "integer",
+      "rest": {
+        "name": "loginDaysAfterStudioRegistration",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "loginDaysAfterStudioRegistration",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 819,
+      "displayName": "Number of Support Actions - From NOS",
+      "dataType": "integer",
+      "rest": {
+        "name": "supportActionsFromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "supportActionsFromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 820,
+      "displayName": "Support First Action - from NOS",
+      "dataType": "datetime",
+      "rest": {
+        "name": "supportFirstActionfromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "supportFirstActionfromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 821,
+      "displayName": "Support Last Action - from NOS",
+      "dataType": "datetime",
+      "rest": {
+        "name": "supportLastActionfromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "supportLastActionfromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 822,
+      "displayName": "Active Contracts - from NOS",
+      "dataType": "integer",
+      "rest": {
+        "name": "activeContractsfromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "activeContractsfromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 823,
+      "displayName": "SLA - from NOS",
+      "dataType": "text",
+      "rest": {
+        "name": "sLAfromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "sLAfromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 824,
+      "displayName": "Active - from NOS",
+      "dataType": "text",
+      "rest": {
+        "name": "activefromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "activefromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 825,
+      "displayName": "Monthly Value - from NOS",
+      "dataType": "float",
+      "rest": {
+        "name": "monthlyValuefromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "monthlyValuefromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 826,
+      "displayName": "Start Date - from NOS",
+      "dataType": "date",
+      "rest": {
+        "name": "startDatefromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "startDatefromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 827,
+      "displayName": "End Date - from NOS",
+      "dataType": "date",
+      "rest": {
+        "name": "endDatefromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "endDatefromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 828,
+      "displayName": "Domain - from NOS",
+      "dataType": "text",
+      "rest": {
+        "name": "domainfromNOS",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "domainfromNOS",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 829,
+      "displayName": "Project Timeline",
+      "dataType": "text",
+      "rest": {
+        "name": "projectTimeline",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "projectTimeline",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 830,
+      "displayName": "Interested In",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "interestedIn",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "interestedIn",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 881,
+      "displayName": "Partner ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "partnerID",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "partnerID",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 891,
+      "displayName": "External Company Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "externalCompanyId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 893,
+      "displayName": "External Sales Person Id",
+      "dataType": "string",
+      "length": 50,
+      "rest": {
+        "name": "externalSalesPersonId",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 895,
+      "displayName": "Lead Activity: Doc Page Views",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadActivityDocsViews",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadActivityDocsViews",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 896,
+      "displayName": "Lead Activity: Email Clicks",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadActivityEmailClicks",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadActivityEmailClicks",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 897,
+      "displayName": "Lead Activity: Answers Page Views",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadActivityAnswersPageViews",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadActivityAnswersPageViews",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 898,
+      "displayName": "Lead Activity: Blog Page Views",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadActivityBlogsPageViews",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadActivityBlogsPageViews",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 899,
+      "displayName": "Lead Activity: Premium Content",
+      "dataType": "integer",
+      "rest": {
+        "name": "leadActivityPremiumContent",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadActivityPremiumContent",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 912,
+      "displayName": "Subscription Start",
+      "dataType": "date",
+      "rest": {
+        "name": "subscriptionStart",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "subscriptionStart",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 913,
+      "displayName": "Project Count",
+      "dataType": "integer",
+      "rest": {
+        "name": "projectCount",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "projectCount",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 914,
+      "displayName": "Support Level",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "supportLevel",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "supportLevel",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 915,
+      "displayName": "Conversica Conversation",
+      "dataType": "text",
+      "rest": {
+        "name": "conversicaConversation",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaConversation",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 916,
+      "displayName": "Conversica Discovered Phone 1",
+      "dataType": "phone",
+      "length": 255,
+      "rest": {
+        "name": "conversicaDiscoveredPhone1",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaDiscoveredPhone1",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 917,
+      "displayName": "Conversica Discovered Phone 2",
+      "dataType": "phone",
+      "length": 255,
+      "rest": {
+        "name": "conversicaDiscoveredPhone2",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaDiscoveredPhone2",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 918,
+      "displayName": "Conversica Do Not Email",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaDoNotEmail",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaDoNotEmail",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 919,
+      "displayName": "Conversica Hot Lead",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaHotLead",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaHotLead",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 920,
+      "displayName": "Conversica Lead At Risk",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaLeadAtRisk",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadAtRisk",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 921,
+      "displayName": "Conversica Action Required",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaActionRequired",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaActionRequired",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 922,
+      "displayName": "Conversica Hot Lead Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaHotLeadDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaHotLeadDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 923,
+      "displayName": "Conversica Lead At Risk Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaLeadAtRiskDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadAtRiskDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 924,
+      "displayName": "Conversica Action Required Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaActionRequiredDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaActionRequiredDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 925,
+      "displayName": "Conversica Most Recent Response",
+      "dataType": "text",
+      "rest": {
+        "name": "conversicaMostRecentResponse",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaMostRecentResponse",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 926,
+      "displayName": "Deprecated Conversica Status",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "conversicaStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 927,
+      "displayName": "Conversica Stop",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaStop",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaStop",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 928,
+      "displayName": "Conversica Skip To Follow Up",
+      "dataType": "boolean",
+      "rest": {
+        "name": "conversicaSkipToFollowUp",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaSkipToFollowUp",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 929,
+      "displayName": "Conversica Lead Owner Email",
+      "dataType": "email",
+      "length": 255,
+      "rest": {
+        "name": "conversicaLeadOwnerEmail",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadOwnerEmail",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 930,
+      "displayName": "Conversica Lead Owner First Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "conversicaLeadOwnerFirstName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadOwnerFirstName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 931,
+      "displayName": "Conversica Lead Owner Last Name",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "conversicaLeadOwnerLastName",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadOwnerLastName",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 932,
+      "displayName": "Conversica Lead Status",
+      "dataType": "text",
+      "rest": {
+        "name": "conversicaLeadStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 933,
+      "displayName": "Conversica Lead Status Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaLeadStatusDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaLeadStatusDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 934,
+      "displayName": "Conversica Conversation Stage",
+      "dataType": "text",
+      "rest": {
+        "name": "conversicaConversationStage",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaConversationStage",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 935,
+      "displayName": "Conversica Conversation Stage Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaConversationStageDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaConversationStageDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 936,
+      "displayName": "Conversica Conversation Status",
+      "dataType": "text",
+      "rest": {
+        "name": "conversicaConversationStatus",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaConversationStatus",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 937,
+      "displayName": "Conversica Conversation Status Date",
+      "dataType": "datetime",
+      "rest": {
+        "name": "conversicaConversationStatusDate",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "conversicaConversationStatusDate",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 971,
+      "displayName": "Copy of Conversica Conversation",
+      "dataType": "text",
+      "rest": {
+        "name": "copyofConversicaConversation",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "copyofConversicaConversation",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 973,
+      "displayName": "User Message",
+      "dataType": "text",
+      "rest": {
+        "name": "user_message",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "user_message",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 974,
+      "displayName": "Contact Reason",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "contactReason",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "contactReason",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 975,
+      "displayName": "Evergage ID",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "evg_Id",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "evg_Id",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 982,
+      "displayName": "To Delete",
+      "dataType": "boolean",
+      "rest": {
+        "name": "toDelete",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "toDelete",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 983,
+      "displayName": "Lead City",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadCity",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadCity",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 984,
+      "displayName": "Lead State",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadState",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadState",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 985,
+      "displayName": "Lead Country",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadCountry",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadCountry",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 986,
+      "displayName": "Lead Postal Code",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "leadPostalCode",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadPostalCode",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 987,
+      "displayName": "Lead Address",
+      "dataType": "text",
+      "rest": {
+        "name": "leadAddress",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "leadAddress",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 988,
+      "displayName": "RainKing Industry",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "rainKingIndustry",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "rainKingIndustry",
+        "readOnly": false
+      }
+    },
+    {
+      "id": 989,
+      "displayName": "RainKing Sector",
+      "dataType": "string",
+      "length": 255,
+      "rest": {
+        "name": "rainKingSector",
+        "readOnly": false
+      },
+      "soap": {
+        "name": "rainKingSector",
+        "readOnly": false
+      }
+    }
+  ],
+  "success": true
+}

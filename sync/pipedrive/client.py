@@ -1,7 +1,6 @@
 from ..common import memoize
 
 from requests import HTTPError, Session
-from requests_toolbelt.adapters import appengine
 
 import logging
 
@@ -9,17 +8,11 @@ import logging
 class PipedriveClient:
     API_ENDPOINT = 'https://api.pipedrive.com/v1'
 
-    def __init__(self, api_token, use_adapter=False):
+    def __init__(self, api_token):
         self._logger = logging.getLogger(__name__)
         self._memo = {}
 
         self._session = Session()
-
-        if use_adapter:
-            # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
-            from requests_toolbelt.adapters import appengine
-            self._session.mount('http://', appengine.AppEngineAdapter())
-            self._session.mount('https://', appengine.AppEngineAdapter())
 
         payload = {'api_token': api_token}
         self._session.params = payload

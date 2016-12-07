@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "id": 34,
+    "order_nr": 1,
+    "name": "Sales Qualified Lead",
+    "active_flag": true,
+    "deal_probability": 5,
+    "pipeline_id": 12,
+    "rotten_flag": false,
+    "rotten_days": null,
+    "add_time": "2016-01-01 00:00:00",
+    "update_time": "2016-01-01 00:00:00",
+    "deals_summary": []
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "success": true,
+  "data": {
+    "id": 20,
+    "creator_user_id": {
+      "id": 1628545,
+      "name": "Helene Jonin",
+      "email": "hjonin@nuxeo.com",
+      "has_pic": false,
+      "pic_hash": null,
+      "active_flag": true,
+      "value": 1628545
+    },
+    "user_id": {
+      "id": 1628545,
+      "name": "Helene Jonin",
+      "email": "hjonin@nuxeo.com",
+      "has_pic": false,
+      "pic_hash": null,
+      "active_flag": true,
+      "value": 1628545
+    },
+    "person_id": {
+      "name": "Test Linked Flask Person",
+      "email": [
+        {
+          "label": "",
+          "value": "person@testlinkedflask.com",
+          "primary": true
+        }
+      ],
+      "phone": [
+        {
+          "value": "",
+          "primary": true
+        }
+      ],
+      "value": 20
+    },
+    "org_id": {
+      "name": "Test Flask Organization",
+      "people_count": 1,
+      "owner_id": 1628545,
+      "address": null,
+      "cc_email": null,
+      "value": 10
+    },
+    "stage_id": 34,
+    "title": "Test Flask Linked Deal",
+    "value": 20000,
+    "currency": "USD",
+    "add_time": "2016-01-01 00:00:00",
+    "update_time": "2016-01-01 00:00:00",
+    "stage_change_time": null,
+    "active": true,
+    "deleted": false,
+    "status": "lost",
+    "next_activity_date": null,
+    "next_activity_time": null,
+    "next_activity_id": null,
+    "last_activity_id": null,
+    "last_activity_date": "2016-11-15",
+    "lost_reason": null,
+    "visible_to": "3",
+    "close_time": "2016-11-16 03:30:00",
+    "pipeline_id": 12,
+    "won_time": null,
+    "first_won_time": null,
+    "lost_time": null,
+    "products_count": 0,
+    "files_count": 0,
+    "notes_count": 0,
+    "followers_count": 1,
+    "email_messages_count": 0,
+    "activities_count": 0,
+    "done_activities_count": 0,
+    "undone_activities_count": 0,
+    "reference_activities_count": 0,
+    "participants_count": 0,
+    "expected_close_date": null,
+    "e1a0152b61c167ab817b4b6a527f0d2fc0c26011": "Consulting",
+    "8093ea6f3516f9290f725b3e5dacb018da0de4fd": null,
+    "b2b914abf49388c50aafd4f3b59a1db1bce51e4d": null,
+    "078ef0fb8e8baa98888de24749a84343905643e6": null,
+    "8c5b30cd0c4e51b77dedd6a855f3369daf315fc4": null,
+    "ae36b51eb7aad27b35dd862e3cd102de1528e538": null,
+    "d2c73b657478f47b2a5c72d76c40dae28e57f269": null,
+    "f3076dc78b6986cc8f593b462cfc31e671228b7a": null,
+    "19b3ae28e6d11eb034372a815cffa6fc751db0d6": "Dummy description 2",
+    "98e1d65054b88f53bc63df9d71f6d266a940ef74": null,
+    "ad9fd7d1a11f24ff3dcc19c9b71f01aaed531c2e": null,
+    "8d159cb5307866beb6019e7fe2aad14021f7993a": null,
+    "762a8998b9665237f1c9c6d12e6a5afeed0e84d1": null,
+    "e2ef826c7fa09ef8a0af54d36c0320fd47999022": null,
+    "38d50f15c59659d506e581eed1b05cc616369186": null,
+    "last_incoming_mail_time": null,
+    "last_outgoing_mail_time": null,
+    "stage_order_nr": 1,
+    "person_name": "Test Linked Flask Person",
+    "org_name": "Test Flask Organization",
+    "next_activity_subject": null,
+    "next_activity_type": null,
+    "next_activity_duration": null,
+    "next_activity_note": null,
+    "formatted_value": "$20,000",
+    "rotten_time": null,
+    "weighted_value": 1000,
+    "formatted_weighted_value": "$1,000",
+    "owner_name": "Helene Jonin",
+    "cc_email": null,
+    "org_hidden": false,
+    "person_hidden": false,
+    "average_time_to_won": {
+      "y": 0,
+      "m": 0,
+      "d": 0,
+      "h": 0,
+      "i": 0,
+      "s": 0,
+      "total_seconds": 0
+    },
+    "average_stage_progress": 0,
+    "age": {
+      "y": 0,
+      "m": 0,
+      "d": 0,
+      "h": 0,
+      "i": 0,
+      "s": 0,
+      "total_seconds": 0
+    },
+    "stay_in_pipeline_stages": {
+      "times_in_stages": {
+        "34": 0
+      },
+      "order_of_stages": [
+        34
+      ]
+    },
+    "last_activity": null,
+    "next_activity": null
+  },
+  "additional_data": {
+    "dropbox_email": null
+  },
+  "related_objects": {
+    "user": {
+      "1628545": {
+        "id": 1628545,
+        "name": "Helene Jonin",
+        "email": "hjonin@nuxeo.com",
+        "has_pic": false,
+        "pic_hash": null,
+        "active_flag": true
+      }
+    },
+    "organization": {
+      "10": {
+        "id": 10,
+        "name": "Test Flask Organization",
+        "people_count": 1,
+        "owner_id": 1628545,
+        "address": null,
+        "cc_email": null
+      }
+    },
+    "person": {
+      "20": {
+        "id": 20,
+        "name": "Test Linked Flask Person",
+        "email": [
+          {
+            "label": "",
+            "value": "person@testlinkedflask.com",
+            "primary": true
+          }
+        ],
+        "phone": [
+          {
+            "value": "",
+            "primary": true
+          }
+        ]
+      }
+    }
+  }
+}

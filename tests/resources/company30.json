@@ -1,0 +1,27 @@
+{
+  "requestId": "8e33#158d62415e9",
+  "result": [
+    {
+      "seq": 0,
+      "id": 30,
+      "site": null,
+      "sicCode": null,
+      "createdAt": "2016-01-01T00:00:00Z",
+      "website": null,
+      "billingState": "France",
+      "externalCompanyId": "pd-organization-30",
+      "numberOfEmployees": 20,
+      "billingCity": "Paris",
+      "billingCountry": "France",
+      "mainPhone": "0192837465",
+      "billingStreet": "Rue Mouffetard",
+      "company": "Test Flask Linked Organization",
+      "annualRevenue": 2000000,
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "companyNotes": null,
+      "industry": "Consulting",
+      "billingPostalCode": null
+    }
+  ],
+  "success": true
+}

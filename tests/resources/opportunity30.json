@@ -1,0 +1,34 @@
+{
+  "requestId": "964#158d60c0386",
+  "result": [
+    {
+      "seq": 0,
+      "marketoGUID": "68125338-626f-40e3-9e55-409ed96182bb",
+      "lastActivityDate": "2016-11-15",
+      "externalCreatedDate": null,
+      "fiscal": null,
+      "externalCompanyId": null,
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "type": "Upsell",
+      "createdAt": "2016-01-01T00:00:00Z",
+      "nextStep": null,
+      "stage": "Sales Qualified Lead",
+      "amount": 15000.00,
+      "description": "Dummy description 3",
+      "name": "Test Flask Linked Opportunity",
+      "quantity": null,
+      "probability": null,
+      "isWon": false,
+      "expectedRevenue": null,
+      "externalSalesPersonId": null,
+      "fiscalYear": 2016,
+      "fiscalQuarter": 4,
+      "forecastCategoryName": null,
+      "externalOpportunityId": "pd-deal-30",
+      "leadSource": null,
+      "isClosed": true,
+      "closeDate": "2016-11-16"
+    }
+  ],
+  "success": true
+}

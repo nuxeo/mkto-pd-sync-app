@@ -1,0 +1,17 @@
+{
+  "requestId": "1265e#158d62582af",
+  "result": [
+    {
+      "seq": 0,
+      "marketoGUID": "a4d7e89a-81ab-401d-b3c4-314b5cb9e6c0",
+      "externalCreatedDate": null,
+      "isPrimary": false,
+      "leadId": 10,
+      "role": "Default Role",
+      "createdAt": "2016-01-01T00:00:00Z",
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "externalOpportunityId": "pd-deal-30"
+    }
+  ],
+  "success": true
+}

@@ -1,5 +1,5 @@
 # coding=UTF-8
-from .context import get_config, pipedrive
+from .context import pipedrive, sync
 
 import logging
 import unittest
@@ -9,7 +9,7 @@ class PipedriveTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.pd = pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
+        cls.pd = pipedrive.PipedriveClient(sync.get_config('PD_API_TOKEN'))
 
     def test_load_person(self):
         person = pipedrive.Person(self.pd, 63080)

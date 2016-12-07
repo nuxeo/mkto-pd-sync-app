@@ -1,0 +1,112 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "key": "id",
+      "name": "ID",
+      "field_type": "int",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 2,
+      "key": "name",
+      "name": "Name",
+      "field_type": "varchar",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 3,
+      "key": "email",
+      "name": "Email",
+      "field_type": "varchar",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 4,
+      "key": "last_login",
+      "name": "Last login time",
+      "field_type": "date",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 5,
+      "key": "created",
+      "name": "Created time",
+      "field_type": "date",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 6,
+      "key": "modified",
+      "name": "Modified time",
+      "field_type": "date",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 7,
+      "key": "default_currency",
+      "name": "Default currency",
+      "field_type": "varchar",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 8,
+      "key": "locale",
+      "name": "Locale",
+      "field_type": "varchar",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 9,
+      "key": "timezone_name",
+      "name": "Timezone",
+      "field_type": "varchar",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 10,
+      "key": "role_id",
+      "name": "Role",
+      "field_type": "int",
+      "active_flag": true,
+      "edit_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    }
+  ],
+  "additional_data": {
+    "pagination": {
+      "start": 0,
+      "limit": 100,
+      "more_items_in_collection": false
+    }
+  }
+}

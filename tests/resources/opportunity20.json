@@ -1,0 +1,34 @@
+{
+  "requestId": "964#158d60c0386",
+  "result": [
+    {
+      "seq": 0,
+      "marketoGUID": "6a38a3bd-edce-4d86-bcc0-83f1feef8997",
+      "lastActivityDate": null,
+      "externalCreatedDate": null,
+      "fiscal": null,
+      "externalCompanyId": null,
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "type": null,
+      "createdAt": "2016-01-01T00:00:00Z",
+      "nextStep": null,
+      "stage": null,
+      "amount": 15000.00,
+      "description": "Lorem ispum",
+      "name": "Test Flask Linked Opportunity",
+      "quantity": null,
+      "probability": null,
+      "isWon": null,
+      "expectedRevenue": null,
+      "externalSalesPersonId": null,
+      "fiscalYear": null,
+      "fiscalQuarter": null,
+      "forecastCategoryName": null,
+      "externalOpportunityId": "pd-deal-20",
+      "leadSource": null,
+      "isClosed": null,
+      "closeDate": null
+    }
+  ],
+  "success": true
+}

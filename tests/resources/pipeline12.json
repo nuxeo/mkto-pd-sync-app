@@ -1,0 +1,95 @@
+{
+  "success": true,
+  "data": {
+    "id": 12,
+    "name": "Fake Pipeline",
+    "url_title": "Fake-Pipeline",
+    "order_nr": 9,
+    "active": true,
+    "add_time": "2016-01-01 00:00:00",
+    "update_time": "2016-01-01 00:00:00",
+    "deals_summary": {
+      "per_stages": {
+        "34": {
+          "EUR": {
+            "count": 1,
+            "value": 90000,
+            "value_formatted": "€90,000",
+            "weighted_value": 4500,
+            "weighted_value_formatted": "€4,500"
+          },
+          "USD": {
+            "count": 1,
+            "value": 100000,
+            "value_formatted": "$100,000",
+            "weighted_value": 5000,
+            "weighted_value_formatted": "$5,000"
+          }
+        },
+        "35": {
+          "EUR": {
+            "count": 1,
+            "value": 180000,
+            "value_formatted": "€180,000",
+            "weighted_value": 9000,
+            "weighted_value_formatted": "€9,000"
+          },
+          "USD": {
+            "count": 1,
+            "value": 200000,
+            "value_formatted": "$200,000",
+            "weighted_value": 10000,
+            "weighted_value_formatted": "$10,000"
+          }
+        },
+        "36": {
+          "EUR": {
+            "count": 1,
+            "value": 450000,
+            "value_formatted": "€450,000",
+            "weighted_value": 22500,
+            "weighted_value_formatted": "€22,500"
+          },
+          "USD": {
+            "count": 1,
+            "value": 500000,
+            "value_formatted": "$500,000",
+            "weighted_value": 25000,
+            "weighted_value_formatted": "$25,000"
+          }
+        },
+        "37": {
+          "EUR": {
+            "count": 1,
+            "value": 900000,
+            "value_formatted": "€900,000",
+            "weighted_value": 45000,
+            "weighted_value_formatted": "€45,000"
+          },
+          "USD": {
+            "count": 1,
+            "value": 1000000,
+            "value_formatted": "$1,000,000",
+            "weighted_value": 50000,
+            "weighted_value_formatted": "$50,000"
+          }
+        }
+      },
+      "per_currency": {
+        "EUR": 4,
+        "USD": 4
+      },
+      "total_count": 8,
+      "per_currency_full": {
+        "EUR": {
+          "count": 4,
+          "value": 1620000
+        },
+        "USD": {
+          "count": 4,
+          "value": 18000000
+        }
+      }
+    }
+  }
+}

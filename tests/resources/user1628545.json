@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "data": {
+    "id": 1628545,
+    "name": "Helene Jonin",
+    "default_currency": "USD",
+    "locale": "en_US",
+    "lang": 1,
+    "email": "hjonin@nuxeo.com",
+    "phone": null,
+    "activated": true,
+    "last_login": "2016-12-06 22:09:27",
+    "created": "2016-08-09 17:28:53",
+    "modified": "2016-12-06 22:09:27",
+    "signup_flow_variation": null,
+    "has_created_company": true,
+    "is_admin": 1,
+    "role_id": "1",
+    "timezone_name": "America/New_York",
+    "active_flag": true,
+    "icon_url": null,
+    "is_you": false
+  },
+  "additional_data": {
+    "company_id": 1
+  }
+}

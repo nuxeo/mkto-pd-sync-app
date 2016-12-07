@@ -5,6 +5,9 @@ import marketo
 import pipedrive
 
 
+PIPELINE_FILTER_NAME = 'NX Subscription (New and Upsell)'
+
+
 def create_or_update_person_in_pipedrive(lead_id):
     """Creates or updates a person in Pipedrive with data from the
     lead found in Marketo with the given id.
@@ -250,7 +253,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
         # Filter deals
         pipeline = pipedrive.Pipeline(get_pipedrive_client(), deal.pipeline_id)
-        if pipeline.name == 'NX Subscription (New and Upsell)':
+        if pipeline.name == PIPELINE_FILTER_NAME:
 
             # Opportunity
             external_id = marketo.compute_external_id('deal', deal.id)

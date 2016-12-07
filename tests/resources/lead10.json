@@ -1,0 +1,33 @@
+{
+  "requestId": "1001f#158d6061a2a",
+  "result": [
+    {
+      "id": 10,
+      "lastName": "Lead",
+      "phone": "9876543210",
+      "leadScore": 10,
+      "mKTODateSQL": "2016-11-16T03:45:00Z",
+      "externalCompanyId": "testFlaskCompany",
+      "leadSource": "Organic Search",
+      "website": null,
+      "conversicaLeadOwnerEmail": "hjonin@nuxeo.com",
+      "conversicaLeadOwnerFirstName": "Helene",
+      "country": "Italy",
+      "title": "Manager",
+      "conversicaLeadOwnerLastName": "Jonin",
+      "email": "lead@testflask.com",
+      "pipedriveId": null,
+      "leadStatus": "Recycled",
+      "toDelete": false,
+      "firstName": "Test Flask",
+      "createdAt": "2016-01-01T00:00:00Z",
+      "inferredCountry": "Italy",
+      "inferredStateRegion": "Italy",
+      "state": "Italy",
+      "inferredCity": "Milano",
+      "city": "Milano",
+      "company": "Test Flask Company"
+    }
+  ],
+  "success": true
+}

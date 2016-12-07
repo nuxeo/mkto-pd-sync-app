@@ -1,0 +1,27 @@
+{
+  "requestId": "8e33#158d62415e9",
+  "result": [
+    {
+      "seq": 0,
+      "id": 50,
+      "site": null,
+      "sicCode": null,
+      "createdAt": "2016-01-01T00:00:00Z",
+      "website": null,
+      "billingState": null,
+      "externalCompanyId": "testFlaskUnlinkedOrganization",
+      "numberOfEmployees": 20,
+      "billingCity": null,
+      "billingCountry": null,
+      "mainPhone": null,
+      "billingStreet": null,
+      "company": "Test Flask Unlinked Organization",
+      "annualRevenue": null,
+      "updatedAt": "2016-01-01T00:00:00Z",
+      "companyNotes": null,
+      "industry": null,
+      "billingPostalCode": null
+    }
+  ],
+  "success": true
+}

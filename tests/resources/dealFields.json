@@ -1,0 +1,911 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 12436,
+      "key": "title",
+      "name": "Title",
+      "order_nr": 1,
+      "picklist_data": null,
+      "field_type": "varchar",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "use_field": "id",
+      "link": "/deal/view/",
+      "mandatory_flag": true
+    },
+    {
+      "id": 12437,
+      "key": "user_id",
+      "name": "Owner",
+      "order_nr": 2,
+      "picklist_data": null,
+      "field_type": "user",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12438,
+      "key": "value",
+      "name": "Value",
+      "order_nr": 3,
+      "picklist_data": null,
+      "field_type": "monetary",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": null,
+      "key": "currency",
+      "name": "Currency",
+      "field_type": "varchar",
+      "edit_flag": false,
+      "active_flag": true,
+      "is_subfield": true,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12439,
+      "key": "org_id",
+      "name": "Organization",
+      "order_nr": 4,
+      "picklist_data": null,
+      "field_type": "org",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": {
+        "person_id": "<=0"
+      }
+    },
+    {
+      "id": 12440,
+      "key": "pipeline",
+      "name": "Pipeline",
+      "order_nr": 5,
+      "picklist_data": null,
+      "field_type": "double",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12441,
+      "key": "person_id",
+      "name": "Contact person",
+      "order_nr": 6,
+      "picklist_data": null,
+      "field_type": "people",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": {
+        "org_id": "<=0"
+      }
+    },
+    {
+      "id": 12470,
+      "key": "19b3ae28e6d11eb034372a815cffa6fc751db0d6",
+      "name": "Deal Description",
+      "order_nr": 7,
+      "field_type": "varchar",
+      "add_time": "2015-01-13 11:58:07",
+      "update_time": "2016-10-27 19:57:09",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12443,
+      "key": "status",
+      "name": "Status",
+      "order_nr": 8,
+      "field_type": "status",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "options": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "lost",
+          "label": "Lost"
+        },
+        {
+          "id": "won",
+          "label": "Won"
+        },
+        {
+          "id": "deleted",
+          "label": "Deleted"
+        }
+      ],
+      "mandatory_flag": true
+    },
+    {
+      "id": 12471,
+      "key": "98e1d65054b88f53bc63df9d71f6d266a940ef74",
+      "name": "Unique Selling Proposition",
+      "order_nr": 8,
+      "field_type": "text",
+      "add_time": "2015-01-13 11:58:30",
+      "update_time": "2015-01-13 11:58:30",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12472,
+      "key": "ad9fd7d1a11f24ff3dcc19c9b71f01aaed531c2e",
+      "name": "Compelling Event",
+      "order_nr": 9,
+      "field_type": "varchar",
+      "add_time": "2015-01-13 11:58:44",
+      "update_time": "2015-01-13 11:58:44",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12476,
+      "key": "e2ef826c7fa09ef8a0af54d36c0320fd47999022",
+      "name": "Champion",
+      "order_nr": 10,
+      "field_type": "people",
+      "add_time": "2015-01-13 12:00:05",
+      "update_time": "2015-01-13 12:00:05",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12474,
+      "key": "8d159cb5307866beb6019e7fe2aad14021f7993a",
+      "name": "Key People",
+      "order_nr": 11,
+      "field_type": "text",
+      "add_time": "2015-01-13 11:59:28",
+      "update_time": "2015-01-13 11:59:28",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12475,
+      "key": "762a8998b9665237f1c9c6d12e6a5afeed0e84d1",
+      "name": "Alignment",
+      "order_nr": 12,
+      "field_type": "varchar",
+      "add_time": "2015-01-13 11:59:38",
+      "update_time": "2015-01-13 11:59:38",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12442,
+      "key": "stage_id",
+      "name": "Stage",
+      "order_nr": 13,
+      "picklist_data": null,
+      "field_type": "stage",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "use_field": "stage",
+      "mandatory_flag": true
+    },
+    {
+      "id": 12444,
+      "key": "add_time",
+      "name": "Deal created",
+      "order_nr": 14,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12445,
+      "key": "update_time",
+      "name": "Update time",
+      "order_nr": 15,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12446,
+      "key": "stage_change_time",
+      "name": "Last stage change",
+      "order_nr": 16,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12447,
+      "key": "next_activity_date",
+      "name": "Next activity date",
+      "order_nr": 17,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12448,
+      "key": "last_activity_date",
+      "name": "Last activity date",
+      "order_nr": 18,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12449,
+      "key": "won_time",
+      "name": "Won time",
+      "order_nr": 19,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": {
+        "status": "=won"
+      },
+      "bulk_edit_allowed_conditions": {
+        "status": "=won"
+      }
+    },
+    {
+      "id": 12450,
+      "key": "lost_time",
+      "name": "Lost time",
+      "order_nr": 20,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": {
+        "status": "=lost"
+      },
+      "bulk_edit_allowed_conditions": {
+        "status": "=lost"
+      }
+    },
+    {
+      "id": 12451,
+      "key": "close_time",
+      "name": "Deal closed on",
+      "order_nr": 21,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12452,
+      "key": "lost_reason",
+      "name": "Lost reason",
+      "order_nr": 22,
+      "field_type": "varchar_options",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": {
+        "status": "=lost"
+      },
+      "bulk_edit_allowed_conditions": {
+        "status": "=lost"
+      }
+    },
+    {
+      "id": 12453,
+      "key": "visible_to",
+      "name": "Visible to",
+      "order_nr": 23,
+      "field_type": "visible_to",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "options": [
+        {
+          "id": 1,
+          "label": "Owner & followers"
+        },
+        {
+          "id": 3,
+          "label": "Entire company"
+        }
+      ],
+      "mandatory_flag": true
+    },
+    {
+      "id": 12454,
+      "key": "expected_close_date",
+      "name": "Expected close date",
+      "order_nr": 24,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": "2015-01-12 11:54:33",
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12455,
+      "key": "e1a0152b61c167ab817b4b6a527f0d2fc0c26011",
+      "name": "Type",
+      "order_nr": 25,
+      "field_type": "enum",
+      "add_time": null,
+      "update_time": "2015-01-11 23:48:55",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "options": [
+        {
+          "id": 4,
+          "label": "New Business"
+        },
+        {
+          "id": 5,
+          "label": "Upsell"
+        },
+        {
+          "id": 6,
+          "label": "Renewal"
+        },
+        {
+          "id": 129,
+          "label": "Consulting"
+        }
+      ],
+      "mandatory_flag": false
+    },
+    {
+      "id": 12457,
+      "key": "8093ea6f3516f9290f725b3e5dacb018da0de4fd",
+      "name": "Marketo Lead History",
+      "order_nr": 26,
+      "field_type": "varchar",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12458,
+      "key": "b2b914abf49388c50aafd4f3b59a1db1bce51e4d",
+      "name": "Partner",
+      "order_nr": 27,
+      "field_type": "org",
+      "add_time": null,
+      "update_time": "2016-10-12 03:04:20",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12459,
+      "key": "078ef0fb8e8baa98888de24749a84343905643e6",
+      "name": "Contract Start Date",
+      "order_nr": 28,
+      "field_type": "date",
+      "add_time": null,
+      "update_time": "2015-01-16 15:14:58",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12464,
+      "key": "f3076dc78b6986cc8f593b462cfc31e671228b7a",
+      "name": "Duration",
+      "order_nr": 29,
+      "field_type": "double",
+      "add_time": null,
+      "update_time": "2015-01-16 15:14:59",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12478,
+      "key": "38d50f15c59659d506e581eed1b05cc616369186",
+      "name": "Competitors",
+      "order_nr": 30,
+      "field_type": "set",
+      "add_time": "2015-08-25 21:27:04",
+      "update_time": "2016-09-21 15:43:09",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": true,
+      "bulk_edit_allowed": true,
+      "options": [
+        {
+          "id": 134,
+          "label": "Sharepoint"
+        },
+        {
+          "id": 135,
+          "label": "Alfresco"
+        },
+        {
+          "id": 136,
+          "label": "Documentum"
+        },
+        {
+          "id": 137,
+          "label": "Filenet"
+        },
+        {
+          "id": 138,
+          "label": "Widen"
+        },
+        {
+          "id": 139,
+          "label": "Bynder"
+        },
+        {
+          "id": 140,
+          "label": "WebDAM"
+        },
+        {
+          "id": 141,
+          "label": "Entellitrak"
+        },
+        {
+          "id": 142,
+          "label": "OnBase"
+        },
+        {
+          "id": 143,
+          "label": "M-Files"
+        },
+        {
+          "id": 144,
+          "label": "Others - put who in comments"
+        },
+        {
+          "id": 145,
+          "label": "MongoDB"
+        },
+        {
+          "id": 183,
+          "label": "Adobe"
+        }
+      ],
+      "mandatory_flag": false
+    },
+    {
+      "id": 12460,
+      "key": "8c5b30cd0c4e51b77dedd6a855f3369daf315fc4",
+      "name": "Comments",
+      "order_nr": 31,
+      "field_type": "text",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12461,
+      "key": "id",
+      "name": "ID",
+      "order_nr": 32,
+      "picklist_data": null,
+      "field_type": "int",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12462,
+      "key": "ae36b51eb7aad27b35dd862e3cd102de1528e538",
+      "name": "Predominant Use",
+      "order_nr": 33,
+      "field_type": "enum",
+      "add_time": null,
+      "update_time": "2016-10-12 03:05:05",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "options": [
+        {
+          "id": 113,
+          "label": "Document Management"
+        },
+        {
+          "id": 114,
+          "label": "Digital Asset Management"
+        },
+        {
+          "id": 115,
+          "label": "Case Management"
+        },
+        {
+          "id": 116,
+          "label": "Master Product Management"
+        },
+        {
+          "id": 184,
+          "label": "Knowledge Management"
+        },
+        {
+          "id": 185,
+          "label": "Central Repository"
+        },
+        {
+          "id": 186,
+          "label": "Applications / Service (OEM)"
+        }
+      ],
+      "mandatory_flag": false
+    },
+    {
+      "id": 12463,
+      "key": "d2c73b657478f47b2a5c72d76c40dae28e57f269",
+      "name": "InternalPO",
+      "order_nr": 34,
+      "field_type": "varchar",
+      "add_time": null,
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "mandatory_flag": false
+    },
+    {
+      "id": 12467,
+      "key": "activities_count",
+      "name": "Total activities",
+      "order_nr": 35,
+      "picklist_data": null,
+      "field_type": "int",
+      "add_time": "2015-01-09 10:13:17",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12468,
+      "key": "done_activities_count",
+      "name": "Done activities",
+      "order_nr": 36,
+      "picklist_data": null,
+      "field_type": "int",
+      "add_time": "2015-01-09 10:13:17",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12469,
+      "key": "undone_activities_count",
+      "name": "Activities to do",
+      "order_nr": 37,
+      "picklist_data": null,
+      "field_type": "int",
+      "add_time": "2015-01-09 10:13:17",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12477,
+      "key": "email_messages_count",
+      "name": "Email messages count",
+      "order_nr": 38,
+      "picklist_data": null,
+      "field_type": "int",
+      "add_time": "2015-02-16 07:48:29",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": true,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12479,
+      "key": "creator_user_id",
+      "name": "Creator",
+      "order_nr": 39,
+      "picklist_data": null,
+      "field_type": "user",
+      "add_time": "2016-03-11 15:02:41",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12480,
+      "key": "last_incoming_mail_time",
+      "name": "Last email received",
+      "order_nr": 40,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": "2016-07-28 15:26:11",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    },
+    {
+      "id": 12481,
+      "key": "last_outgoing_mail_time",
+      "name": "Last email sent",
+      "order_nr": 41,
+      "picklist_data": null,
+      "field_type": "date",
+      "add_time": "2016-07-28 15:26:11",
+      "update_time": null,
+      "active_flag": true,
+      "edit_flag": false,
+      "index_visible_flag": true,
+      "details_visible_flag": false,
+      "add_visible_flag": false,
+      "important_flag": false,
+      "bulk_edit_allowed": false,
+      "mandatory_flag": true
+    }
+  ],
+  "additional_data": {
+    "pagination": {
+      "start": 0,
+      "limit": 100,
+      "more_items_in_collection": false
+    }
+  }
+}

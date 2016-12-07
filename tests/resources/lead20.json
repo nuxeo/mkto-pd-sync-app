@@ -1,0 +1,33 @@
+{
+  "requestId": "1001f#158d6061a2a",
+  "result": [
+    {
+      "id": 20,
+      "lastName": "Lead",
+      "phone": "1357924680",
+      "leadScore": 13,
+      "mKTODateSQL": "2016-11-16T04:06:00Z",
+      "externalCompanyId": "pd-organization-20",
+      "leadSource": "Product",
+      "website": null,
+      "conversicaLeadOwnerEmail": "hjonin@nuxeo.com",
+      "conversicaLeadOwnerFirstName": "Helene",
+      "country": "Spain",
+      "title": "Accountant",
+      "conversicaLeadOwnerLastName": "Jonin",
+      "email": "lead@testlinkedflask.com",
+      "pipedriveId": 20,
+      "leadStatus": "Prospect",
+      "toDelete": false,
+      "firstName": "Test Linked Flask",
+      "createdAt": "2016-01-02T00:00:00Z",
+      "inferredCountry": "Spain",
+      "inferredStateRegion": "Spain",
+      "state": "Spain",
+      "inferredCity": "Barcelona",
+      "city": "Barcelona",
+      "company": "Test Flask Linked Company"
+    }
+  ],
+  "success": true
+}

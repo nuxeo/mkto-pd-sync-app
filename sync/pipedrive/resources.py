@@ -40,14 +40,13 @@ class Resource:
                         self._logger.debug('Loading related resource %s with id %s', related_name, related_id)
 
                         attr = resource_class(self._client, related_id)
-
                         setattr(self, key, attr)  # Cache related resource to prevent from further reloading
 
                 # Look for enum
                 if key in self._field_options and attr:
                     try:
                         attr = self._field_options[key][int(attr)]
-                    except TypeError:  # In case attribute is not an integer
+                    except ValueError:  # In case attribute is not an integer
                         pass
 
                 return attr
@@ -129,7 +128,7 @@ class Resource:
 
         # Find resource id first if id_field was provided
         if id_field == 'name':
-            id_to_look_for = self._find_by_name(id_) or id_
+            id_to_look_for = self._find_by_name(id_)
         elif id_field:
             id_to_look_for = self._find_by_filter(id_field, id_) or id_
 

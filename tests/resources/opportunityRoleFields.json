@@ -1,0 +1,87 @@
+{
+  "requestId": "d3d9#158d606ff5a",
+  "result": [
+    {
+      "name": "opportunityRole",
+      "displayName": "Opportunity Role",
+      "description": "Marketo Opportunity Person Role",
+      "createdAt": "2015-04-25T01:02:24Z",
+      "updatedAt": "2015-04-25T01:02:24Z",
+      "idField": "marketoGUID",
+      "dedupeFields": [
+        "externalOpportunityId",
+        "leadId",
+        "role"
+      ],
+      "searchableFields": [
+        [
+          "externalOpportunityId",
+          "leadId",
+          "role"
+        ],
+        [
+          "marketoGUID"
+        ],
+        [
+          "externalOpportunityId"
+        ],
+        [
+          "leadId"
+        ]
+      ],
+      "fields": [
+        {
+          "name": "createdAt",
+          "displayName": "createdAt",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "marketoGUID",
+          "displayName": "marketoGUID",
+          "dataType": "string",
+          "length": 36,
+          "updateable": false
+        },
+        {
+          "name": "updatedAt",
+          "displayName": "updatedAt",
+          "dataType": "datetime",
+          "updateable": false
+        },
+        {
+          "name": "externalCreatedDate",
+          "displayName": "externalCreatedDate",
+          "dataType": "datetime",
+          "updateable": true
+        },
+        {
+          "name": "externalOpportunityId",
+          "displayName": "externalOpportunityId",
+          "dataType": "string",
+          "updateable": true
+        },
+        {
+          "name": "isPrimary",
+          "displayName": "isPrimary",
+          "dataType": "boolean",
+          "updateable": true
+        },
+        {
+          "name": "leadId",
+          "displayName": "leadId",
+          "dataType": "integer",
+          "updateable": true
+        },
+        {
+          "name": "role",
+          "displayName": "role",
+          "dataType": "string",
+          "length": 255,
+          "updateable": true
+        }
+      ]
+    }
+  ],
+  "success": true
+}

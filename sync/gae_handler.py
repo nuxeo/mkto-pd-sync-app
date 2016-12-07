@@ -13,12 +13,12 @@ gae_app.config.from_pyfile('config.py')  # Override configuration with your own 
 def create_marketo_client():
     """Creates the Marketo client."""
     return marketo.MarketoClient(get_gae_config('IDENTITY_ENDPOINT'), get_gae_config('CLIENT_ID'),
-                                 get_gae_config('CLIENT_SECRET'), get_gae_config('API_ENDPOINT'), True)
+                                 get_gae_config('CLIENT_SECRET'), get_gae_config('API_ENDPOINT'))
 
 
 def create_pipedrive_client():
     """Creates the Pipedrive client."""
-    return pipedrive.PipedriveClient(get_gae_config('PD_API_TOKEN'), True)
+    return pipedrive.PipedriveClient(get_gae_config('PD_API_TOKEN'))
 
 
 def get_marketo_client():

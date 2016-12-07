@@ -124,7 +124,14 @@ class Lead(Resource):
             'mKTODateSQL',
             'externalCompanyId',
             'website',
-            'country'
+            'country',
+            'createdAt',
+            'inferredCountry',
+            'inferredStateRegion',
+            'state',
+            'inferredCity',
+            'city',
+            'company'
         }
 
     @property

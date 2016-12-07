@@ -9,7 +9,7 @@ import logging
 class MarketoClient:
     API_VERSION = 'v1'
 
-    def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint, use_adapter=False):
+    def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint):
         self._logger = logging.getLogger(__name__)
         self._memo = {}
 
@@ -19,12 +19,6 @@ class MarketoClient:
         self._api_endpoint = api_endpoint
 
         self._session = Session()
-
-        if use_adapter:
-            # Use the App Engine Requests adapter. This makes sure that Requests uses URLFetch.
-            from requests_toolbelt.adapters import appengine
-            self._session.mount('http://', appengine.AppEngineAdapter())
-            self._session.mount('https://', appengine.AppEngineAdapter())
 
         self._auth_token = self._get_auth_token()
 
