@@ -25,7 +25,7 @@ def authenticate(authorized_keys):
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            if request.args.get('api_key') and request.args.get('api_key') in authorized_keys:
+            if request.args.get('api_key') and request.args.get('api_key') in authorized_keys.values():
                 return function(*args, **kwargs)
             else:
                 raise InvalidUsage('Authentication required', 401)

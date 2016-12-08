@@ -119,7 +119,7 @@ def mock_save_organization(organization):
 @mock.patch.object(pipedrive.Organization, 'save', mock_save_organization)
 @mock.patch('sync.marketo.MarketoClient._get_auth_token')
 class SyncTestCase(unittest.TestCase):
-    AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')[0]
+    AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')['test']
 
     @classmethod
     def setUpClass(cls):
