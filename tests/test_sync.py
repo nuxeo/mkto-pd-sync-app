@@ -1,5 +1,7 @@
 from .context import marketo, pipedrive, sync, tasks
 
+from google.appengine.ext import testbed
+
 import json
 import mock
 import os
@@ -124,9 +126,19 @@ class SyncTestCase(unittest.TestCase):
         cls.context = sync.app.app_context()
         cls.context.push()
 
+        cls.testbed = testbed.Testbed()
+        cls.testbed.activate()
+
+        # root_path must be set the the location of queue.yaml.
+        # Otherwise, only the 'default' queue will be available.
+        cls.testbed.init_taskqueue_stub(root_path='..')
+        cls.taskqueue_stub = cls.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+
     @classmethod
     def tearDownClass(cls):
         cls.context.pop()
+
+        cls.testbed.deactivate()
 
     def test_authentication_error(self, mock_mkto_get_token, mock_get):
         with sync.app.test_client() as c:
@@ -134,6 +146,25 @@ class SyncTestCase(unittest.TestCase):
             self.assertEqual(rv.status_code, 401)
             data = json.loads(rv.data)
             self.assertEqual(data['message'], 'Authentication required')
+
+    @mock.patch('sync.views.enqueue_task')
+    def test_internal_server_error(self, mock_sync_lead, mock_mkto_get_token, mock_get):
+        mock_sync_lead.side_effect = Exception('Boom!')
+        with sync.app.test_client() as c:
+            rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
+            self.assertEqual(rv.status_code, 500)
+            data = json.loads(rv.data)
+            self.assertEqual(data['message'], 'Boom!')
+
+    def test_flow(self, mock_mkto_get_token, mock_get):
+        with sync.app.test_client() as c:
+            rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
+            data = json.loads(rv.data)
+            self.assertTrue(data['message'])
+
+            tasks = self.taskqueue_stub.get_filtered_tasks()
+            self.assertEqual(len(tasks), 1)
+            self.assertEqual(tasks[0].name, 'task1')
 
     # Test tasks
 

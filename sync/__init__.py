@@ -36,6 +36,17 @@ def handle_authentication_error(error):
     return response
 
 
+@app.errorhandler(Exception)
+def handle_internal_server_error(error):
+    get_logger().error('%s: %s', error.__class__.__name__, error)
+    response = jsonify({
+        'status': 'error',
+        'message': error.message
+        })
+    response.status_code = 500
+    return response
+
+
 def get_config(key):
     value = None
     try:
