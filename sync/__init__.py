@@ -2,6 +2,9 @@ from .util import InvalidUsage
 
 from flask import Flask, jsonify, g
 
+import marketo
+import pipedrive
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
@@ -45,6 +48,35 @@ def handle_internal_server_error(error):
         })
     response.status_code = 500
     return response
+
+
+def create_marketo_client():
+    """Creates the Marketo client."""
+    return marketo.MarketoClient(get_config('IDENTITY_ENDPOINT'), get_config('CLIENT_ID'),
+                                 get_config('CLIENT_SECRET'), get_config('API_ENDPOINT'))
+
+
+def create_pipedrive_client():
+    """Creates the Pipedrive client."""
+    return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
+
+
+def get_marketo_client():
+    """Creates a new Marketo client if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'marketo_client'):
+        g.marketo_client = create_marketo_client()
+    return g.marketo_client
+
+
+def get_pipedrive_client():
+    """Creates a new Pipedrive client if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'pipedrive_client'):
+        g.pipedrive_client = create_pipedrive_client()
+    return g.pipedrive_client
 
 
 def get_config(key):

@@ -1,5 +1,5 @@
 # coding=UTF-8
-from .context import marketo, sync
+from .context import sync
 
 import logging
 import unittest
@@ -9,11 +9,11 @@ class MarketoTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.mkto = marketo.MarketoClient(sync.get_config('IDENTITY_ENDPOINT'), sync.get_config('CLIENT_ID'),
+        cls.mkto = sync.marketo.MarketoClient(sync.get_config('IDENTITY_ENDPOINT'), sync.get_config('CLIENT_ID'),
                                          sync.get_config('CLIENT_SECRET'), sync.get_config('API_ENDPOINT'))
 
     def test_load_lead(self):
-        lead = marketo.Lead(self.mkto, 7591021)
+        lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
         self.assertEqual(lead.firstName, 'Marco')
@@ -21,41 +21,41 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(lead.email, 'emeamarco@gmail.com')
 
     def test_load_lead_get_not_default_field(self):
-        lead = marketo.Lead(self.mkto, 7591021)
+        lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertEqual(lead.pipedriveId, 63080)
 
     def test_load_lead_get_undefined_field(self):
-        lead = marketo.Lead(self.mkto, 7591021)
+        lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         with self.assertRaises(AttributeError):
             lead.fake_field
 
     def test_load_lead_undefined(self):
-        lead = marketo.Lead(self.mkto, -1)
+        lead = sync.marketo.Lead(self.mkto, -1)
         self.assertIsNotNone(lead)
         self.assertIsNone(lead.id)
 
     def test_load_lead_undefined_2(self):
-        lead = marketo.Lead(self.mkto, '')
+        lead = sync.marketo.Lead(self.mkto, '')
         self.assertIsNotNone(lead)
         self.assertIsNone(lead.id)
 
     def test_load_lead_with_email(self):
-        lead = marketo.Lead(self.mkto, 'emeamarco@gmail.com', 'email')
+        lead = sync.marketo.Lead(self.mkto, 'emeamarco@gmail.com', 'email')
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
         self.assertEqual(lead.firstName, 'Marco')
         self.assertEqual(lead.lastName, 'Antonio')
 
     def test_empty_lead_get_field(self):
-        lead = marketo.Lead(self.mkto)
+        lead = sync.marketo.Lead(self.mkto)
         self.assertIsNotNone(lead)
         self.assertIsNone(lead.id)
         self.assertIsNone(lead.firstName)
 
     def test_save_lead(self):
-        lead = marketo.Lead(self.mkto)
+        lead = sync.marketo.Lead(self.mkto)
         lead.firstName = 'Test'
         lead.lastName = 'L€ad 2'  # Try non ASCII character
         lead.email = 'lead@test2.com'
@@ -67,7 +67,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
         # Reload lead before checking bc properties are not updated from result after saving
-        lead = marketo.Lead(self.mkto, lead.id)
+        lead = sync.marketo.Lead(self.mkto, lead.id)
         self.assertEquals(lead.firstName, 'Test')
         self.assertEquals(lead.lastName, u'L€ad 2')  # JSON strings are unicode
         self.assertEquals(lead.email, 'lead@test2.com')
@@ -78,7 +78,7 @@ class MarketoTestCase(unittest.TestCase):
 
     def test_update_lead(self):
         # Get lead first
-        lead = marketo.Lead(self.mkto, 7591021)
+        lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
         self.assertEqual(lead.firstName, 'Marco')
         # Then update
@@ -88,14 +88,14 @@ class MarketoTestCase(unittest.TestCase):
         lead.firstName = 'Test 3'
         lead.save()
         # Reload lead before checking bc properties are not updated from result after saving
-        lead = marketo.Lead(self.mkto, 7591021)
+        lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertEquals(lead.firstName, 'Test 3')
         # Reset updated value
         lead.firstName = 'Marco'
         lead.save()
 
     def test_load_opportunity(self):
-        opportunity = marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
+        opportunity = sync.marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
         self.assertIsNotNone(opportunity)
         self.assertEqual(opportunity.id, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
         self.assertEqual(opportunity.marketoGUID, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
@@ -103,7 +103,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(opportunity.name, 'Chairs')
 
     def test_load_opportunity_with_external_id(self):
-        opportunity = marketo.Opportunity(self.mkto, 'o1', 'externalOpportunityId')
+        opportunity = sync.marketo.Opportunity(self.mkto, 'o1', 'externalOpportunityId')
         self.assertIsNotNone(opportunity)
         self.assertEqual(opportunity.id, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
         self.assertEqual(opportunity.marketoGUID, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
@@ -111,12 +111,12 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(opportunity.name, 'Chairs')
 
     def test_load_opportunity_undefined_with_external_id(self):
-        opportunity = marketo.Opportunity(self.mkto, 'o2', 'externalOpportunityId')
+        opportunity = sync.marketo.Opportunity(self.mkto, 'o2', 'externalOpportunityId')
         self.assertIsNotNone(opportunity)
         self.assertIsNone(opportunity.id)
 
     def test_load_role(self):
-        role = marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
+        role = sync.marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
         self.assertIsNotNone(role)
         self.assertEqual(role.id, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
         self.assertEqual(role.marketoGUID, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
@@ -125,7 +125,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(role.role, 'Technical Buyer')
 
     def test_load_role_with_lead_id(self):
-        role = marketo.Role(self.mkto, 7591021, 'leadId')
+        role = sync.marketo.Role(self.mkto, 7591021, 'leadId')
         self.assertIsNotNone(role)
         self.assertEqual(role.id, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
         self.assertEqual(role.marketoGUID, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
@@ -134,7 +134,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(role.role, 'Technical Buyer')
 
     def test_save_opportunity_and_role(self):
-        opportunity = marketo.Opportunity(self.mkto)
+        opportunity = sync.marketo.Opportunity(self.mkto)
         opportunity.externalOpportunityId = 'testOpportunity1'
         opportunity.name = 'Test opportunity 1'
         #  Test some fields
@@ -147,7 +147,7 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEquals(opportunity.name, 'Test opportunity 1')
         self.assertEquals(opportunity.lastActivityDate, '2016-11-16')
 
-        role = marketo.Role(self.mkto)
+        role = sync.marketo.Role(self.mkto)
         role.externalOpportunityId = 'testOpportunity1'
         role.leadId = 7591021
         role.role = 'Test role 1'
@@ -165,7 +165,7 @@ class MarketoTestCase(unittest.TestCase):
 
     def test_update_opportunity(self):
         # Get opportunity first
-        opportunity = marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
+        opportunity = sync.marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
         self.assertIsNotNone(opportunity)
         self.assertIsNotNone(opportunity.id)
         self.assertEqual(opportunity.name, 'Chairs')
@@ -174,7 +174,7 @@ class MarketoTestCase(unittest.TestCase):
         opportunity.name = 'Test opportunity 2'
         opportunity.save()
         # Reload opportunity before checking bc properties are not updated from result after saving
-        opportunity = marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
+        opportunity = sync.marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
         self.assertEquals(opportunity.name, 'Test opportunity 2')
         # Reset updated value
         opportunity.name = 'Chairs'
@@ -182,7 +182,7 @@ class MarketoTestCase(unittest.TestCase):
 
     def test_update_role(self):
         # Get role first
-        role = marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
+        role = sync.marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
         self.assertIsNotNone(role)
         self.assertIsNotNone(role.id)
         self.assertEquals(role.isPrimary, False)
@@ -194,26 +194,26 @@ class MarketoTestCase(unittest.TestCase):
         role.isPrimary = True
         role.save()
         # Reload role before checking bc properties are not updated from result after saving
-        role = marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
+        role = sync.marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
         self.assertEquals(role.isPrimary, True)
         # Reset updated value
         role.isPrimary = False
         role.save()
 
     def test_load_company_with_external_id(self):
-        company = marketo.Company(self.mkto, 'c1', 'externalCompanyId')
+        company = sync.marketo.Company(self.mkto, 'c1', 'externalCompanyId')
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
         self.assertEqual(company.company, 'Test company')
 
     def test_load_company_with_name(self):
-        company = marketo.Company(self.mkto, 'Test company', 'company')
+        company = sync.marketo.Company(self.mkto, 'Test company', 'company')
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
         self.assertEqual(company.externalCompanyId, 'c1')
 
     def test_save_company(self):
-        company = marketo.Company(self.mkto)
+        company = sync.marketo.Company(self.mkto)
         company.externalCompanyId = 'testCompany1'
         company.company = 'Test company 1'
         self.assertIsNone(company.id)
@@ -227,14 +227,14 @@ class MarketoTestCase(unittest.TestCase):
 
     def test_update_company(self):
         # Get company first
-        company = marketo.Company(self.mkto, 'c1', 'externalCompanyId')
+        company = sync.marketo.Company(self.mkto, 'c1', 'externalCompanyId')
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
         # Then update
         company.company = 'Test company 2'
         company.save()
         # Reload company before checking bc properties are not updated from result after saving
-        company = marketo.Company(self.mkto, 'c1', 'externalCompanyId')
+        company = sync.marketo.Company(self.mkto, 'c1', 'externalCompanyId')
         self.assertEquals(company.company, 'Test company 2')
         # Reset updated value
         company.company = 'Test company'
@@ -242,14 +242,14 @@ class MarketoTestCase(unittest.TestCase):
 
     def test_save_lead_and_company(self):
         # Create company
-        company = marketo.Company(self.mkto)
+        company = sync.marketo.Company(self.mkto)
         company.externalCompanyId = 'testCompany2'
         company.company = 'Test company 2'
         company.save()
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
         # Create lead linked to created company
-        lead = marketo.Lead(self.mkto)
+        lead = sync.marketo.Lead(self.mkto)
         lead.firstName = 'Test'
         lead.lastName = 'Lead 4'
         lead.email = 'lead@test4.com'

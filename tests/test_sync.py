@@ -1,4 +1,4 @@
-from .context import marketo, pipedrive, sync, tasks
+from .context import sync, tasks
 
 from google.appengine.ext import testbed
 
@@ -111,12 +111,12 @@ def mock_save_organization(organization):
 
 
 @mock.patch.object(requests.Session, 'get', side_effect=side_effect_get)
-@mock.patch.object(marketo.Lead, 'save', mock_save_lead)
-@mock.patch.object(marketo.Company, 'save', mock_save_company)
-@mock.patch.object(marketo.Opportunity, 'save', mock_save_opportunity)
-@mock.patch.object(marketo.Role, 'save', mock_save_role)
-@mock.patch.object(pipedrive.Person, 'save', mock_save_person)
-@mock.patch.object(pipedrive.Organization, 'save', mock_save_organization)
+@mock.patch.object(sync.marketo.Lead, 'save', mock_save_lead)
+@mock.patch.object(sync.marketo.Company, 'save', mock_save_company)
+@mock.patch.object(sync.marketo.Opportunity, 'save', mock_save_opportunity)
+@mock.patch.object(sync.marketo.Role, 'save', mock_save_role)
+@mock.patch.object(sync.pipedrive.Person, 'save', mock_save_person)
+@mock.patch.object(sync.pipedrive.Organization, 'save', mock_save_organization)
 @mock.patch('sync.marketo.MarketoClient._get_auth_token')
 class SyncTestCase(unittest.TestCase):
     AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')['test']
@@ -340,7 +340,7 @@ class SyncTestCase(unittest.TestCase):
         opportunity = saved_instances['opportunity' + str(ret['opportunity']['id'])]
         self.assertIsNotNone(opportunity)  # Opportunity has been created
         self.assertIsNotNone(opportunity.id)
-        self.assertEquals(opportunity.externalOpportunityId, marketo.compute_external_id('deal', 10))
+        self.assertEquals(opportunity.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
         self.assertEquals(opportunity.name, 'Test Flask Deal')
         self.assertEquals(opportunity.type, 'New Business')
         self.assertEquals(opportunity.description, 'Dummy description 1')
@@ -356,7 +356,7 @@ class SyncTestCase(unittest.TestCase):
         role = saved_instances['role' + str(ret['role']['id'])]
         self.assertIsNotNone(role)  # Role has been created
         self.assertIsNotNone(role.id)
-        self.assertEquals(role.externalOpportunityId, marketo.compute_external_id('deal', 10))
+        self.assertEquals(role.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
         self.assertEquals(role.leadId, '20')
         self.assertEquals(role.role, 'Default Role')
 

@@ -1,4 +1,4 @@
-from .adapters import *
+from adapters import *
 
 
 """
