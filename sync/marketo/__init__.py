@@ -16,3 +16,4 @@ except ImportError:
             pass
 
 logging.getLogger(__name__).addHandler(NullHandler())
+logging.getLogger(__name__).propagate = False  # Allow single module logging configuration

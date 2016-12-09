@@ -1,7 +1,6 @@
 # coding=UTF-8
 from .context import sync
 
-import logging
 import unittest
 
 
@@ -260,10 +259,3 @@ class MarketoTestCase(unittest.TestCase):
         # Delete created lead and company
         self.mkto.delete_resource('lead', lead.id)
         self.mkto.delete_resource('company', company.externalCompanyId, 'externalCompanyId')
-
-
-if __name__ == '__main__':
-    logging.basicConfig()
-    logging.getLogger('marketo').setLevel(logging.DEBUG)
-    suite = unittest.TestLoader().loadTestsFromTestCase(MarketoTestCase)
-    unittest.TextTestRunner(verbosity=2).run(suite)

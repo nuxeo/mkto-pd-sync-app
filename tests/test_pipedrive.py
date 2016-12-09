@@ -1,7 +1,6 @@
 # coding=UTF-8
 from .context import sync
 
-import logging
 import unittest
 
 
@@ -235,10 +234,3 @@ class PipedriveTestCase(unittest.TestCase):
         filtered_data_array = self.pd.get_resource_data('organization', None, {'filter_id': filter_data['id']})
         self.assertEquals(len(filtered_data_array), 1)
         self.assertEquals(filtered_data_array[0]['name'], 'Test company')
-
-
-if __name__ == '__main__':
-    logging.basicConfig()
-    logging.getLogger('pipedrive').setLevel(logging.DEBUG)
-    suite = unittest.TestLoader().loadTestsFromTestCase(PipedriveTestCase)
-    unittest.TextTestRunner(verbosity=2).run(suite)

@@ -23,10 +23,10 @@ class Resource:
         if name != '_field_keys':
             if name in self._field_keys\
                     and name != self._field_keys[name]:  # Prevent from infinite looping when name = key
-                self._logger.debug('Looking for custom attribute with name %s in loaded fields', name)
 
                 key = self._field_keys[name]
 
+                self._logger.debug('Looking for custom attribute with name=%s (key=%s)', name, key)
                 attr = getattr(self, key)
 
                 # Look for related resource
@@ -37,7 +37,7 @@ class Resource:
                             and not isinstance(attr, resource_class):  # Related resource already loaded
                         related_name = resource_class.__name__.lower()
                         related_id = attr
-                        self._logger.debug('Loading related resource %s with id %s', related_name, related_id)
+                        self._logger.debug('Loading related resource=%s with id=%s', related_name, related_id)
 
                         attr = resource_class(self._client, related_id)
                         setattr(self, key, attr)  # Cache related resource to prevent from further reloading
@@ -51,7 +51,7 @@ class Resource:
 
                 return attr
             else:
-                raise AttributeError('No attribute found with name %s' % name)
+                raise AttributeError('No attribute found with name=%s' % name)
         else:
             # "_field_keys" not initialized yet but return an empty dict to make the whole thing work
             return {}
@@ -121,7 +121,7 @@ class Resource:
 
                 setattr(self, key, None)  # Initialize field
         else:
-            raise InitializationError('Load fields', 'No data returned')
+            raise InitializationError('Load fields', 'No data returned for resource=%s', self.resource_name)
 
     def _load_data(self, id_, id_field):
         id_to_look_for = id_
@@ -140,12 +140,12 @@ class Resource:
                     for key in data:
                         setattr(self, key, self._get_data_value(data[key]))
                 else:
-                    self._logger.warning('No data could be loaded for resource %s with id %s',
-                                         self.resource_name, id_to_look_for)
+                    self._logger.warning('No data could be loaded for resource=%s for %s=%s',
+                                 self.resource_name, id_field, id_to_look_for)
             except HTTPError as e:
                 if e.response.status_code == 404:
-                    self._logger.warning('No data could be loaded for resource %s with id %s',
-                                         self.resource_name, id_to_look_for)
+                    self._logger.warning('No data could be loaded for resource=%s for %s=%s',
+                                 self.resource_name, id_field, id_to_look_for)
                 else:
                     raise e
 
@@ -158,9 +158,9 @@ class Resource:
                 if len(data_array) == 1:
                     id_ = data_array[0]['id']
                 else:
-                    self._logger.warning('More than one resource %s found with name %s', self.resource_name, name)
+                    self._logger.warning('More than one resource=%s found with name=%s', self.resource_name, name)
             else:
-                self._logger.warning('No resource %s found with name %s',
+                self._logger.warning('No resource=%s found with name=%s',
                                      self.resource_name, name)
         return id_
 
@@ -176,7 +176,7 @@ class Resource:
             for key in data:
                 setattr(self, key, self._get_data_value(data[key]))
         else:
-            raise SavingError('Save resource', 'No data returned')
+            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name, ' with id=%s' if self.id is not None else '')
 
     def _get_data_value(self, value):
         new_value = value
@@ -228,11 +228,9 @@ class Organization(Resource):
                     if len(filtered_data_array) == 1:
                         id_ = filtered_data_array[0]['id']
                     else:
-                        self._logger.warning('More than one resource %s found with %s %s',
-                                             self.resource_name, filter_name, filter_value)
+                        self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name, filter_value)
                 else:
-                    self._logger.warning('No resource %s found with %s %s',
-                                         self.resource_name, filter_name, filter_value)
+                    self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name, filter_value)
         return id_
 
 

@@ -1,4 +1,4 @@
-from adapters import *
+import adapters
 
 
 """
@@ -23,7 +23,7 @@ PERSON_TO_LEAD = {
         'fields': ['email']
     },
     'org_id': {
-        'transformer': company_name_to_org_id
+        'transformer': adapters.company_name_to_org_id
     },
     'title': {
         'fields': ['title']
@@ -34,7 +34,7 @@ PERSON_TO_LEAD = {
     'inferred_country': {
         'fields': ['inferredCountry', 'country'],
         'mode': 'choose',
-        'pre_adapter': country_iso_to_name
+        'pre_adapter': adapters.country_iso_to_name
     },
     'lead_source': {
         'fields': ['leadSource']
@@ -42,15 +42,15 @@ PERSON_TO_LEAD = {
     'owner_id': {
         'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
         'mode': 'join',
-        'post_adapter': user_name_to_user_id
+        'post_adapter': adapters.user_name_to_user_id
     },
     'created_date': {
         'fields': ['createdAt'],
-        'post_adapter': datetime_to_date
+        'post_adapter': adapters.datetime_to_date
     },
     'marketoid': {
         'fields': ['id'],
-        'post_adapter': number_to_string
+        'post_adapter': adapters.number_to_string
     },
     'state': {
         'fields': ['inferredStateRegion', 'state'],
@@ -65,7 +65,7 @@ PERSON_TO_LEAD = {
     },
     'date_sql': {
         'fields': ['mKTODateSQL'],
-        'post_adapter': datetime_to_date
+        'post_adapter': adapters.datetime_to_date
     },
     'lead_status': {
         'fields': ['leadStatus']
@@ -87,7 +87,7 @@ ORGANIZATION_TO_COMPANY = {
     },
     'country': {
         'fields': ['billingCountry'],
-        'pre_adapter': country_iso_to_name
+        'pre_adapter': adapters.country_iso_to_name
     },
     'company_phone': {
         'fields': ['mainPhone']
@@ -97,7 +97,7 @@ ORGANIZATION_TO_COMPANY = {
     },
     'annual_revenue': {
         'fields': ['annualRevenue'],
-        'post_adapter': number_to_float
+        'post_adapter': adapters.number_to_float
     },
     'number_of_employees': {
         'fields': ['numberOfEmployees']
@@ -109,18 +109,18 @@ ORGANIZATION_TO_COMPANY = {
 LEAD_TO_PERSON = {
     'firstName': {
         'fields': ['name'],
-        'post_adapter': split_name_get_first
+        'post_adapter': adapters.split_name_get_first
     },
     'lastName': {
         'fields': ['name'],
-        'post_adapter': split_name_get_last
+        'post_adapter': adapters.split_name_get_last
     },
     'email': {
         'fields': ['email']
     },
     'externalCompanyId': {
         'fields': ['organization'],
-        'pre_adapter': organization_to_external_id,
+        'pre_adapter': adapters.organization_to_external_id,
     },
     'title': {
         'fields': ['title']
@@ -133,15 +133,15 @@ LEAD_TO_PERSON = {
     },
     'conversicaLeadOwnerEmail': {
         'fields': ['owner'],
-        'pre_adapter': user_to_email
+        'pre_adapter': adapters.user_to_email
     },
     'conversicaLeadOwnerFirstName': {
         'fields': ['owner'],
-        'pre_adapter': user_to_first_name
+        'pre_adapter': adapters.user_to_first_name
     },
     'conversicaLeadOwnerLastName': {
         'fields': ['owner'],
-        'pre_adapter': user_to_last_name
+        'pre_adapter': adapters.user_to_last_name
     },
     'pipedriveId': {
         'fields': ['id']
@@ -151,7 +151,7 @@ LEAD_TO_PERSON = {
     },
     'toDelete': {
         'fields': ['active_flag'],
-        'post_adapter': toggle_boolean
+        'post_adapter': adapters.toggle_boolean
     }
 }
 
@@ -170,7 +170,7 @@ COMPANY_TO_ORGANIZATION = {
     },
     'billingCountry': {
         'fields': ['country'],
-        'pre_adapter': country_iso_to_name
+        'pre_adapter': adapters.country_iso_to_name
     },
     'mainPhone': {
         'fields': ['company_phone']
@@ -201,33 +201,33 @@ DEAL_TO_OPPORTUNITY = {
     },
     'isClosed': {
         'fields': ['status'],
-        'post_adapter': is_closed
+        'post_adapter': adapters.is_closed
     },
     'isWon': {
         'fields': ['status'],
-        'post_adapter': is_won
+        'post_adapter': adapters.is_won
     },
     'amount': {
         'fields': ['value'],
-        'post_adapter': number_to_float
+        'post_adapter': adapters.number_to_float
     },
     'closeDate': {
         'fields': ['close_time', 'expected_close_date'],
         'mode': 'choose',
-        'post_adapter': datetime_to_date2
+        'post_adapter': adapters.datetime_to_date2
     },
     'stage': {
         'fields': ['stage'],
-        'pre_adapter': stage_to_name
+        'pre_adapter': adapters.stage_to_name
     },
     'fiscalQuarter': {
         'fields': ['close_time', 'expected_close_date'],
         'mode': 'choose',
-        'post_adapter': datetime_to_quarter
+        'post_adapter': adapters.datetime_to_quarter
     },
     'fiscalYear': {
         'fields': ['close_time', 'expected_close_date'],
         'mode': 'choose',
-        'post_adapter': datetime_to_year
+        'post_adapter': adapters.datetime_to_year
     }
 }

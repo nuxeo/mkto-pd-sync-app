@@ -60,7 +60,7 @@ class Resource:
                 setattr(self, field['name'], None)  # Initialize field
 
         else:
-            raise InitializationError('Load fields', 'No data returned')
+            raise InitializationError('Load fields', 'No data returned for resource=%s', self.resource_name)
 
     def _load_data(self, id_, id_field):
         id_field_to_look_for = id_field or self._id_field
@@ -71,8 +71,8 @@ class Resource:
             if self._id_field != 'id':
                 self.id = getattr(self, self._id_field)  # Set id value with id field value
         else:
-            self._logger.warning('No data could be loaded for resource %s with id %s (looking for id field "%s")',
-                                 self.resource_name, id_, id_field_to_look_for)
+            self._logger.warning('No data could be loaded for resource=%s with %s=%s',
+                                 self.resource_name, id_field_to_look_for, id_)
 
     def save(self):
         """
@@ -85,7 +85,7 @@ class Resource:
             if self._id_field != 'id':
                 setattr(self, 'id', data[self._id_field])  # Set id value with id field value
         else:
-            raise SavingError('Save resource', 'No data returned')
+            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name, ' with id=%s' if self.id is not None else '')
 
 
 class Lead(Resource):
@@ -101,7 +101,7 @@ class Lead(Resource):
                 setattr(self, name, None)  # Initialize field
                 self._id_field = 'id'  # id field is not specified in return data for lead so manually set it
         else:
-            raise InitializationError('Load fields', 'No data returned')
+            raise InitializationError('Load fields', 'No data returned for resource=%s', self.resource_name)
 
     # Override bc too many fields -> URL is too long
     @property

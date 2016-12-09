@@ -44,13 +44,14 @@ class PipedriveClient:
                                resource_data, resource_id)
 
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
-        self._logger.debug('Fetching resource %s%s', r_name,
-                           ' with id/action %s' % str(r_id_or_action) if r_id_or_action is not None else '')
+        self._logger.debug('Fetching resource=%s%s%s', r_name,
+                           ' (fields=%s)' % r_fields if r_fields is not None else '',
+                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
         url = self._build_url(r_name, r_id_or_action)
 
         payload = r_fields or {}
         r = self._session.get(url, params=payload)
-        self._logger.info('Called %s', r.url)
+        self._logger.info('Called url=%s with parameters=%s', r.url, payload)
         r.raise_for_status()
 
         data = r.json()
@@ -60,20 +61,20 @@ class PipedriveClient:
             if data['success']:
                 ret = data['data']
             else:
-                self._logger.error('Error: %s', data['error'])
+                self._logger.error('Error=%s', data['error'])
 
         return ret
 
     def _push_data(self, r_name, r_data, r_id_or_action=None):
-        self._logger.debug('Pushing resource %s%s', r_name,
-                           ' with id/action %s' % str(r_id_or_action) if r_id_or_action is not None else '')
+        self._logger.debug('Pushing resource=%s with data=%s%s', r_name, r_data,
+                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
         url = self._build_url(r_name, r_id_or_action)
 
         if not r_id_or_action:  # Create
             r = self._session.post(url, data=r_data)
         else:  # Update
             r = self._session.put(url, json=r_data)
-        self._logger.info('Called %s', r.url)
+        self._logger.info('Called url=%s with body=%s', r.url, r_data)
         r.raise_for_status()
 
         data = r.json()
@@ -83,20 +84,20 @@ class PipedriveClient:
             if data['success']:
                 ret = data['data']
             else:
-                self._logger.error('Error: %s', data['error'])
+                self._logger.error('Error=%s', data['error'])
 
         return ret
 
     def _push_data_json(self, r_name, r_data, r_id_or_action=None):
-        self._logger.debug('Pushing resource %s%s', r_name,
-                           ' with id/action %s' % str(r_id_or_action) if r_id_or_action is not None else '')
+        self._logger.debug('Pushing resource=%s with data=%s%s', r_name, r_data,
+                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
         url = self._build_url(r_name, r_id_or_action)
 
         if not r_id_or_action:  # Create
             r = self._session.post(url, json=r_data)
         else:  # Update
             r = self._session.put(url, json=r_data)
-        self._logger.info('Called %s', r.url)
+        self._logger.info('Called url=%s with body=%s', r.url, r_data)
         r.raise_for_status()
 
         data = r.json()
@@ -106,7 +107,7 @@ class PipedriveClient:
             if data['success']:
                 ret = data['data']
             else:
-                self._logger.error('Error: %s', data['error'])
+                self._logger.error('Error=%s', data['error'])
 
         return ret
 
@@ -121,12 +122,12 @@ class PipedriveClient:
         ret = {}
 
         if r_id:
-            self._logger.warning('Deleting resource %s with id %s', r_name, str(r_id))
+            self._logger.warning('Deleting resource=%s with id=%s', r_name, str(r_id))
 
             url = self._build_url(r_name + 's', r_id)  # Takes an 's' at the end of the resource name
 
             r = self._session.delete(url)
-            self._logger.info('Called %s', r.url)
+            self._logger.info('Called url=%s', r.url)
             try:
                 r.raise_for_status()
             except HTTPError as e:
@@ -139,9 +140,9 @@ class PipedriveClient:
                 if data['success']:
                     ret = data['data']
                 else:
-                    self._logger.error('Error: %s', data['error'])
+                    self._logger.error('Error=%s', data['error'])
         else:
-            self._logger.warning('Null id given')
+            self._logger.warning('Cannot delete resource=%s: invalid id (null or empty)', r_name)
 
         return ret
 

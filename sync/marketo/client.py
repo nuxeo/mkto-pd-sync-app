@@ -23,7 +23,6 @@ class MarketoClient:
         self._auth_token = self._get_auth_token()
 
     def _get_auth_token(self):
-        self._logger.debug('Fetching access token')
         auth_url = self._identity_endpoint + '/oauth/token'
 
         payload = {
@@ -38,7 +37,7 @@ class MarketoClient:
 
         auth_data = r.json()
 
-        self._logger.info('Access token acquired: %s expiring in %ss' %
+        self._logger.info('access_token=%s acquired expiring in %ss' %
                           (auth_data['access_token'], auth_data['expires_in']))
         return auth_data['access_token']
 
@@ -59,7 +58,7 @@ class MarketoClient:
         ret = {}
         if data_array:
             if len(data_array) > 1:
-                self._logger.warning('More than one resource %s found with %s %s',
+                self._logger.warning('More than one resource=%s found for %s=%s',
                                      resource_name, filter_type, resource_id)
             ret = data_array[0]  # Only one resource handled at a time for now
         return ret
@@ -87,15 +86,17 @@ class MarketoClient:
             ret = data_array[0]  # Only one resource handled at a time for now
             if ret['status'] == 'skipped':
                 reason = ret['reasons'][0]  # Only one resource handled at a time for now
-                self._logger.warning(reason['message'])
+                self._logger.warning('resource=%s%s has been skipped for reason=%s', resource_name, ' with id=%s' % resource_id if resource_id is not None else '', reason['message'])
             else:
-                self._logger.info('Resource has been %s', ret['status'])
+                self._logger.info('resource=%s%s has been %s', resource_name, ' with id=%s' % resource_id if resource_id is not None else '', ret['status'])
 
         return ret
 
     def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
-        self._logger.debug('Fetching resource %s%s', r_name,
-                           ' with id/action %s' % str(r_id_or_action) if r_id_or_action is not None else '')
+        self._logger.debug('Fetching resource=%s%s%s%s', r_name,
+                           ' (fields=%s)' % r_fields if r_fields is not None else '',
+                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '',
+                           ' with filter_type=%s' % r_filter_type if r_filter_type is not None else '')
         payload = {}
 
         if r_filter_type:  # Case id
@@ -111,7 +112,7 @@ class MarketoClient:
 
         headers = {'Authorization': 'Bearer %s' % self._auth_token}
         r = self._session.get(url, headers=headers, params=payload)
-        self._logger.info('Called %s', r.url)
+        self._logger.info('Called url=%s with headers=%s and parameters=%s', r.url, headers, payload)
         r.raise_for_status()
 
         data = r.json()
@@ -127,18 +128,18 @@ class MarketoClient:
                     self._auth_token = self._get_auth_token()
                     ret = self._fetch_data(r_name, r_id_or_action, r_filter_type, r_fields)
                 else:
-                    self._logger.error(error['message'])
+                    self._logger.error('Error=%s', error['message'])
 
         return ret
 
     def _push_data(self, r_name, r_data, r_action=None):
-        self._logger.debug('Pushing resource %s%s', r_name,
-                           ' with id/action %s' % str(r_action) if r_action is not None else '')
+        self._logger.debug('Pushing resource=%s with data=%s%s', r_name, r_data,
+                           ' with action=%s' % str(r_action) if r_action is not None else '')
         url = self._build_url(r_name, r_action)
 
         headers = {'Authorization': 'Bearer %s' % self._auth_token}
         r = self._session.post(url, headers=headers, json=r_data)  # POST request for creating and updating
-        self._logger.info('Called %s', r.url)
+        self._logger.info('Called url=%s with headers=%s and body=%s', r.url, headers, r_data)
         r.raise_for_status()
 
         data = r.json()
@@ -154,7 +155,7 @@ class MarketoClient:
                     self._auth_token = self._get_auth_token()
                     ret = self._push_data(r_name, r_data, r_action)
                 else:
-                    self._logger.error(error['message'])
+                    self._logger.error('Error=%s', error['message'])
 
         return ret
 
@@ -171,7 +172,7 @@ class MarketoClient:
         ret = {}
 
         if r_id:
-            self._logger.warning('Deleting resource %s with id %s', r_name, str(r_id))
+            self._logger.warning('Deleting resource=%s with id=%s', r_name, str(r_id))
 
             r_data = {}
             if r_id_dedupe_field:
@@ -191,10 +192,10 @@ class MarketoClient:
                 ret = data_array[0]  # Only one resource handled at a time for now
                 if ret['status'] == 'skipped':
                     reason = ret['reasons'][0]  # Only one resource handled at a time for now
-                    self._logger.warning(reason['message'])
+                    self._logger.warning('resource=%s with id=%s has been skipped for reason=%s', r_name, r_id, reason['message'])
                 else:
-                    self._logger.info('Resource has been %s', ret['status'])
+                    self._logger.info('resource=%s with id=%s has been %s', r_name, r_id, ret['status'])
         else:
-            self._logger.warning('Null id given')
+            self._logger.warning('Cannot delete resource=%s: invalid id (null or empty)', r_name)
 
         return ret

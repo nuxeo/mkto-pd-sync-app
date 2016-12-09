@@ -5,35 +5,35 @@ from flask import Flask, jsonify, g
 import marketo
 import pipedrive
 
+import logging
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('config.py')  # Override configuration with your own objects
 
+
+app.logger.setLevel(logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
+loggers = [logging.getLogger('sync.marketo'),
+           logging.getLogger('sync.pipedrive')]
+for logger in loggers:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 if not app.debug:
-    import logging
-    loggers = [app.logger, logging.getLogger('marketo'),
-               logging.getLogger('pipedrive')]
-    file_name = '/var/www/sync_app/sync_app.log'
-    try:
-        file_handler = logging.FileHandler(file_name)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'
-        ))
-        file_handler.setLevel(logging.WARNING)
-        for logger in loggers:
-            logger.addHandler(file_handler)
-    except IOError:
-        logging.error('Could no create log file with name %s (make sure directory exists)', file_name)
-        logging.basicConfig()
-        for logger in loggers:
-            logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
 
 
 # Register an error handler to prevent from resulting in an internal server error
 @app.errorhandler(InvalidUsage)
 def handle_authentication_error(error):
+    get_logger().error(error.message)
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
@@ -84,7 +84,7 @@ def get_config(key):
     try:
         value = app.config[key]
     except KeyError:
-        get_logger().warning('Undefined configuration key %s', key)
+        get_logger().warning('Undefined configuration key=%s', key)
     return value
 
 
