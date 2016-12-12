@@ -13,23 +13,6 @@ app.config.from_object('config')
 app.config.from_pyfile('config.py')  # Override configuration with your own objects
 
 
-app.logger.setLevel(logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
-loggers = [logging.getLogger('sync.marketo'),
-           logging.getLogger('sync.pipedrive')]
-for logger in loggers:
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-if not app.debug:
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-    app.logger.addHandler(handler)
-
-
 # Register an error handler to prevent from resulting in an internal server error
 @app.errorhandler(InvalidUsage)
 def handle_authentication_error(error):
@@ -90,6 +73,27 @@ def get_config(key):
 
 def get_logger():
     return app.logger
+
+
+def create_logging_handler(testing_mode):
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    if not testing_mode:
+        handler.setLevel(logging.INFO)
+    else:
+        handler.setLevel(logging.DEBUG)
+    return handler
+
+
+get_logger().setLevel(logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
+
+loggers = [(logging.getLogger('sync.marketo'), get_config('MARKETO_TESTING')),
+           (logging.getLogger('sync.pipedrive'), get_config('PIPEDRIVE_TESTING'))]
+for logger in loggers:
+    logger[0].addHandler(create_logging_handler(logger[1]))
+if not app.debug:
+    get_logger().addHandler(create_logging_handler(get_config('TESTING')))
 
 
 import sync.views
