@@ -102,21 +102,21 @@ def organization_to_external_id(organization):
 
 def user_to_email(user):
     ret = None
-    if user is not None:
+    if user is not None and BIG_BOT_ID != user.id:
         ret = user.email
     return ret
 
 
 def user_to_first_name(user):
     ret = None
-    if user is not None:
+    if user is not None and BIG_BOT_ID != user.id:
         ret = split_name_get_first(user.name)
     return ret
 
 
 def user_to_last_name(user):
     ret = None
-    if user is not None:
+    if user is not None and BIG_BOT_ID != user.id:
         ret = split_name_get_last(user.name)
     return ret
 
