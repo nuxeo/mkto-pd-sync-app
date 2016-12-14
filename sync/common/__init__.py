@@ -1,8 +1,8 @@
-from .util import memoize
-from .errors import InitializationError, SavingError
-
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
+
+from .errors import InitializationError, SavingError
+from .util import memoize
+
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:

@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from google.appengine.ext import ndb
 
-
 gae_app = Flask(__name__)
 
 

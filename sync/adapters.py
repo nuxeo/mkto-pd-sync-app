@@ -1,10 +1,10 @@
 from datetime import datetime
+
 from pycountry import countries
 
 import marketo
 import pipedrive
 import sync
-
 
 BIG_BOT_ID = 208823
 

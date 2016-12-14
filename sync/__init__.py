@@ -1,12 +1,10 @@
-from .util import InvalidUsage
+import logging
 
 from flask import Flask, jsonify, g
 
 import marketo
 import pipedrive
-
-import logging
-
+from .util import InvalidUsage
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
@@ -28,7 +26,7 @@ def handle_internal_server_error(error):
     response = jsonify({
         'status': 'error',
         'message': error.message
-        })
+    })
     response.status_code = 500
     return response
 
@@ -86,7 +84,8 @@ def create_logging_handler(testing_mode):
     return handler
 
 
-get_logger().setLevel(logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
+get_logger().setLevel(
+    logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
 
 loggers = [(logging.getLogger('sync.marketo'), get_config('MARKETO_TESTING')),
            (logging.getLogger('sync.pipedrive'), get_config('PIPEDRIVE_TESTING'))]
@@ -94,6 +93,5 @@ for logger in loggers:
     logger[0].addHandler(create_logging_handler(logger[1]))
 if not app.debug:
     get_logger().addHandler(create_logging_handler(get_config('TESTING')))
-
 
 import sync.views

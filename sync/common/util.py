@@ -1,10 +1,8 @@
-from functools import wraps
-
 import logging
+from functools import wraps
 
 
 def memoize(function_name):
-
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args):
@@ -17,5 +15,7 @@ def memoize(function_name):
                 rv = function(self, *args)
                 self._memo[function_name][args] = rv
             return rv
+
         return wrapper
+
     return decorator

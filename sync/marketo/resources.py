@@ -1,8 +1,7 @@
-from ..common import InitializationError, SavingError
-
+import logging
 from abc import ABCMeta, abstractproperty
 
-import logging
+from ..common import InitializationError, SavingError
 
 
 class Resource:
@@ -64,7 +63,8 @@ class Resource:
 
     def _load_data(self, id_, id_field):
         id_field_to_look_for = id_field or self._id_field
-        data = self._client.get_resource_data(self.resource_name, id_, id_field_to_look_for, self._resource_fields_to_load)
+        data = self._client.get_resource_data(self.resource_name, id_, id_field_to_look_for,
+                                              self._resource_fields_to_load)
         if data:
             for key in data:
                 setattr(self, key, data[key])
@@ -85,11 +85,11 @@ class Resource:
             if self._id_field != 'id':
                 setattr(self, 'id', data[self._id_field])  # Set id value with id field value
         else:
-            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name, ' with id=%s' if self.id is not None else '')
+            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name,
+                              ' with id=%s' if self.id is not None else '')
 
 
 class Lead(Resource):
-
     # Override bc fields do not share the same schema for leads
     def _load_fields(self):
         fields = self._client.get_resource_fields(self.resource_name)
@@ -142,7 +142,8 @@ class Lead(Resource):
             'id': None,  # id is mandatory for updating
             'firstName': None,
             'lastName': None,
-            'email': 'unknown@unknown.com',  # If no default value, experiencing weird behaviours (e.g. duplicate companies)
+            'email': 'unknown@unknown.com',
+        # If no default value, experiencing weird behaviours (e.g. duplicate companies)
             'title': None,
             'phone': None,
             'leadSource': None,
@@ -165,7 +166,6 @@ class Lead(Resource):
 
 
 class Opportunity(Resource):
-
     @property
     def _resource_fields_to_update(self):
         return {
@@ -185,7 +185,6 @@ class Opportunity(Resource):
 
 
 class Role(Resource):
-
     @property
     def resource_name(self):
         return 'opportunities/' + self.__class__.__name__.lower()
@@ -201,7 +200,6 @@ class Role(Resource):
 
 
 class Company(Resource):
-
     @property
     def _resource_fields_to_update(self):
         return {

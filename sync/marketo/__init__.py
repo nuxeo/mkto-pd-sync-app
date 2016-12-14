@@ -1,13 +1,12 @@
+import logging
+
 from .client import MarketoClient
 from .helpers import compute_external_id, get_id_part_from_external
+from .resources import Company
 from .resources import Lead
 from .resources import Opportunity
 from .resources import Role
-from .resources import Company
 
-
-# Set default logging handler to avoid "No handler found" warnings.
-import logging
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:

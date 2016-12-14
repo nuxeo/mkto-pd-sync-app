@@ -1,10 +1,10 @@
-from ..common import InitializationError, SavingError
-from .helpers import to_snake_case
-
+import logging
 from abc import ABCMeta, abstractproperty
+
 from requests import HTTPError
 
-import logging
+from .helpers import to_snake_case
+from ..common import InitializationError, SavingError
 
 
 class Resource:
@@ -21,7 +21,7 @@ class Resource:
 
     def __getattr__(self, name):
         if name != '_field_keys':
-            if name in self._field_keys\
+            if name in self._field_keys \
                     and name != self._field_keys[name]:  # Prevent from infinite looping when name = key
 
                 key = self._field_keys[name]
@@ -33,7 +33,7 @@ class Resource:
                 if key in self._field_types and self._field_types[key] in self.related_resources:
                     resource_class = self.related_resources[self._field_types[key]]
 
-                    if attr is not None\
+                    if attr is not None \
                             and not isinstance(attr, resource_class):  # Related resource already loaded
                         related_name = resource_class.__name__.lower()
                         related_id = attr
@@ -135,17 +135,18 @@ class Resource:
         if id_to_look_for:
             try:
                 data = self._client.get_resource_data(self.resource_name, id_to_look_for)
-                if data and\
-                        ('active_flag' in data and data['active_flag'] or 'active_flag' not in data):  # Prevent from loading deleted resource
+                if data and \
+                        ('active_flag' in data and data[
+                            'active_flag'] or 'active_flag' not in data):  # Prevent from loading deleted resource
                     for key in data:
                         setattr(self, key, self._get_data_value(data[key]))
                 else:
                     self._logger.warning('No data could be loaded for resource=%s for %s=%s',
-                                 self.resource_name, id_field, id_to_look_for)
+                                         self.resource_name, id_field, id_to_look_for)
             except HTTPError as e:
                 if e.response.status_code == 404:
                     self._logger.warning('No data could be loaded for resource=%s for %s=%s',
-                                 self.resource_name, id_field, id_to_look_for)
+                                         self.resource_name, id_field, id_to_look_for)
                 else:
                     raise e
 
@@ -176,7 +177,8 @@ class Resource:
             for key in data:
                 setattr(self, key, self._get_data_value(data[key]))
         else:
-            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name, ' with id=%s' if self.id is not None else '')
+            raise SavingError('Save resource', 'No data returned for resource=%s%s', self.resource_name,
+                              ' with id=%s' if self.id is not None else '')
 
     def _get_data_value(self, value):
         new_value = value
@@ -190,7 +192,6 @@ class Resource:
 
 
 class Person(Resource):
-
     @property
     def _field_defaults(self):
         return {
@@ -206,7 +207,6 @@ class Person(Resource):
 
 
 class Organization(Resource):
-
     @property
     def _field_defaults(self):
         return {
@@ -223,19 +223,21 @@ class Organization(Resource):
             filter_value = filter_value.strip()
             if filter_value:
                 filter_data = self._client.get_organization_email_domain_filter(filter_value)
-                filtered_data_array = self._client.get_resource_data('organization', None, {'filter_id': filter_data['id']})
+                filtered_data_array = self._client.get_resource_data('organization', None,
+                                                                     {'filter_id': filter_data['id']})
                 if filtered_data_array:
                     if len(filtered_data_array) == 1:
                         id_ = filtered_data_array[0]['id']
                     else:
-                        self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name, filter_value)
+                        self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name,
+                                             filter_name, filter_value)
                 else:
-                    self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name, filter_value)
+                    self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name,
+                                         filter_value)
         return id_
 
 
 class Deal(Resource):
-
     @property
     def _field_defaults(self):
         return {
@@ -251,14 +253,12 @@ class Deal(Resource):
 
 
 class User(Resource):
-
     @property
     def related_resources(self):
         return {}
 
 
 class Stage(Resource):
-
     @property
     def related_resources(self):
         return {}
@@ -286,7 +286,6 @@ class Stage(Resource):
 
 
 class Pipeline(Resource):
-
     @property
     def related_resources(self):
         return {}

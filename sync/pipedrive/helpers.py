@@ -1,6 +1,5 @@
-from re import compile
-
 import string
+from re import compile
 
 
 def to_snake_case(label):
@@ -20,11 +19,12 @@ def to_snake_case(label):
     # "No. of Employees (Range)" (now "no__of_employees__range_")
     filterpunct = compile('[%s\ ]' % string.punctuation)
     alphafilter = compile('[%s%s_-]' % (string.digits,
-                             string.ascii_letters))
+                                        string.ascii_letters))
     name = filterpunct.sub('_', label.lower())
     return ''.join(alphafilter.findall(name))
 
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

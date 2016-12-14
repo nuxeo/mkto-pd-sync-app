@@ -1,5 +1,6 @@
-from flask import request
 from functools import wraps
+
+from flask import request
 from google.appengine.ext import ndb
 
 
@@ -22,7 +23,6 @@ class InvalidUsage(Exception):
 
 
 def authenticate(authorized_keys):
-
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
@@ -30,7 +30,9 @@ def authenticate(authorized_keys):
                 return function(*args, **kwargs)
             else:
                 raise InvalidUsage('Authentication required', 401)
+
         return wrapper
+
     return decorator
 
 

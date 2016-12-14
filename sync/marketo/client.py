@@ -1,9 +1,9 @@
-from ..common import memoize
-from .helpers import is_marketo_guid, simple_pluralize
+import logging
 
 from requests import Session
 
-import logging
+from .helpers import is_marketo_guid, simple_pluralize
+from ..common import memoize
 
 
 class MarketoClient:
@@ -86,9 +86,11 @@ class MarketoClient:
             ret = data_array[0]  # Only one resource handled at a time for now
             if ret['status'] == 'skipped':
                 reason = ret['reasons'][0]  # Only one resource handled at a time for now
-                self._logger.warning('resource=%s%s has been skipped for reason=%s', resource_name, ' with id=%s' % resource_id if resource_id is not None else '', reason['message'])
+                self._logger.warning('resource=%s%s has been skipped for reason=%s', resource_name,
+                                     ' with id=%s' % resource_id if resource_id is not None else '', reason['message'])
             else:
-                self._logger.info('resource=%s%s has been %s', resource_name, ' with id=%s' % resource_id if resource_id is not None else '', ret['status'])
+                self._logger.info('resource=%s%s has been %s', resource_name,
+                                  ' with id=%s' % resource_id if resource_id is not None else '', ret['status'])
 
         return ret
 
@@ -192,7 +194,8 @@ class MarketoClient:
                 ret = data_array[0]  # Only one resource handled at a time for now
                 if ret['status'] == 'skipped':
                     reason = ret['reasons'][0]  # Only one resource handled at a time for now
-                    self._logger.warning('resource=%s with id=%s has been skipped for reason=%s', r_name, r_id, reason['message'])
+                    self._logger.warning('resource=%s with id=%s has been skipped for reason=%s', r_name, r_id,
+                                         reason['message'])
                 else:
                     self._logger.info('resource=%s with id=%s has been %s', r_name, r_id, ret['status'])
         else:

@@ -1,8 +1,8 @@
-from ..common import memoize
+import logging
 
 from requests import HTTPError, Session
 
-import logging
+from ..common import memoize
 
 
 class PipedriveClient:
@@ -188,7 +188,7 @@ class PipedriveClient:
             'type': 'org'
         }
 
-        ret = self._push_data_json('filters',  r_data, filter_id)  # Create or update filter
+        ret = self._push_data_json('filters', r_data, filter_id)  # Create or update filter
 
         if not filter_id and ret:
             self._memo['get_filters'] = {}  # Reset cache because a filter has been created

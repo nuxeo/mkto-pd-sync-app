@@ -52,4 +52,5 @@ def get_id_part_from_external(external_id):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

@@ -3,7 +3,6 @@ import marketo
 import pipedrive
 import sync
 
-
 PIPELINE_FILTER_NAME = 'NX Subscription (New and Upsell)'
 
 
@@ -29,16 +28,18 @@ def create_or_update_person_in_pipedrive(lead_id):
 
         data_changed = False
         for pd_field in mappings.PERSON_TO_LEAD:
-            data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field])\
+            data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field]) \
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            sync.get_logger().info('Sending lead data with id=%s to Pipedrive%s', str(lead_id), ' for person with id=%s' % str(person.id) if person.id is not None else '')
+            sync.get_logger().info('Sending lead data with id=%s to Pipedrive%s', str(lead_id),
+                                   ' for person with id=%s' % str(person.id) if person.id is not None else '')
             person.save()
 
             if not lead.pipedriveId or lead.pipedriveId != person.id:
-                sync.get_logger().info('Updating pipedrive_id=%s in Marketo%s', person.id, ' (old=%s)' % lead.pipedriveId if lead.pipedriveId else '')
+                sync.get_logger().info('Updating pipedrive_id=%s in Marketo%s', person.id,
+                                       ' (old=%s)' % lead.pipedriveId if lead.pipedriveId else '')
                 lead.pipedriveId = person.id
                 lead.save()
         else:
@@ -100,7 +101,8 @@ def create_or_update_organization_in_pipedrive(company_external_id):
             sync.get_logger().debug('Trying to fetch organization data from Pipedrive with name=%s', company.company)
             organization = pipedrive.Organization(sync.get_pipedrive_client(), company.company, 'name')
         if organization.id is None:  # Finally Email domain
-            sync.get_logger().debug('Trying to fetch organization data from Pipedrive with email_domain=%s', company.website)
+            sync.get_logger().debug('Trying to fetch organization data from Pipedrive with email_domain=%s',
+                                    company.website)
             organization = pipedrive.Organization(sync.get_pipedrive_client(), company.website, 'email_domain')
 
         if organization.id is None:
@@ -112,12 +114,14 @@ def create_or_update_organization_in_pipedrive(company_external_id):
 
         data_changed = False
         for pd_field in mappings.ORGANIZATION_TO_COMPANY:
-            data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field])\
+            data_changed = update_field(company, organization, pd_field, mappings.ORGANIZATION_TO_COMPANY[pd_field]) \
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            sync.get_logger().info('Sending company data with external_id=%s to Pipedrive%s', str(company_external_id), ' for organization with id=%s' % str(organization.id) if organization.id is not None else '')
+            sync.get_logger().info('Sending company data with external_id=%s to Pipedrive%s', str(company_external_id),
+                                   ' for organization with id=%s' % str(
+                                       organization.id) if organization.id is not None else '')
             organization.save()
         else:
             sync.get_logger().info('Nothing to do in Pipedrive for organization with id=%s', organization.id)
@@ -160,16 +164,18 @@ def create_or_update_lead_in_marketo(person_id):
 
         data_changed = False
         for mkto_field in mappings.LEAD_TO_PERSON:
-            data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field])\
+            data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field]) \
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            sync.get_logger().info('Sending person data with id=%s to Marketo%s', str(person_id), ' with id=%s' % str(person.id) if person.id is not None else '')
+            sync.get_logger().info('Sending person data with id=%s to Marketo%s', str(person_id),
+                                   ' with id=%s' % str(person.id) if person.id is not None else '')
             lead.save()
 
             if not person.marketoid or int(person.marketoid) != lead.id:
-                sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', lead.id, ' (old=%s)' % person.marketoid if person.marketoid else '')
+                sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', lead.id,
+                                       ' (old=%s)' % person.marketoid if person.marketoid else '')
                 person.marketoid = lead.id
                 person.save()
         else:
@@ -219,19 +225,23 @@ def create_or_update_company_in_marketo(organization_id):
             company.externalCompanyId = external_id
             data_changed = True
         else:
-            sync.get_logger().info('Company data fetched from Marketo with id=%s/external_id=%s', str(company.id), company.externalCompanyId)
+            sync.get_logger().info('Company data fetched from Marketo with id=%s/external_id=%s', str(company.id),
+                                   company.externalCompanyId)
             status = 'updated'
 
         for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
-            data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field])\
+            data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field]) \
                            or data_changed
 
         if data_changed:
             # Perform the update only if data actually changed
-            sync.get_logger().info('Sending organization data with id=%s to Marketo%s', str(organization_id), ' with id=%s/external_id=%s' % (str(company.id), company.externalCompanyId) if company.id is not None else '')
+            sync.get_logger().info('Sending organization data with id=%s to Marketo%s', str(organization_id),
+                                   ' with id=%s/external_id=%s' % (
+                                   str(company.id), company.externalCompanyId) if company.id is not None else '')
             company.save()
         else:
-            sync.get_logger().info('Nothing to do in Marketo for company with id=%s/external_id=%s', company.id, company.externalCompanyId)
+            sync.get_logger().info('Nothing to do in Marketo for company with id=%s/external_id=%s', company.id,
+                                   company.externalCompanyId)
             status = 'skipped'
 
         ret = {
@@ -299,7 +309,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
             # Opportunity
             opportunity_external_id = marketo.compute_external_id('deal', deal.id)
-            opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id, 'externalOpportunityId')
+            opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id,
+                                              'externalOpportunityId')
 
             data_changed = False
             if opportunity.id is None:
@@ -308,19 +319,23 @@ def create_or_update_opportunity_in_marketo(deal_id):
                 opportunity.externalOpportunityId = opportunity_external_id
                 data_changed = True
             else:
-                sync.get_logger().info('Opportunity data fetched from Marketo with id=%s/external_id=%s', str(opportunity.id), opportunity_external_id)
+                sync.get_logger().info('Opportunity data fetched from Marketo with id=%s/external_id=%s',
+                                       str(opportunity.id), opportunity_external_id)
                 opportunity_status = 'updated'
 
             for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
-                data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field])\
+                data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field]) \
                                or data_changed
 
             if data_changed:
                 # Perform the update only if data actually changed
-                sync.get_logger().info('Sending deal data with id=%s to Marketo%s', str(deal_id), ' for opportunity with id=%s/external_id=%s' % (str(opportunity.id), opportunity_external_id) if opportunity.id is not None else '')
+                sync.get_logger().info('Sending deal data with id=%s to Marketo%s', str(deal_id),
+                                       ' for opportunity with id=%s/external_id=%s' % (str(opportunity.id),
+                                                                                       opportunity_external_id) if opportunity.id is not None else '')
                 opportunity.save()
             else:
-                sync.get_logger().info('Nothing to do in Marketo for opportunity with id=%s/external_id=%s', opportunity.id, opportunity_external_id)
+                sync.get_logger().info('Nothing to do in Marketo for opportunity with id=%s/external_id=%s',
+                                       opportunity.id, opportunity_external_id)
                 opportunity_status = 'skipped'
 
             # Role
@@ -332,7 +347,9 @@ def create_or_update_opportunity_in_marketo(deal_id):
                 role.leadId = deal.contact_person.marketoid
                 role.role = deal.champion.title if deal.champion and deal.champion.title else 'Default Role'
                 role.isPrimary = deal.champion and deal.champion.marketoid == role.leadId
-                sync.get_logger().info('Sending deal data with id=%s to Marketo for role with (externalOpportunityId=%s, leadId=%s, role=%s)', str(deal_id), role.externalOpportunityId, role.leadId, role.role)
+                sync.get_logger().info(
+                    'Sending deal data with id=%s to Marketo for role with (externalOpportunityId=%s, leadId=%s, role=%s)',
+                    str(deal_id), role.externalOpportunityId, role.leadId, role.role)
                 role.save()
 
             ret = {

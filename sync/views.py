@@ -1,10 +1,9 @@
-from .util import authenticate, EnqueuedTask
-
 from flask import jsonify, request
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
 import sync
+from .util import authenticate, EnqueuedTask
 
 
 @sync.app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
@@ -57,7 +56,8 @@ def sync_person_delete_with_params():
     response = {}
     params = request.get_json()
     # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID hash key
-    if params is not None and 'previous' in params and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params['previous'] and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:
+    if params is not None and 'previous' in params and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params[
+        'previous'] and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:
         try:
             person_marketo_id = int(params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'])
             response = enqueue_task('delete_lead_in_marketo', {'id': person_marketo_id})

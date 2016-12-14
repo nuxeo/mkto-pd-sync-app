@@ -1,15 +1,14 @@
 # coding=UTF-8
-from .context import sync
-
 import unittest
+
+from .context import sync
 
 
 class MarketoTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mkto = sync.marketo.MarketoClient(sync.get_config('IDENTITY_ENDPOINT'), sync.get_config('CLIENT_ID'),
-                                         sync.get_config('CLIENT_SECRET'), sync.get_config('API_ENDPOINT'))
+                                              sync.get_config('CLIENT_SECRET'), sync.get_config('API_ENDPOINT'))
 
     def test_load_lead(self):
         lead = sync.marketo.Lead(self.mkto, 7591021)

@@ -1,6 +1,5 @@
 import adapters
 
-
 """
 Either "fields" or "transformer" should be provided.
 Transformers and adapters are functions that are used for data computation.

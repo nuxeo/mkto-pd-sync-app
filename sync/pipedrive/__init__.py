@@ -1,13 +1,12 @@
-from .client import PipedriveClient
-from .resources import Person
-from .resources import Organization
-from .resources import Deal
-from .resources import User
-from .resources import Pipeline
-
-
-# Set default logging handler to avoid "No handler found" warnings.
 import logging
+
+from .client import PipedriveClient
+from .resources import Deal
+from .resources import Organization
+from .resources import Person
+from .resources import Pipeline
+from .resources import User
+
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:

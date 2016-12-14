@@ -1,13 +1,12 @@
 from .context import sync, tasks
 
-from google.appengine.ext import ndb, testbed
-
 import json
 import mock
 import os
 import requests
 import unittest
 
+from google.appengine.ext import ndb, testbed
 
 vals = {
     (sync.get_config('API_ENDPOINT') + '/v1/leads/describe.json',):               {'{}': 'resources/leadFields.json'},
@@ -179,7 +178,6 @@ class SyncTestCase(unittest.TestCase):
     # Test tasks
 
     def test_create_person_in_pipedrive(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_person_in_pipedrive(10)
 
         person_id = saved_instances['lead10'].pipedriveId
@@ -219,7 +217,6 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['status'], 'created')
 
     def test_update_person_in_pipedrive(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_person_in_pipedrive(20)
 
         person = saved_instances['person20']
@@ -247,14 +244,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['id'], person.id)
 
     def test_update_person_in_pipedrive_no_change(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_person_in_pipedrive(30)
 
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
 
     def test_create_person_in_pipedrive_company_form_fields(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_person_in_pipedrive(40)
 
         person_id = saved_instances['lead40'].pipedriveId
@@ -275,7 +270,6 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['status'], 'created')
 
     def test_create_lead_in_marketo(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_lead_in_marketo(10)
 
         lead_id = saved_instances['person10'].marketoid
@@ -313,7 +307,6 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['status'], 'created')
 
     def test_update_lead_in_marketo(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_lead_in_marketo(20)
 
         lead = saved_instances['lead20']
@@ -337,14 +330,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['status'], 'updated')
 
     def test_update_lead_in_marketo_no_change(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_lead_in_marketo(30)
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_opportunity_in_marketo(10)
 
         opportunity = saved_instances['opportunity' + str(ret['opportunity']['id'])]
@@ -375,7 +366,6 @@ class SyncTestCase(unittest.TestCase):
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_opportunity_in_marketo(20)
 
         opportunity = saved_instances['opportunity6a38a3bd-edce-4d86-bcc0-83f1feef8997']
@@ -396,14 +386,12 @@ class SyncTestCase(unittest.TestCase):
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_opportunity_in_marketo(30)
 
         # Test return data
         self.assertEquals(ret['opportunity']['status'], 'skipped')
 
     def test_update_company_in_marketo_find_by_name_no_change(self, mock_mkto_get_token, mock_get):
-
         ret = tasks.create_or_update_company_in_marketo(50)
 
 #         updated_company = saved_instances['company50']  # Not saved

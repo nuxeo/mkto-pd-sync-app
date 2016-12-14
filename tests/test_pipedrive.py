@@ -1,11 +1,10 @@
 # coding=UTF-8
-from .context import sync
-
 import unittest
+
+from .context import sync
 
 
 class PipedriveTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.pd = sync.pipedrive.PipedriveClient(sync.get_config('PD_API_TOKEN'))
