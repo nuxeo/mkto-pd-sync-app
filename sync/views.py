@@ -1,7 +1,8 @@
-from .util import authenticate
+from .util import authenticate, EnqueuedTask
 
 from flask import jsonify, request
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
 
 import sync
 
@@ -114,10 +115,24 @@ def sync_deal_with_params():
 
 
 def enqueue_task(task_name, params):
-    task = taskqueue.add(
+    if EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get():  # Found
+        response = {'message': 'Task already enqueued.'}
+
+    else:
+        # Enqueue task
+        # Meaning storing it into Cloud Datastore
+        # To prevent from having duplicates tasks in task queue
+        enqueued_task = EnqueuedTask(name=task_name, params=params)
+        task_key = enqueued_task.put()
+
+        params.update({'task_urlsafe': task_key.urlsafe()})
+        task = taskqueue.add(
             url='/task/%s' % task_name,
             target='worker',
             params=params)
+        if not task.was_enqueued:
+            enqueued_task.key.delete()
 
-    response = {'message': 'Task {} enqueued, ETA {}.'.format(task.name, task.eta)}
+        response = {'message': 'Task {} enqueued, ETA {}.'.format(task.name, task.eta)}
+
     return response

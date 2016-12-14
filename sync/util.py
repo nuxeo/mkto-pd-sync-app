@@ -1,5 +1,6 @@
 from flask import request
 from functools import wraps
+from google.appengine.ext import ndb
 
 
 class InvalidUsage(Exception):
@@ -31,3 +32,8 @@ def authenticate(authorized_keys):
                 raise InvalidUsage('Authentication required', 401)
         return wrapper
     return decorator
+
+
+class EnqueuedTask(ndb.Model):
+    name = ndb.StringProperty()
+    params = ndb.JsonProperty(indexed=True)

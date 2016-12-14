@@ -1,6 +1,6 @@
 from .context import sync, tasks
 
-from google.appengine.ext import testbed
+from google.appengine.ext import ndb, testbed
 
 import json
 import mock
@@ -126,8 +126,18 @@ class SyncTestCase(unittest.TestCase):
         cls.context = sync.app.app_context()
         cls.context.push()
 
+        # First, create an instance of the Testbed class.
         cls.testbed = testbed.Testbed()
+        # Then activate the testbed, which prepares the service stubs for use.
         cls.testbed.activate()
+        # Next, declare which service stubs you want to use.
+        cls.testbed.init_datastore_v3_stub()
+        cls.testbed.init_memcache_stub()
+        # Clear ndb's in-context cache between tests.
+        # This prevents data from leaking between tests.
+        # Alternatively, you could disable caching by
+        # using ndb.get_context().set_cache_policy(False)
+        ndb.get_context().clear_cache()
 
         # root_path must be set the the location of queue.yaml.
         # Otherwise, only the 'default' queue will be available.
