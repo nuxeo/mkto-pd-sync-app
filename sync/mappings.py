@@ -32,7 +32,7 @@ PERSON_TO_LEAD = {
         'fields': ['phone']
     },
     'inferred_country': {
-        'fields': ['inferredCountry', 'country'],
+        'fields': ['inferredCountry', 'leadCountry'],
         'mode': 'choose',
         'pre_adapter': adapters.country_iso_to_name
     },

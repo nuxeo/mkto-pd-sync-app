@@ -26,7 +26,8 @@
       "state": "Italy",
       "inferredCity": "Milano",
       "city": "Milano",
-      "company": "Test Flask Company"
+      "company": "Test Flask Company",
+      "leadCountry": ""
     }
   ],
   "success": true

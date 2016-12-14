@@ -131,7 +131,8 @@ class Lead(Resource):
             'state',
             'inferredCity',
             'city',
-            'company'
+            'company',
+            'leadCountry'
         }
 
     @property

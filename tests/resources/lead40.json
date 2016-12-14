@@ -26,7 +26,8 @@
       "state": null,
       "inferredCity": null,
       "city": null,
-      "company": "Another Flask Company"
+      "company": "Another Flask Company",
+      "leadCountry": ""
     }
   ],
   "success": true

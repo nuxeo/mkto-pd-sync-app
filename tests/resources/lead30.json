@@ -26,7 +26,8 @@
       "state": "United Kingdom",
       "inferredCity": "London",
       "city": "London",
-      "company": "Test Flask Linked Organization"
+      "company": "Test Flask Linked Organization",
+      "leadCountry": ""
     }
   ],
   "success": true
