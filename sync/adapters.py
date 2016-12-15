@@ -23,6 +23,7 @@ def company_name_to_org_id(lead):
             company.billingStreet = lead.street
             company.billingCity = lead.city
             company.billingState = lead.state
+            company.billingPostalCode = lead.postalCode
             company.billingCountry = lead.country
             company.mainPhone = lead.mainPhone
             company.industry = lead.industry

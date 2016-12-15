@@ -27,7 +27,13 @@
       "inferredCity": null,
       "city": null,
       "company": "Another Flask Company",
-      "leadCountry": ""
+      "leadCountry": "",
+      "street": "",
+      "postalCode": "",
+      "mainPhone": "",
+      "industry": "",
+      "annualRevenue": "",
+      "numberOfEmployees": ""
     }
   ],
   "success": true

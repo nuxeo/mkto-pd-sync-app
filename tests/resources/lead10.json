@@ -27,7 +27,13 @@
       "inferredCity": "Milano",
       "city": "Milano",
       "company": "Test Flask Company",
-      "leadCountry": ""
+      "leadCountry": "",
+      "street": "",
+      "postalCode": "",
+      "mainPhone": "",
+      "industry": "",
+      "annualRevenue": "",
+      "numberOfEmployees": ""
     }
   ],
   "success": true

@@ -27,7 +27,13 @@
       "inferredCity": "Barcelona",
       "city": "Barcelona",
       "company": "Test Flask Linked Company",
-      "leadCountry": ""
+      "leadCountry": "",
+      "street": "",
+      "postalCode": "",
+      "mainPhone": "",
+      "industry": "",
+      "annualRevenue": "",
+      "numberOfEmployees": ""
     }
   ],
   "success": true

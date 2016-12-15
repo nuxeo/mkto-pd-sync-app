@@ -132,7 +132,13 @@ class Lead(Resource):
             'inferredCity',
             'city',
             'company',
-            'leadCountry'
+            'leadCountry',
+            'street',
+            'postalCode',
+            'mainPhone',
+            'industry',
+            'annualRevenue',
+            'numberOfEmployees'
         }
 
     @property
