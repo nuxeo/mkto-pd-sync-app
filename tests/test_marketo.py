@@ -210,6 +210,10 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(company.id)
         self.assertEqual(company.externalCompanyId, 'c1')
 
+    def test_load_company_with_name_unicode(self):
+        company = sync.marketo.Company(self.mkto, u'Tést company', 'company')
+        self.assertIsNotNone(company)
+
     def test_save_company(self):
         company = sync.marketo.Company(self.mkto)
         company.externalCompanyId = 'testCompany1'

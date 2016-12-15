@@ -46,7 +46,8 @@ class PipedriveClient:
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
         self._logger.debug('Fetching resource=%s%s%s', r_name,
                            ' (fields=%s)' % r_fields if r_fields is not None else '',
-                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
+                           ' with id/action=%s' % r_id_or_action.encode('utf-8') if isinstance(r_id_or_action, unicode)
+                           else str(r_id_or_action) if r_id_or_action is not None else '')
         url = self._build_url(r_name, r_id_or_action)
 
         payload = r_fields or {}

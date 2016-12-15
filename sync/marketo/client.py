@@ -97,7 +97,8 @@ class MarketoClient:
     def _fetch_data(self, r_name, r_id_or_action, r_filter_type=None, r_fields=None):
         self._logger.debug('Fetching resource=%s%s%s%s', r_name,
                            ' (fields=%s)' % r_fields if r_fields is not None else '',
-                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '',
+                           ' with id/action=%s' % r_id_or_action.encode('utf-8') if isinstance(r_id_or_action, unicode)
+                           else str(r_id_or_action) if r_id_or_action is not None else '',
                            ' with filter_type=%s' % r_filter_type if r_filter_type is not None else '')
         payload = {}
 
