@@ -338,9 +338,15 @@ def create_or_update_opportunity_in_marketo(deal_id):
                                        opportunity.id, opportunity_external_id)
                 opportunity_status = 'skipped'
 
+            ret = {
+                'opportunity': {
+                    'status': opportunity_status,
+                    'id': opportunity.id
+                }
+            }
+
             # Role
-            role = None
-            if deal.contact_person.marketoid is not None:  # Ensure person has existed in Marketo # TODO: create if not?
+            if deal.contact_person and deal.contact_person.marketoid:  # Ensure person has existed in Marketo # TODO: create if not?
                 # Role will be automatically created or updated using these 3 fields ("dedupeFields")
                 role = marketo.Role(sync.get_marketo_client())
                 role.externalOpportunityId = opportunity.externalOpportunityId
@@ -351,16 +357,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
                     'Sending deal data with id=%s to Marketo for role with (externalOpportunityId=%s, leadId=%s, role=%s)',
                     str(deal_id), role.externalOpportunityId, role.leadId, role.role)
                 role.save()
-
-            ret = {
-                'opportunity': {
-                    'status': opportunity_status,
-                    'id': opportunity.id
-                },
-                'role': {
-                    'id': role.id
-                }
-            }
+                ret['role'] = {'id': role.id}
 
         else:
             message = 'Deal synchronization with id=%s not enabled for pipeline=%s' % (deal_id, pipeline.name)
