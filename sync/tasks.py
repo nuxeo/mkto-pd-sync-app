@@ -377,6 +377,45 @@ def create_or_update_opportunity_in_marketo(deal_id):
     return ret
 
 
+def create_activity_in_pipedrive(lead_id):
+    sync.get_logger().info('Fetching lead data from Marketo with id=%s', str(lead_id))
+    lead = marketo.Lead(sync.get_marketo_client(), lead_id)
+
+    if lead.id is not None:
+        if lead.conversicaLeadOwnerFirstName and lead.conversicaLeadOwnerLastName\
+                and lead.pipedriveId:  # If lead has owner and linked to person # TODO: what if incorrect pipedriveID?
+            activity = pipedrive.Activity(sync.get_pipedrive_client())
+            sync.get_logger().info('New activity created')
+            status = 'created'
+
+            for pd_field in mappings.ACTIVITY_TO_LEAD:
+                update_field(lead, activity, pd_field, mappings.ACTIVITY_TO_LEAD[pd_field])
+
+            sync.get_logger().info('Sending lead data with id=%s to Pipedrive activity', str(lead_id))
+            activity.save()
+
+            ret = {
+                'status': status,
+                'id': activity.id
+            }
+
+        else:
+            message = 'Activity synchronization for lead with id=%s not enabled when no owner' % str(lead_id)
+            sync.get_logger().info(message)
+            ret = {
+                'status': 'skipped',
+                'message': message
+            }
+    else:
+        message = 'No lead found in Marketo with id=%s' % str(lead_id)
+        sync.get_logger().error(message)
+        ret = {
+            'error': message
+        }
+
+    return ret
+
+
 def update_field(from_resource, to_resource, to_field, mapping):
     sync.get_logger().debug('Updating field=%s from resource=%s to resource=%s', to_field, from_resource, to_resource)
 

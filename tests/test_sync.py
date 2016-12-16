@@ -1,5 +1,6 @@
 from .context import sync, tasks
 
+import datetime
 import json
 import mock
 import os
@@ -52,7 +53,8 @@ vals = {
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-20'}": 'resources/opportunity20.json',
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-30'}": 'resources/opportunity30.json'
         },
-    ('https://api.pipedrive.com/v1/stages/34',):                                  {'{}': 'resources/stage34.json'}
+    ('https://api.pipedrive.com/v1/stages/34',):                                  {'{}': 'resources/stage34.json'},
+    ('https://api.pipedrive.com/v1/activityFields',):                             {'{}': 'resources/activityFields.json'}
 }
 
 
@@ -109,6 +111,12 @@ def mock_save_organization(organization):
     saved_instances['organization' + str(organization.id)] = organization
 
 
+def mock_save_activity(activity):
+    if not activity.id:
+        activity.id = 15
+    saved_instances['activity' + str(activity.id)] = activity
+
+
 @mock.patch.object(requests.Session, 'get', side_effect=side_effect_get)
 @mock.patch.object(sync.marketo.Lead, 'save', mock_save_lead)
 @mock.patch.object(sync.marketo.Company, 'save', mock_save_company)
@@ -116,6 +124,7 @@ def mock_save_organization(organization):
 @mock.patch.object(sync.marketo.Role, 'save', mock_save_role)
 @mock.patch.object(sync.pipedrive.Person, 'save', mock_save_person)
 @mock.patch.object(sync.pipedrive.Organization, 'save', mock_save_organization)
+@mock.patch.object(sync.pipedrive.Activity, 'save', mock_save_activity)
 @mock.patch('sync.marketo.MarketoClient._get_auth_token')
 class SyncTestCase(unittest.TestCase):
     AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')['test']
@@ -398,3 +407,19 @@ class SyncTestCase(unittest.TestCase):
 
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
+
+    def test_create_activity_in_pipedrive(self, mock_mkto_get_token, mock_get):
+        ret = tasks.create_activity_in_pipedrive(20)
+
+        activity = saved_instances['activity' + str(ret['id'])]
+        self.assertIsNotNone(activity)  # Person has been created
+        self.assertIsNotNone(activity.id)
+        self.assertEquals(activity.user_id, 1628545)
+        self.assertEquals(activity.person_id, 20)
+        self.assertEquals(activity.type, 'call')
+        self.assertEquals(activity.subject, 'Follow up with Test Linked Flask Lead')
+        self.assertEquals(activity.note, 'Did something interesting on 12/19/2016')
+        self.assertEquals(activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
+
+        # Test return data
+        self.assertEquals(ret['status'], 'created')

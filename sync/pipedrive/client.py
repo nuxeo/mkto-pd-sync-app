@@ -2,7 +2,7 @@ import logging
 
 from requests import HTTPError, Session
 
-from ..common import memoize
+from ..common import memoize, simple_pluralize
 
 
 class PipedriveClient:
@@ -29,7 +29,7 @@ class PipedriveClient:
         :param resource_fields: The resource fields to consider retrieving, default are all fields
         :return: The loaded dara as a dictionary of fields mapped against their value
         """
-        return self._fetch_data(resource_name + 's',  # Takes an 's' at the end of the resource name
+        return self._fetch_data(simple_pluralize(resource_name),  # Resource name should be plural form
                                 resource_id, resource_fields)
 
     def set_resource_data(self, resource_name, resource_data, resource_id=None):
@@ -40,7 +40,7 @@ class PipedriveClient:
         :param resource_id: The resource id (update only)
         :return: The dumped data as a dictionary of field mapped against their value
         """
-        return self._push_data(resource_name + 's',  # Takes an 's' at the end of the resource name
+        return self._push_data(simple_pluralize(resource_name),  # Resource name should be plural form
                                resource_data, resource_id)
 
     def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
@@ -125,7 +125,7 @@ class PipedriveClient:
         if r_id:
             self._logger.warning('Deleting resource=%s with id=%s', r_name, str(r_id))
 
-            url = self._build_url(r_name + 's', r_id)  # Takes an 's' at the end of the resource name
+            url = self._build_url(simple_pluralize(r_name), r_id)  # Resource name should be plural form
 
             r = self._session.delete(url)
             self._logger.info('Called url=%s', r.url)

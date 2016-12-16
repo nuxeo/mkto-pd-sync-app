@@ -50,11 +50,19 @@ def country_iso_to_name(country_iso_or_name):
     return ret
 
 
-def user_name_to_user_id(lead_name):
+def user_name_to_user_id_or_big_bot(user_name):
     ret = BIG_BOT_ID
-    if lead_name and lead_name.strip():
-        user = pipedrive.User(sync.get_pipedrive_client(), lead_name, 'name')  # TODO: use existing value if not found
+    if user_name and user_name.strip():
+        user = pipedrive.User(sync.get_pipedrive_client(), user_name, 'name')  # TODO: use existing value if not found
         ret = user.id or ret
+    return ret
+
+
+def user_name_to_user_id(user_name):
+    ret = None
+    if user_name and user_name.strip():
+        user = pipedrive.User(sync.get_pipedrive_client(), user_name, 'name')
+        ret = user.id
     return ret
 
 
@@ -73,6 +81,18 @@ def number_to_string(number):
     if number:
         ret = str(number)
     return ret
+
+
+def call_type(nothing):
+    return 'call'
+
+
+def custom_subject(name):
+    return 'Follow up with %s' % name
+
+
+def today_date(nothing):
+    return datetime.now().strftime('%Y-%m-%d')
 
 
 def split_name_get_first(name):

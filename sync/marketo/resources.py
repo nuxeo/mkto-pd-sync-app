@@ -138,7 +138,8 @@ class Lead(Resource):
             'mainPhone',
             'industry',
             'annualRevenue',
-            'numberOfEmployees'
+            'numberOfEmployees',
+            'lastInterestingMoment'
         }
 
     @property

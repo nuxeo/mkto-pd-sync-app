@@ -6,6 +6,7 @@ from .resources import Organization
 from .resources import Person
 from .resources import Pipeline
 from .resources import User
+from .resources import Activity
 
 try:  # Python 2.7+
     from logging import NullHandler

@@ -258,6 +258,12 @@ class User(Resource):
         return {}
 
 
+class Activity(Resource):
+    @property
+    def related_resources(self):
+        return {}
+
+
 class Stage(Resource):
     @property
     def related_resources(self):

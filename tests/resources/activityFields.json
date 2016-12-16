@@ -1,0 +1,318 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "key": "id",
+            "name": "ID",
+            "order_nr": 1,
+            "picklist_data": null,
+            "field_type": "int",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": false,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": false,
+            "mandatory_flag": true
+        },
+        {
+            "id": 2,
+            "key": "subject",
+            "name": "Subject",
+            "order_nr": 2,
+            "picklist_data": null,
+            "field_type": "varchar",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": true,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": true
+        },
+        {
+            "id": 3,
+            "key": "type",
+            "name": "Type",
+            "order_nr": 3,
+            "field_type": "enum",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "options": [
+                {
+                    "id": "call",
+                    "label": "Call"
+                },
+                {
+                    "id": "meeting",
+                    "label": "Meeting"
+                },
+                {
+                    "id": "task",
+                    "label": "Task"
+                },
+                {
+                    "id": "deadline",
+                    "label": "Deadline"
+                },
+                {
+                    "id": "email",
+                    "label": "Email"
+                },
+                {
+                    "id": "lunch",
+                    "label": "Lunch"
+                },
+                {
+                    "id": "demo",
+                    "label": "Demo"
+                },
+                {
+                    "id": "webinar",
+                    "label": "Webinar"
+                },
+                {
+                    "id": "interesting-moment",
+                    "label": "Interesting Moment"
+                },
+                {
+                    "id": "online-meeting",
+                    "label": "Online Meeting"
+                },
+                {
+                    "id": "conversica_email",
+                    "label": "Conversica Email"
+                }
+            ],
+            "mandatory_flag": true
+        },
+        {
+            "id": 4,
+            "key": "done",
+            "name": "Done",
+            "order_nr": 4,
+            "field_type": "enum",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "options": [
+                {
+                    "id": false,
+                    "label": "To do"
+                },
+                {
+                    "id": true,
+                    "label": "Done"
+                }
+            ],
+            "mandatory_flag": true
+        },
+        {
+            "id": 5,
+            "key": "marked_as_done_time",
+            "name": "Marked as done time",
+            "order_nr": 5,
+            "picklist_data": null,
+            "field_type": "date",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": false,
+            "mandatory_flag": true
+        },
+        {
+            "id": 6,
+            "key": "org_id",
+            "name": "Organization",
+            "order_nr": 6,
+            "picklist_data": null,
+            "field_type": "org",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": true,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": false
+        },
+        {
+            "id": 7,
+            "key": "person_id",
+            "name": "Contact person",
+            "order_nr": 7,
+            "picklist_data": null,
+            "field_type": "people",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": false
+        },
+        {
+            "id": 8,
+            "key": "deal_id",
+            "name": "Deal",
+            "order_nr": 8,
+            "picklist_data": null,
+            "field_type": "deal",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": false
+        },
+        {
+            "id": 9,
+            "key": "due_date",
+            "name": "Due date",
+            "order_nr": 9,
+            "picklist_data": null,
+            "field_type": "date",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": true
+        },
+        {
+            "id": 10,
+            "key": "due_time",
+            "name": "Due time",
+            "order_nr": 10,
+            "picklist_data": null,
+            "field_type": "time",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": true
+        },
+        {
+            "id": 11,
+            "key": "duration",
+            "name": "Duration",
+            "order_nr": 11,
+            "picklist_data": null,
+            "field_type": "time",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": false
+        },
+        {
+            "id": 12,
+            "key": "note",
+            "name": "Note",
+            "order_nr": 12,
+            "picklist_data": null,
+            "field_type": "text",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": false,
+            "mandatory_flag": true
+        },
+        {
+            "id": 13,
+            "key": "add_time",
+            "name": "Add time",
+            "order_nr": 13,
+            "picklist_data": null,
+            "field_type": "date",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": false,
+            "mandatory_flag": true
+        },
+        {
+            "id": 14,
+            "key": "user_id",
+            "name": "Assigned to user",
+            "order_nr": 14,
+            "picklist_data": null,
+            "field_type": "user",
+            "add_time": "2015-11-09 11:11:11",
+            "update_time": null,
+            "active_flag": true,
+            "edit_flag": false,
+            "index_visible_flag": true,
+            "details_visible_flag": true,
+            "add_visible_flag": false,
+            "important_flag": false,
+            "bulk_edit_allowed": true,
+            "mandatory_flag": true
+        }
+    ],
+    "additional_data": {
+        "pagination": {
+            "start": 0,
+            "limit": 100,
+            "more_items_in_collection": false
+        }
+    }
+}

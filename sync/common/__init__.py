@@ -1,7 +1,7 @@
 import logging
 
 from .errors import InitializationError, SavingError
-from .util import memoize
+from .util import memoize, simple_pluralize
 
 try:  # Python 2.7+
     from logging import NullHandler

@@ -41,7 +41,7 @@ PERSON_TO_LEAD = {
     'owner_id': {
         'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
         'mode': 'join',
-        'post_adapter': adapters.user_name_to_user_id
+        'post_adapter': adapters.user_name_to_user_id_or_big_bot
     },
     'created_date': {
         'fields': ['createdAt'],
@@ -100,6 +100,33 @@ ORGANIZATION_TO_COMPANY = {
     },
     'number_of_employees': {
         'fields': ['numberOfEmployees']
+    }
+}
+
+ACTIVITY_TO_LEAD = {
+    'user_id': {
+        'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
+        'mode': 'join',
+        'post_adapter': adapters.user_name_to_user_id
+    },
+    'person_id': {
+        'fields': ['pipedriveId']
+    },
+    'type': {
+        'fields': [],
+        'post_adapter': adapters.call_type
+    },
+    'subject': {
+        'fields': ['firstName', 'lastName'],
+        'mode': 'join',
+        'post_adapter': adapters.custom_subject
+    },
+    'note': {
+        'fields': ['lastInterestingMoment']
+    },
+    'due_date': {
+        'fields': [],
+        'post_adapter': adapters.today_date
     }
 }
 

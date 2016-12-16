@@ -33,7 +33,8 @@
       "mainPhone": "",
       "industry": "",
       "annualRevenue": "",
-      "numberOfEmployees": ""
+      "numberOfEmployees": "",
+      "lastInterestingMoment": ""
     }
   ],
   "success": true

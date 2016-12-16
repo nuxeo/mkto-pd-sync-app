@@ -114,6 +114,13 @@ def sync_deal_with_params():
     return jsonify(**response)
 
 
+@sync.app.route('/marketo/lead/<int:lead_id>/activity', methods=['POST'])
+@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+def sync_lead_activity(lead_id):
+    response = enqueue_task('create_activity_in_pipedrive', {'id': lead_id})
+    return jsonify(**response)
+
+
 def enqueue_task(task_name, params):
     if EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get():  # Found
         response = {'message': 'Task already enqueued.'}
