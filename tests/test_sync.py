@@ -1,3 +1,4 @@
+# coding=UTF-8
 from .context import sync, tasks
 
 import datetime
@@ -29,6 +30,7 @@ vals = {
         "{'filterType': 'externalCompanyId', 'filterValues': 'testFlaskCompany'}"      : 'resources/company10.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-10'}"    : 'resources/empty.json',
         "{'filterType': 'company', 'filterValues': 'Test Flask Organization'}"         : 'resources/empty.json',
+        "{'filterType': 'id', 'filterValues': '20'}"                                   : 'resources/company20.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-20'}"    : 'resources/company20.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-30'}"    : 'resources/company30.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'mkto-lead-company-40'}"  : 'resources/empty.json',
@@ -54,7 +56,10 @@ vals = {
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-30'}": 'resources/opportunity30.json'
         },
     ('https://api.pipedrive.com/v1/stages/34',):                                  {'{}': 'resources/stage34.json'},
-    ('https://api.pipedrive.com/v1/activityFields',):                             {'{}': 'resources/activityFields.json'}
+    ('https://api.pipedrive.com/v1/activityFields',):                             {'{}': 'resources/activityFields.json'},
+    ('https://api.pipedrive.com/v1/filters',):                                    {'{}': 'resources/filters.json'},
+    ('https://api.pipedrive.com/v1/filters/1',):                                  {'{}': 'resources/filter1.json'},
+    ('https://api.pipedrive.com/v1/organizations',):                              {"{'filter_id': 1}": 'resources/emptyPdFind.json'}
 }
 
 
@@ -65,6 +70,22 @@ def side_effect_get(*args, **kwargs):
         value = "{'filterType': '%s', 'filterValues': '%s'}" % (params['filterType'], params['filterValues'])
     else:
         value = str(params)
+    rv.url = '%s -> %s' % (args[0], vals[args][value])
+    with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
+        rv.json.return_value = json.load(f)
+    f.closed
+    return rv
+
+
+def side_effect_post(*args, **kwargs):
+    rv = mock.MagicMock(spec=requests.Response)
+    rv.url = '%s -> ∅' % args[0]
+    return rv
+
+
+def side_effect_put(*args, **kwargs):
+    rv = mock.MagicMock(spec=requests.Response)
+    value = '{}'
     rv.url = '%s -> %s' % (args[0], vals[args][value])
     with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
         rv.json.return_value = json.load(f)
@@ -118,6 +139,8 @@ def mock_save_activity(activity):
 
 
 @mock.patch.object(requests.Session, 'get', side_effect=side_effect_get)
+@mock.patch.object(requests.Session, 'post', side_effect=side_effect_post)
+@mock.patch.object(requests.Session, 'put', side_effect=side_effect_put)
 @mock.patch.object(sync.marketo.Lead, 'save', mock_save_lead)
 @mock.patch.object(sync.marketo.Company, 'save', mock_save_company)
 @mock.patch.object(sync.marketo.Opportunity, 'save', mock_save_opportunity)
@@ -158,7 +181,7 @@ class SyncTestCase(unittest.TestCase):
 
         cls.testbed.deactivate()
 
-    def test_authentication_error(self, mock_mkto_get_token, mock_get):
+    def test_authentication_error(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/1')
             self.assertEqual(rv.status_code, 401)
@@ -166,7 +189,7 @@ class SyncTestCase(unittest.TestCase):
             self.assertEqual(data['message'], 'Authentication required')
 
     @mock.patch('sync.views.enqueue_task')
-    def test_internal_server_error(self, mock_sync_lead, mock_mkto_get_token, mock_get):
+    def test_internal_server_error(self, mock_sync_lead, mock_mkto_get_token, mock_put, mock_post, mock_get):
         mock_sync_lead.side_effect = Exception('Boom!')
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
@@ -174,7 +197,7 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             self.assertEqual(data['message'], 'Boom!')
 
-    def test_flow(self, mock_mkto_get_token, mock_get):
+    def test_flow(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
             data = json.loads(rv.data)
@@ -186,7 +209,7 @@ class SyncTestCase(unittest.TestCase):
 
     # Test tasks
 
-    def test_create_person_in_pipedrive(self, mock_mkto_get_token, mock_get):
+    def test_create_person_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_person_in_pipedrive(10)
 
         person_id = saved_instances['lead10'].pipedriveId
@@ -221,11 +244,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(organization.industry, 'Finance')
         self.assertEquals(organization.annual_revenue, 1000000)
         self.assertEquals(organization.number_of_employees, 10)
+        self.assertEquals(organization.marketoid, '10')
 
         # Test return data
         self.assertEquals(ret['status'], 'created')
 
-    def test_update_person_in_pipedrive(self, mock_mkto_get_token, mock_get):
+    def test_update_person_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_person_in_pipedrive(20)
 
         person = saved_instances['person20']
@@ -252,13 +276,13 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['status'], 'updated')
         self.assertEquals(ret['id'], person.id)
 
-    def test_update_person_in_pipedrive_no_change(self, mock_mkto_get_token, mock_get):
+    def test_update_person_in_pipedrive_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_person_in_pipedrive(30)
 
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
 
-    def test_create_person_in_pipedrive_company_form_fields(self, mock_mkto_get_token, mock_get):
+    def test_create_person_in_pipedrive_company_form_fields(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_person_in_pipedrive(40)
 
         person_id = saved_instances['lead40'].pipedriveId
@@ -278,7 +302,7 @@ class SyncTestCase(unittest.TestCase):
         # Test return data
         self.assertEquals(ret['status'], 'created')
 
-    def test_create_lead_in_marketo(self, mock_mkto_get_token, mock_get):
+    def test_create_lead_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_lead_in_marketo(10)
 
         lead_id = saved_instances['person10'].marketoid
@@ -315,7 +339,7 @@ class SyncTestCase(unittest.TestCase):
         # Test return data
         self.assertEquals(ret['status'], 'created')
 
-    def test_update_lead_in_marketo(self, mock_mkto_get_token, mock_get):
+    def test_update_lead_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_lead_in_marketo(20)
 
         lead = saved_instances['lead20']
@@ -338,13 +362,13 @@ class SyncTestCase(unittest.TestCase):
         # Test return data
         self.assertEquals(ret['status'], 'updated')
 
-    def test_update_lead_in_marketo_no_change(self, mock_mkto_get_token, mock_get):
+    def test_update_lead_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_lead_in_marketo(30)
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
-    def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_get):
+    def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_opportunity_in_marketo(10)
 
         opportunity = saved_instances['opportunity' + str(ret['opportunity']['id'])]
@@ -374,7 +398,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['opportunity']['status'], 'created')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
-    def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_get):
+    def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_opportunity_in_marketo(20)
 
         opportunity = saved_instances['opportunity6a38a3bd-edce-4d86-bcc0-83f1feef8997']
@@ -394,13 +418,13 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(ret['opportunity']['status'], 'updated')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
-    def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_get):
+    def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_opportunity_in_marketo(30)
 
         # Test return data
         self.assertEquals(ret['opportunity']['status'], 'skipped')
 
-    def test_update_company_in_marketo_find_by_name_no_change(self, mock_mkto_get_token, mock_get):
+    def test_update_company_in_marketo_find_by_name_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_or_update_company_in_marketo(50)
 
 #         updated_company = saved_instances['company50']  # Not saved
@@ -408,7 +432,7 @@ class SyncTestCase(unittest.TestCase):
         # Test return data
         self.assertEquals(ret['status'], 'skipped')
 
-    def test_create_activity_in_pipedrive(self, mock_mkto_get_token, mock_get):
+    def test_create_activity_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         ret = tasks.create_activity_in_pipedrive(20)
 
         activity = saved_instances['activity' + str(ret['id'])]

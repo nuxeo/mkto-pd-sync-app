@@ -17,23 +17,6 @@ def compute_external_id(pd_resource_name, id_, prefix='pd'):
     return prefix + '-' + pd_resource_name + '-' + str(id_)
 
 
-def get_id_part_from_external(external_id):
-    """
-        Return True if the given id is a Marketo GUID, False otherwise.
-        >>> get_id_part_from_external('pd-organization-1234')
-        '1234'
-        >>> get_id_part_from_external('pd')
-        ''
-        >>> get_id_part_from_external('pd-pd')
-        ''
-        """
-    ret = ''
-    match = search(r'-(\d*)$', external_id)
-    if match:
-        ret = match.group(1)
-    return ret
-
-
 if __name__ == '__main__':
     import doctest
 

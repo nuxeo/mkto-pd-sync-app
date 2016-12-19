@@ -219,21 +219,22 @@ class Organization(Resource):
 
     def _find_by_filter(self, filter_name, filter_value):
         id_ = None
-        if filter_name == 'email_domain' and filter_value:
-            filter_value = filter_value.strip()
-            if filter_value:
-                filter_data = self._client.get_organization_email_domain_filter(filter_value)
-                filtered_data_array = self._client.get_resource_data('organization', None,
-                                                                     {'filter_id': filter_data['id']})
-                if filtered_data_array:
-                    if len(filtered_data_array) == 1:
-                        id_ = filtered_data_array[0]['id']
-                    else:
-                        self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name,
-                                             filter_name, filter_value)
+        if filter_value and (filter_name == 'email_domain' or filter_name == 'marketoid'):
+            if filter_name == 'email_domain':
+                filter_data = self._client.get_organization_email_domain_filter(filter_value.strip())
+            elif filter_name == 'marketoid':
+                filter_data = self._client.get_organization_marketoid_filter(filter_value)
+            filtered_data_array = self._client.get_resource_data('organization', None,
+                                                                 {'filter_id': filter_data['id']})
+            if filtered_data_array:
+                if len(filtered_data_array) == 1:
+                    id_ = filtered_data_array[0]['id']
                 else:
-                    self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name,
-                                         filter_value)
+                    self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name,
+                                         filter_name, filter_value)
+            else:
+                self._logger.warning('More than one resource=%s found for %s=%s', self.resource_name, filter_name,
+                                     filter_value)
         return id_
 
 

@@ -100,6 +100,10 @@ ORGANIZATION_TO_COMPANY = {
     },
     'number_of_employees': {
         'fields': ['numberOfEmployees']
+    },
+    'marketoid': {
+        'fields': ['id'],
+        'post_adapter': adapters.number_to_string
     }
 }
 

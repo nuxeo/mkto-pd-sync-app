@@ -170,6 +170,12 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(organization.id)
         self.assertEqual(organization.name, 'Test company')
 
+    def test_load_organization_with_marketoid(self):
+        organization = sync.pipedrive.Organization(self.pd, 1, 'marketoid')
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        self.assertEqual(organization.name, 'Test company')
+
     def test_load_organization_with_id(self):
         organization = sync.pipedrive.Organization(self.pd, 19828)
         self.assertIsNotNone(organization)

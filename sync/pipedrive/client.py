@@ -151,7 +151,7 @@ class PipedriveClient:
     def _get_filters(self):
         return self._fetch_data('filters')
 
-    def get_organization_email_domain_filter(self, filter_value):
+    def _get_filter(self, filter_value, object_, field_id, type_):
         filters = self._get_filters()
 
         filter_name = 'Real Time API filter'
@@ -172,8 +172,8 @@ class PipedriveClient:
                         'glue': 'and',
                         'conditions': [
                             {
-                                'object': 'organization',
-                                'field_id': '4014',
+                                'object': object_,
+                                'field_id': field_id,
                                 'operator': '=',
                                 'value': filter_value,
                                 'extra_value': None
@@ -186,7 +186,7 @@ class PipedriveClient:
                     }
                 ]
             },
-            'type': 'org'
+            'type': type_
         }
 
         ret = self._push_data_json('filters', r_data, filter_id)  # Create or update filter
@@ -195,3 +195,9 @@ class PipedriveClient:
             self._memo['get_filters'] = {}  # Reset cache because a filter has been created
 
         return ret
+
+    def get_organization_email_domain_filter(self, filter_value):
+        return self._get_filter(filter_value, 'organization', '4014', 'org')
+
+    def get_organization_marketoid_filter(self, filter_value):
+        return self._get_filter(filter_value, 'organization', '3999', 'org')

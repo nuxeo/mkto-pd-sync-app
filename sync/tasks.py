@@ -93,11 +93,10 @@ def create_or_update_organization_in_pipedrive(company_external_id):
 
     if company.id is not None:
         # Search organization in Pipedrive
-        organization_id = marketo.get_id_part_from_external(company.externalCompanyId)
-        if organization_id:  # Try id
-            sync.get_logger().debug('Trying to fetch organization data from Pipedrive with id=%s', organization_id)
-            organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
-        if not organization_id or organization.id is None:  # Then name
+        # Try id
+        sync.get_logger().debug('Trying to fetch organization data from Pipedrive with marketo_id=%s', company.id)
+        organization = pipedrive.Organization(sync.get_pipedrive_client(), company.id, 'marketoid')
+        if organization.id is None:  # Then name
             sync.get_logger().debug('Trying to fetch organization data from Pipedrive with name=%s', company.company)
             organization = pipedrive.Organization(sync.get_pipedrive_client(), company.company, 'name')
         if organization.id is None:  # Finally Email domain
@@ -209,15 +208,17 @@ def create_or_update_company_in_marketo(organization_id):
 
     if organization.id is not None:
         # Search organization in Pipedrive
-        # Try external id
-        company_external_id = marketo.compute_external_id('organization', organization.id)
-        sync.get_logger().debug('Trying to fetch company data from Marketo with external_id=%s', company_external_id)
-        company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
-        if company.id is None:  # Or name
+        # Try id
+        sync.get_logger().debug('Trying to fetch company data from Marketo with id=%s', organization.marketoid)
+        company = marketo.Company(sync.get_marketo_client(), organization.marketoid)
+        if company.id is None:  # Then external id
+            company_external_id = marketo.compute_external_id('organization', organization.id)
+            sync.get_logger().debug('Trying to fetch company data from Marketo with external_id=%s', company_external_id)
+            company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
+        if company.id is None:  # Finally name
             sync.get_logger().debug('Trying to fetch company data from Marketo with name=%s', organization.name)
             company = marketo.Company(sync.get_marketo_client(), organization.name, 'company')
 
-        data_changed = False
         if company.id is None:
             sync.get_logger().info('New company created')
             status = 'created'
@@ -229,6 +230,7 @@ def create_or_update_company_in_marketo(organization_id):
                                    company.externalCompanyId)
             status = 'updated'
 
+        data_changed = False
         for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
             data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field]) \
                            or data_changed
@@ -239,6 +241,12 @@ def create_or_update_company_in_marketo(organization_id):
                                    ' with id=%s/external_id=%s' % (
                                    str(company.id), company.externalCompanyId) if company.id is not None else '')
             company.save()
+            
+            if not organization.marketoid or int(organization.marketoid) != company.id:
+                sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', organization.id,
+                                       ' (old=%s)' % organization.marketoid if organization.marketoid else '')
+                organization.marketoid = company.id
+                organization.save()
         else:
             sync.get_logger().info('Nothing to do in Marketo for company with id=%s/external_id=%s', company.id,
                                    company.externalCompanyId)
@@ -312,7 +320,6 @@ def create_or_update_opportunity_in_marketo(deal_id):
             opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id,
                                               'externalOpportunityId')
 
-            data_changed = False
             if opportunity.id is None:
                 sync.get_logger().info('New opportunity created')
                 opportunity_status = 'created'
@@ -323,6 +330,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
                                        str(opportunity.id), opportunity_external_id)
                 opportunity_status = 'updated'
 
+            data_changed = False
             for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
                 data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field]) \
                                or data_changed
