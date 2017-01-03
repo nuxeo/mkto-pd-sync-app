@@ -7,7 +7,7 @@ from google.appengine.ext import ndb
 class InvalidUsage(Exception):
     """Exception raised for errors in the authentication.
     """
-    status_code = 400
+    status_code = 400  # "Bad Request" HTTP response code
 
     def __init__(self, message, status_code=None, payload=None):
         Exception.__init__(self)
@@ -23,6 +23,11 @@ class InvalidUsage(Exception):
 
 
 def authenticate(authorized_keys):
+    """
+    Decorator function that blocks the route it is applied to access if it is not properly authenticated.
+    :param authorized_keys: A list of authorized keys
+    :return: The decorated method result in case of proper authentication, otherwise raise an error
+    """
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
@@ -37,5 +42,8 @@ def authenticate(authorized_keys):
 
 
 class EnqueuedTask(ndb.Model):
+    """
+    The task model in the datastore.
+    """
     name = ndb.StringProperty()
     params = ndb.JsonProperty(indexed=True)

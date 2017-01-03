@@ -3,7 +3,7 @@ import adapters
 """
 Either "fields" or "transformer" should be provided.
 Transformers and adapters are functions that are used for data computation.
-The whole resource will be passed as the "transformer" parameter.
+The whole entity will be passed as the "transformer" parameter.
 For "fields", the field raw value will be passed as the "pre-adapter" parameter
 and the final string value will be passed as the "post-adapter" parameter.
 "mode" ("join" or "choose") should be provided if several fields are.

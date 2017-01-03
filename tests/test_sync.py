@@ -79,7 +79,15 @@ def side_effect_get(*args, **kwargs):
 
 def side_effect_post(*args, **kwargs):
     rv = mock.MagicMock(spec=requests.Response)
-    rv.url = '%s -> ∅' % args[0]
+    payload = kwargs['data']
+    if 'filterType' in payload and 'filterValues' in payload:
+        value = "{'filterType': '%s', 'filterValues': '%s'}" % (payload['filterType'], payload['filterValues'])
+    else:
+        value = str(payload)
+    rv.url = '%s -> %s' % (args[0], vals[args][value])
+    with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
+        rv.json.return_value = json.load(f)
+    f.closed
     return rv
 
 

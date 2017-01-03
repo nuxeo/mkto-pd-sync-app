@@ -14,9 +14,9 @@ def to_snake_case(label):
     >>> to_snake_case('Date SQL')
     'date_sql'
     """
-    # TODO: add cases
-    # "MarketoId" -> "marketo_id" (now "marketoid")
-    # "No. of Employees (Range)" (now "no__of_employees__range_")
+    # TODO add cases:
+    # * "MarketoId" -> "marketo_id" (now "marketoid")
+    # * "No. of Employees (Range)" (now "no__of_employees__range_")
     filterpunct = compile('[%s\ ]' % string.punctuation)
     alphafilter = compile('[%s%s_-]' % (string.digits,
                                         string.ascii_letters))

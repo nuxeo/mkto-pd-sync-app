@@ -4,8 +4,7 @@ from functools import wraps
 
 def simple_pluralize(word):
     """
-    Simply pluralize word by adding an extra 's' at the end
-    taking into account some exceptions.
+    Simply pluralize word by adding an extra 's' at the end taking into account some exceptions.
     >>> simple_pluralize('lead')
     'leads'
     >>> simple_pluralize('opportunity')
@@ -18,18 +17,24 @@ def simple_pluralize(word):
     return plural
 
 
-def memoize(function_name):
+def memoize(method_name):
+    """
+    Decorator function that store or retrieve the result of the method it is applied to
+    into/from the enclosing class cache.
+    :param method_name: The method name that will be used as a key for the cache
+    :return: The decorated method result
+    """
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args):
-            if function_name in self._memo and args in self._memo[function_name]:
-                logging.getLogger(__name__).debug('Retrieving function=%s return value from memo', function_name)
-                rv = self._memo[function_name][args]
+            if method_name in self._memo and args in self._memo[method_name]:
+                logging.getLogger(__name__).debug('Retrieving function=%s return value from memo', method_name)
+                rv = self._memo[method_name][args]
             else:
-                if function_name not in self._memo:
-                    self._memo[function_name] = {}
+                if method_name not in self._memo:
+                    self._memo[method_name] = {}
                 rv = function(self, *args)
-                self._memo[function_name][args] = rv
+                self._memo[method_name][args] = rv
             return rv
 
         return wrapper

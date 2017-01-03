@@ -11,7 +11,7 @@ app.config.from_object('config')
 app.config.from_pyfile('config.py')  # Override configuration with your own objects
 
 
-# Register an error handler to prevent from resulting in an internal server error
+# Register error handlers to prevent from resulting in internal server errors
 @app.errorhandler(InvalidUsage)
 def handle_authentication_error(error):
     get_logger().error(error.message)
@@ -32,35 +32,36 @@ def handle_internal_server_error(error):
 
 
 def create_marketo_client():
-    """Creates the Marketo client."""
+    """Create the Marketo client."""
     return marketo.MarketoClient(get_config('IDENTITY_ENDPOINT'), get_config('CLIENT_ID'),
                                  get_config('CLIENT_SECRET'), get_config('API_ENDPOINT'))
 
 
 def create_pipedrive_client():
-    """Creates the Pipedrive client."""
+    """Create the Pipedrive client."""
     return pipedrive.PipedriveClient(get_config('PD_API_TOKEN'))
 
 
 def get_marketo_client():
-    """Creates a new Marketo client if there is none yet for the
-    current application context.
-    """
+    """Create a new Marketo client if there is none yet for the current application context."""
     if not hasattr(g, 'marketo_client'):
         g.marketo_client = create_marketo_client()
     return g.marketo_client
 
 
 def get_pipedrive_client():
-    """Creates a new Pipedrive client if there is none yet for the
-    current application context.
-    """
+    """Create a new Pipedrive client if there is none yet for the current application context."""
     if not hasattr(g, 'pipedrive_client'):
         g.pipedrive_client = create_pipedrive_client()
     return g.pipedrive_client
 
 
 def get_config(key):
+    """
+    Return a configuration value.
+    :param key: The configuration key
+    :return: The configuration value
+    """
     value = None
     try:
         value = app.config[key]
@@ -70,10 +71,19 @@ def get_config(key):
 
 
 def get_logger():
+    """
+    Return the app logger.
+    :return:
+    """
     return app.logger
 
 
 def create_logging_handler(testing_mode):
+    """
+    Create an environment appropriate logging handler.
+    :param testing_mode: The testing mode
+    :return: A logging handler
+    """
     handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s %(name)-24s %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
@@ -85,7 +95,7 @@ def create_logging_handler(testing_mode):
 
 
 get_logger().setLevel(
-    logging.DEBUG)  # Set app logger level to the lowest to be able to configure an equal or higher level on module handlers
+    logging.DEBUG)  # Set app logger level to the lowest to allow custom configuration at module level
 
 loggers = [(logging.getLogger('sync.marketo'), get_config('MARKETO_TESTING')),
            (logging.getLogger('sync.pipedrive'), get_config('PIPEDRIVE_TESTING'))]

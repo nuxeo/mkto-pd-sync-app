@@ -18,6 +18,32 @@ class MarketoTestCase(unittest.TestCase):
         self.assertEqual(lead.lastName, 'Antonio')
         self.assertEqual(lead.email, 'emeamarco@gmail.com')
 
+    def test_load_lead_2(self):
+        lead = sync.marketo.Lead(self.mkto, 7591021, 'id', False)
+        self.assertIsNotNone(lead)
+        self.assertIsNotNone(lead.id)
+        self.assertIsNone(lead.firstName)
+        self.assertIsNone(lead.lastName)
+        self.assertIsNone(lead.email)
+        lead.load()
+        self.assertEqual(lead.firstName, 'Marco')
+        self.assertEqual(lead.lastName, 'Antonio')
+        self.assertEqual(lead.email, 'emeamarco@gmail.com')
+
+    def test_load_multiple_lead(self):
+        leads = self.mkto.get_entities('lead', [7591021, 8271235, -1, ''], 'id')
+        self.assertEqual(len(leads), 2)
+        self.assertIsNotNone(leads[0])
+        self.assertIsNotNone(leads[0].id)
+        self.assertEqual(leads[0].firstName, 'Marco')
+        self.assertEqual(leads[0].lastName, 'Antonio')
+        self.assertEqual(leads[0].email, 'emeamarco@gmail.com')
+        self.assertIsNotNone(leads[1])
+        self.assertIsNotNone(leads[1].id)
+        self.assertEqual(leads[1].firstName, 'Helene')
+        self.assertEqual(leads[1].lastName, 'Jonin')
+        self.assertEqual(leads[1].email, 'hjonin@nuxeo.com')
+
     def test_load_lead_get_not_default_field(self):
         lead = sync.marketo.Lead(self.mkto, 7591021)
         self.assertIsNotNone(lead)
@@ -52,6 +78,10 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNone(lead.id)
         self.assertIsNone(lead.firstName)
 
+    def test_empty_lead_load(self):
+        lead = sync.marketo.Lead(self.mkto)
+        lead.load()
+
     def test_save_lead(self):
         lead = sync.marketo.Lead(self.mkto)
         lead.firstName = 'Test'
@@ -65,14 +95,46 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
         # Reload lead before checking bc properties are not updated from result after saving
-        lead = sync.marketo.Lead(self.mkto, lead.id)
+        lead.load()
         self.assertEquals(lead.firstName, 'Test')
         self.assertEquals(lead.lastName, u'L€ad 2')  # JSON strings are unicode
         self.assertEquals(lead.email, 'lead@test2.com')
         self.assertEquals(lead.website, 'test-company-website.com')
         self.assertEquals(lead.country, 'France')
         # Delete created lead
-        self.mkto.delete_resource('lead', lead.id)
+        lead.delete()
+
+    def test_save_multiple_lead(self):
+        leads = []
+        lead = sync.marketo.Lead(self.mkto)
+        lead.firstName = 'Test'
+        lead.lastName = 'Lead 3'
+        lead.email = 'lead@test3.com'
+        leads.append(lead)
+        lead = sync.marketo.Lead(self.mkto)
+        lead.firstName = 'Test'
+        lead.lastName = 'Lead 4'
+        lead.email = 'lead@test4.com'
+        leads.append(lead)
+        saved_leads = self.mkto.put_entities('lead', leads)
+        self.assertEqual(len(saved_leads), 2)
+        self.assertIsNotNone(saved_leads[0])
+        self.assertIsNotNone(saved_leads[0].id)
+        # Reload lead before checking bc properties are not updated from result after saving
+        saved_leads[0].load()
+        self.assertEquals(saved_leads[0].firstName, 'Test')
+        self.assertEquals(saved_leads[0].lastName, 'Lead 3')
+        self.assertEquals(saved_leads[0].email, 'lead@test3.com')
+        self.assertIsNotNone(saved_leads[1])
+        self.assertIsNotNone(saved_leads[1].id)
+        # Reload lead before checking bc properties are not updated from result after saving
+        saved_leads[1].load()
+        self.assertEquals(saved_leads[1].firstName, 'Test')
+        self.assertEquals(saved_leads[1].lastName, 'Lead 4')
+        self.assertEquals(saved_leads[1].email, 'lead@test4.com')
+        # Delete created leads
+        saved_leads[0].delete()
+        saved_leads[1].delete()
 
     def test_update_lead(self):
         # Get lead first
@@ -86,11 +148,40 @@ class MarketoTestCase(unittest.TestCase):
         lead.firstName = 'Test 3'
         lead.save()
         # Reload lead before checking bc properties are not updated from result after saving
-        lead = sync.marketo.Lead(self.mkto, 7591021)
+        lead.load()
         self.assertEquals(lead.firstName, 'Test 3')
         # Reset updated value
         lead.firstName = 'Marco'
         lead.save()
+
+    def test_update_multiple_lead(self):
+        leads = []
+        # Get lead first
+        lead = sync.marketo.Lead(self.mkto, 7591021)
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.firstName, 'Marco')
+        # Then update
+        lead.firstName = 'Test 4'
+        leads.append(lead)
+        # Get lead first
+        lead = sync.marketo.Lead(self.mkto, 8271235)
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.firstName, 'Helene')
+        # Then update
+        lead.firstName = 'Test 5'
+        leads.append(lead)
+        saved_leads = self.mkto.put_entities('lead', leads)
+        self.assertEqual(len(saved_leads), 2)
+        # Reload lead before checking bc properties are not updated from result after saving
+        saved_leads[0].load()
+        self.assertEquals(saved_leads[0].firstName, 'Test 4')
+        saved_leads[1].load()
+        self.assertEquals(saved_leads[1].firstName, 'Test 5')
+        # Reset updated value
+        saved_leads[0].firstName = 'Marco'
+        saved_leads[0].save()
+        saved_leads[1].firstName = 'Helene'
+        saved_leads[1].save()
 
     def test_load_opportunity(self):
         opportunity = sync.marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
@@ -141,6 +232,8 @@ class MarketoTestCase(unittest.TestCase):
         opportunity.save()
         self.assertIsNotNone(opportunity)
         self.assertIsNotNone(opportunity.id)
+        # Reload opportunity before checking bc properties are not updated from result after saving
+        opportunity.load()
         self.assertEquals(opportunity.externalOpportunityId, 'testOpportunity1')
         self.assertEquals(opportunity.name, 'Test opportunity 1')
         self.assertEquals(opportunity.lastActivityDate, '2016-11-16')
@@ -153,13 +246,15 @@ class MarketoTestCase(unittest.TestCase):
         role.save()
         self.assertIsNotNone(role)
         self.assertIsNotNone(role.id)
+        # Reload role before checking bc properties are not updated from result after saving
+        role.load()
         self.assertEquals(role.externalOpportunityId, 'testOpportunity1')
         self.assertEquals(role.leadId, 7591021)
         self.assertEquals(role.role, 'Test role 1')
 
         # Delete created opportunity and role
-        self.mkto.delete_resource('opportunities/role', role.marketoGUID)
-        self.mkto.delete_resource('opportunity', opportunity.marketoGUID)
+        role.delete()
+        opportunity.delete()
 
     def test_update_opportunity(self):
         # Get opportunity first
@@ -172,7 +267,7 @@ class MarketoTestCase(unittest.TestCase):
         opportunity.name = 'Test opportunity 2'
         opportunity.save()
         # Reload opportunity before checking bc properties are not updated from result after saving
-        opportunity = sync.marketo.Opportunity(self.mkto, '6a38a3bd-edce-4d86-bcc0-83f1feef8997')
+        opportunity.load()
         self.assertEquals(opportunity.name, 'Test opportunity 2')
         # Reset updated value
         opportunity.name = 'Chairs'
@@ -192,7 +287,7 @@ class MarketoTestCase(unittest.TestCase):
         role.isPrimary = True
         role.save()
         # Reload role before checking bc properties are not updated from result after saving
-        role = sync.marketo.Role(self.mkto, 'd8c8fec7-cd0a-4088-bba7-ee7d57e45b11')
+        role.load()
         self.assertEquals(role.isPrimary, True)
         # Reset updated value
         role.isPrimary = False
@@ -222,10 +317,12 @@ class MarketoTestCase(unittest.TestCase):
         company.save()
         self.assertIsNotNone(company)
         self.assertIsNotNone(company.id)
+        # Reload company before checking bc properties are not updated from result after saving
+        company.load()
         self.assertEqual(company.externalCompanyId, 'testCompany1')
         self.assertEqual(company.company, 'Test company 1')
         # Delete created company
-        self.mkto.delete_resource('company', company.externalCompanyId, 'externalCompanyId')
+        company.delete('externalCompanyId')
 
     def test_update_company(self):
         # Get company first
@@ -236,7 +333,7 @@ class MarketoTestCase(unittest.TestCase):
         company.company = 'Test company 2'
         company.save()
         # Reload company before checking bc properties are not updated from result after saving
-        company = sync.marketo.Company(self.mkto, 'c1', 'externalCompanyId')
+        company.load()
         self.assertEquals(company.company, 'Test company 2')
         # Reset updated value
         company.company = 'Test company'
@@ -260,5 +357,5 @@ class MarketoTestCase(unittest.TestCase):
         self.assertIsNotNone(lead)
         self.assertIsNotNone(lead.id)
         # Delete created lead and company
-        self.mkto.delete_resource('lead', lead.id)
-        self.mkto.delete_resource('company', company.externalCompanyId, 'externalCompanyId')
+        lead.delete()
+        company.delete('externalCompanyId')

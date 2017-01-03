@@ -6,126 +6,63 @@ from ..common import memoize, simple_pluralize
 
 
 class PipedriveClient:
+    """
+    Simple client that make calls to Pipedrive API.
+    """
+
     API_ENDPOINT = 'https://api.pipedrive.com/v1'
 
     def __init__(self, api_token):
-        self._logger = logging.getLogger(__name__)
-        self._memo = {}
+        self._logger = logging.getLogger(__name__)  # The class logger
+        self._memo = {}  # The class cache
 
-        self._session = Session()
+        self._session = Session()  # Reuse session for better performance within a single instance of the client
+        self._session.params = {'api_token': api_token}
 
-        payload = {'api_token': api_token}
-        self._session.params = payload
-
-    @memoize(function_name='get_resource_fields')
-    def get_resource_fields(self, resource_name):
-        return self._fetch_data(resource_name + 'Fields')
-
-    def get_resource_data(self, resource_name, resource_id, resource_fields=None):
+    @memoize(method_name='get_entity_fields')
+    def get_entity_fields(self, entity_name):
         """
-        Load resource data as a dictionary from a request to Pipedrive result.
-        :param resource_name: The resource name (should be the same as the class name)
-        :param resource_id: The resource id
-        :param resource_fields: The resource fields to consider retrieving, default are all fields
-        :return: The loaded dara as a dictionary of fields mapped against their value
+        Return an entity schema loaded from Pipedrive.
+        :param entity_name: The entity name (should be the same as the class name)
+        :return: A list of available fields for interaction via the API.
         """
-        return self._fetch_data(simple_pluralize(resource_name),  # Resource name should be plural form
-                                resource_id, resource_fields)
+        return self._fetch_data(entity_name + 'Fields')
 
-    def set_resource_data(self, resource_name, resource_data, resource_id=None):
+    def get_entity_data(self, entity_name, entity_id, entity_fields=None):
         """
-        Dump resource data to Pipedrive.
-        :param resource_name: The resource name (should be the same as the class name)
-        :param resource_data: The resource data
-        :param resource_id: The resource id (update only)
-        :return: The dumped data as a dictionary of field mapped against their value
+        Return an entity data loaded from Pipedrive.
+        :param entity_name: The entity name (should be the same as the class name)
+        :param entity_id: The entity id
+        :param entity_fields: The entity fields to return, default if not specified
+        :return: A dictionary of field keys mapped against their value for the entity
         """
-        return self._push_data(simple_pluralize(resource_name),  # Resource name should be plural form
-                               resource_data, resource_id)
+        return self._fetch_data(simple_pluralize(entity_name),  # Entity name should be of plural form
+                                entity_id, entity_fields)
 
-    def _fetch_data(self, r_name, r_id_or_action=None, r_fields=None):
-        self._logger.debug('Fetching resource=%s%s%s', r_name,
-                           ' (fields=%s)' % r_fields if r_fields is not None else '',
-                           ' with id/action=%s' % r_id_or_action.encode('utf-8') if isinstance(r_id_or_action, unicode)
-                           else str(r_id_or_action) if r_id_or_action is not None else '')
-        url = self._build_url(r_name, r_id_or_action)
+    def put_entity_data(self, entity_name, entity_data, entity_id=None):
+        """
+        Dump an entity data to Pipedrive.
+        :param entity_name: The entity name (should be the same as the class name)
+        :param entity_data: The entity data
+        :param entity_id: The entity id (update only)
+        :return: A dictionary of field keys mapped against their value for the entity
+        """
+        return self._push_data(simple_pluralize(entity_name),  # Entity name should be of plural form
+                               entity_data, entity_id)
 
-        payload = r_fields or {}
-        r = self._session.get(url, params=payload)
-        self._logger.info('Called url=%s with parameters=%s', r.url, payload)
-        r.raise_for_status()
+    def delete_entity(self, entity_name, id_):
+        """
+        Delete an entity from Pipedrive.
+        :param entity_name: The entity name (should be the same as the class name)
+        :param id_: The entity id
+        :return: A dictionary of field keys mapped against their value for the entity
+        """
+        return_data = {}
 
-        data = r.json()
+        if id_:
+            self._logger.warning('Deleting entity=%s with id=%s', entity_name, str(id_))
 
-        ret = {}
-        if 'success' in data:
-            if data['success']:
-                ret = data['data']
-            else:
-                self._logger.error('Error=%s', data['error'])
-
-        return ret
-
-    def _push_data(self, r_name, r_data, r_id_or_action=None):
-        self._logger.debug('Pushing resource=%s with data=%s%s', r_name, r_data,
-                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
-        url = self._build_url(r_name, r_id_or_action)
-
-        if not r_id_or_action:  # Create
-            r = self._session.post(url, data=r_data)
-        else:  # Update
-            r = self._session.put(url, json=r_data)
-        self._logger.info('Called url=%s with body=%s', r.url, r_data)
-        r.raise_for_status()
-
-        data = r.json()
-
-        ret = {}
-        if 'success' in data:
-            if data['success']:
-                ret = data['data']
-            else:
-                self._logger.error('Error=%s', data['error'])
-
-        return ret
-
-    def _push_data_json(self, r_name, r_data, r_id_or_action=None):
-        self._logger.debug('Pushing resource=%s with data=%s%s', r_name, r_data,
-                           ' with id/action=%s' % str(r_id_or_action) if r_id_or_action is not None else '')
-        url = self._build_url(r_name, r_id_or_action)
-
-        if not r_id_or_action:  # Create
-            r = self._session.post(url, json=r_data)
-        else:  # Update
-            r = self._session.put(url, json=r_data)
-        self._logger.info('Called url=%s with body=%s', r.url, r_data)
-        r.raise_for_status()
-
-        data = r.json()
-
-        ret = {}
-        if 'success' in data:
-            if data['success']:
-                ret = data['data']
-            else:
-                self._logger.error('Error=%s', data['error'])
-
-        return ret
-
-    def _build_url(self, r_name, r_id_or_action=None):
-        url = self.API_ENDPOINT + '/' + r_name
-        if r_id_or_action:
-            url += '/' + str(r_id_or_action)
-        return url
-
-    # Play carefully with this method!
-    def delete_resource(self, r_name, r_id):
-        ret = {}
-
-        if r_id:
-            self._logger.warning('Deleting resource=%s with id=%s', r_name, str(r_id))
-
-            url = self._build_url(simple_pluralize(r_name), r_id)  # Resource name should be plural form
+            url = self._build_url(simple_pluralize(entity_name), id_)  # Entity name should be of plural form
 
             r = self._session.delete(url)
             self._logger.info('Called url=%s', r.url)
@@ -139,15 +76,88 @@ class PipedriveClient:
 
             if 'success' in data:
                 if data['success']:
-                    ret = data['data']
+                    return_data = data['data']
                 else:
                     self._logger.error('Error=%s', data['error'])
         else:
-            self._logger.warning('Cannot delete resource=%s: invalid id (null or empty)', r_name)
+            self._logger.warning('Cannot delete entity=%s: invalid id (null or empty)', entity_name)
 
-        return ret
+        return return_data
 
-    @memoize(function_name='get_filters')
+    def _fetch_data(self, entity_name, id_or_action=None, fields=None):
+        self._logger.debug('Fetching entity=%s%s%s', entity_name,
+                           ' (fields=%s)' % fields if fields is not None else '',
+                           ' with id/action=%s' % id_or_action.encode('utf-8') if isinstance(id_or_action, unicode)
+                           else str(id_or_action) if id_or_action is not None else '')
+
+        url = self._build_url(entity_name, id_or_action)
+        payload = fields or {}
+        r = self._session.get(url, params=payload)
+        self._logger.info('Called url=%s with parameters=%s', r.url, payload)
+        r.raise_for_status()
+        data = r.json()
+
+        result_data = {}
+        if 'success' in data:
+            if data['success']:
+                result_data = data['data']
+            else:
+                self._logger.error('Error=%s', data['error'])
+
+        return result_data
+
+    def _push_data(self, entity_name, data, id_or_action=None):
+        self._logger.debug('Pushing entity=%s with data=%s%s', entity_name, data,
+                           ' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
+        url = self._build_url(entity_name, id_or_action)
+
+        if not id_or_action:  # Create
+            r = self._session.post(url, data=data)
+        else:  # Update
+            r = self._session.put(url, json=data)
+
+        self._logger.info('Called url=%s with body=%s', r.url, data)
+        r.raise_for_status()
+        data = r.json()
+
+        result_data = {}
+        if 'success' in data:
+            if data['success']:
+                result_data = data['data']
+            else:
+                self._logger.error('Error=%s', data['error'])
+
+        return result_data
+
+    def _push_data_json(self, entity_name, data, id_or_action=None):
+        self._logger.debug('Pushing entity=%s with data=%s%s', entity_name, data,
+                           ' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
+        url = self._build_url(entity_name, id_or_action)
+
+        if not id_or_action:  # Create
+            r = self._session.post(url, json=data)
+        else:  # Update
+            r = self._session.put(url, json=data)
+        self._logger.info('Called url=%s with body=%s', r.url, data)
+        r.raise_for_status()
+        data = r.json()
+
+        result_data = {}
+        if 'success' in data:
+            if data['success']:
+                result_data = data['data']
+            else:
+                self._logger.error('Error=%s', data['error'])
+
+        return result_data
+
+    def _build_url(self, entity_name, id_or_action=None):
+        url = self.API_ENDPOINT + '/' + entity_name
+        if id_or_action:
+            url += '/' + str(id_or_action)
+        return url
+
+    @memoize(method_name='get_filters')
     def _get_filters(self):
         return self._fetch_data('filters')
 
@@ -163,7 +173,7 @@ class PipedriveClient:
                 filter_id = None
                 self._memo['get_filters'] = {}  # Reset cache because the filter has probably been deleted
 
-        r_data = {
+        filter_data = {
             'name': filter_name,
             'conditions': {
                 'glue': 'and',
@@ -189,15 +199,25 @@ class PipedriveClient:
             'type': type_
         }
 
-        ret = self._push_data_json('filters', r_data, filter_id)  # Create or update filter
+        return_filter = self._push_data_json('filters', filter_data, filter_id)  # Create or update filter
 
-        if not filter_id and ret:
+        if not filter_id and return_filter:
             self._memo['get_filters'] = {}  # Reset cache because a filter has been created
 
-        return ret
+        return return_filter
 
     def get_organization_email_domain_filter(self, filter_value):
+        """
+        Get the filter for organizations on email domain.
+        :param filter_value: The filter email domain value
+        :return: The filter
+        """
         return self._get_filter(filter_value, 'organization', '4014', 'org')
 
     def get_organization_marketoid_filter(self, filter_value):
+        """
+        Get the filter for organizations on marketo id.
+        :param filter_value: The filter marketo id value
+        :return: The filter
+        """
         return self._get_filter(filter_value, 'organization', '3999', 'org')

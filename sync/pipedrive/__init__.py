@@ -1,13 +1,14 @@
 import logging
 
 from .client import PipedriveClient
-from .resources import Deal
-from .resources import Organization
-from .resources import Person
-from .resources import Pipeline
-from .resources import User
-from .resources import Activity
+from .entities import Deal
+from .entities import Organization
+from .entities import Person
+from .entities import Pipeline
+from .entities import User
+from .entities import Activity
 
+# Set default logging handler to avoid "No handler found" warnings.
 try:  # Python 2.7+
     from logging import NullHandler
 except ImportError:
@@ -16,4 +17,6 @@ except ImportError:
             pass
 
 logging.getLogger(__name__).addHandler(NullHandler())
-logging.getLogger(__name__).propagate = False  # Allow single module loggin configuration
+
+# Disable propagation of logged events to allow module level configuration.
+logging.getLogger(__name__).propagate = False

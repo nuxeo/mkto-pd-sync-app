@@ -66,7 +66,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEquals(person.name, u'Test Persón 2')  # JSON strings are unicode
         self.assertEquals(person.lead_score, 10)
         # Delete created person
-        self.pd.delete_resource('person', person.id)
+        person.delete()
 
     def test_save_person_custom_field(self):
         person = sync.pipedrive.Person(self.pd)
@@ -79,7 +79,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.id)
         self.assertEquals(person.lead_score, 10)
         # Delete created person
-        self.pd.delete_resource('person', person.id)
+        person.delete()
 
     def test_save_person_no_name(self):
         person = sync.pipedrive.Person(self.pd)
@@ -91,7 +91,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.id)
         self.assertEquals(person.name, 'Unknown Unknown')
         # Delete created person
-        self.pd.delete_resource('person', person.id)
+        person.delete()
 
     def test_save_person_enum(self):
         person = sync.pipedrive.Person(self.pd)
@@ -104,7 +104,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertIsNotNone(person.id)
         self.assertEquals(person.lead_status, 'Recycled')
         # Delete created person
-        self.pd.delete_resource('person', person.id)
+        person.delete()
 
     def test_save_person_undefined_enum(self):
         person = sync.pipedrive.Person(self.pd)
@@ -118,7 +118,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEquals(person.name, 'Test Person 7')
         self.assertEquals(person.lead_status, None)
         # Delete created person
-        self.pd.delete_resource('person', person.id)
+        person.delete()
 
     def test_update_person(self):
         # Get person first
@@ -171,7 +171,7 @@ class PipedriveTestCase(unittest.TestCase):
         self.assertEqual(organization.name, 'Test company')
 
     def test_load_organization_with_marketoid(self):
-        organization = sync.pipedrive.Organization(self.pd, 1, 'marketoid')
+        organization = sync.pipedrive.Organization(self.pd, 1163619, 'marketoid')
         self.assertIsNotNone(organization)
         self.assertIsNotNone(organization.id)
         self.assertEqual(organization.name, 'Test company')
@@ -230,12 +230,12 @@ class PipedriveTestCase(unittest.TestCase):
         deal.save()
         # self.assertEquals(deal.last_activity_date, '2016-11-17')  # FIXME not updateable?
         # Delete created person
-        self.pd.delete_resource('deal', deal.id)
+        deal.delete()
 
     def test_create_and_use_filter(self):
         filter_data = self.pd.get_organization_email_domain_filter('test-company.com')
         self.assertTrue(filter_data)  # Assert not empty
         self.assertEquals(filter_data['name'], 'Real Time API filter')
-        filtered_data_array = self.pd.get_resource_data('organization', None, {'filter_id': filter_data['id']})
+        filtered_data_array = self.pd.get_entity_data('organization', None, {'filter_id': filter_data['id']})
         self.assertEquals(len(filtered_data_array), 1)
         self.assertEquals(filtered_data_array[0]['name'], 'Test company')

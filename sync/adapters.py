@@ -10,12 +10,12 @@ BIG_BOT_ID = 208823
 
 
 def company_name_to_org_id(lead):
-    ret = None
+    org_id = None
     if lead.company:
         import tasks
-        res = tasks.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
-        if res and 'id' in res:  # Case Company object
-            ret = res['id']
+        rv = tasks.create_or_update_organization_in_pipedrive(lead.externalCompanyId)
+        if rv and 'id' in rv:  # Case Company object
+            org_id = rv['id']
         else:  # Case company form fields
             company = marketo.Company(sync.get_marketo_client())
             company.externalCompanyId = marketo.compute_external_id('lead-company', lead.id, 'mkto')
@@ -32,55 +32,55 @@ def company_name_to_org_id(lead):
             company.save()
             lead.externalCompanyId = company.externalCompanyId
             lead.save()
-            res = tasks.create_or_update_organization_in_pipedrive(company.externalCompanyId)
-            ret = res['id'] if res and 'id' in res else ret
-    return ret
+            rv = tasks.create_or_update_organization_in_pipedrive(company.externalCompanyId)
+            org_id = rv['id'] if rv and 'id' in rv else org_id
+    return org_id
 
 
 def country_iso_to_name(country_iso_or_name):
-    ret = country_iso_or_name
+    country_name = country_iso_or_name
     if country_iso_or_name:
         try:
-            ret = countries.get(alpha2=country_iso_or_name).name
+            country_name = countries.get(alpha2=country_iso_or_name).name
         except KeyError:
             try:
-                ret = countries.get(name=country_iso_or_name).name
+                country_name = countries.get(name=country_iso_or_name).name
             except KeyError:
                 pass
-    return ret
+    return country_name
 
 
 def user_name_to_user_id_or_big_bot(user_name):
-    ret = BIG_BOT_ID
+    user_id = BIG_BOT_ID
     if user_name and user_name.strip():
-        user = pipedrive.User(sync.get_pipedrive_client(), user_name, 'name')  # TODO: use existing value if not found
-        ret = user.id or ret
-    return ret
+        user = pipedrive.User(sync.get_pipedrive_client(), user_name, 'name')  # TODO use existing value if not found?
+        user_id = user.id or user_id
+    return user_id
 
 
 def user_name_to_user_id(user_name):
-    ret = None
+    user_id = None
     if user_name and user_name.strip():
         user = pipedrive.User(sync.get_pipedrive_client(), user_name, 'name')
-        ret = user.id
-    return ret
+        user_id = user.id
+    return user_id
 
 
 def datetime_to_date(datetime_):
-    ret = None
+    date = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d')
+            date = datetime.strptime(datetime_, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d')
         except ValueError:
             pass
-    return ret
+    return date
 
 
 def number_to_string(number):
-    ret = None
+    number_str = None
     if number:
-        ret = str(number)
-    return ret
+        number_str = str(number)
+    return number_str
 
 
 def call_type(nothing):
@@ -96,49 +96,49 @@ def today_date(nothing):
 
 
 def split_name_get_first(name):
-    ret = name
+    first_name = name
     if name:
         split = name.split()
-        ret = ' '.join(split[:-1]) if len(split) > 1 else ret
-    return ret
+        first_name = ' '.join(split[:-1]) if len(split) > 1 else first_name
+    return first_name
 
 
 def split_name_get_last(name):
-    ret = name
+    last_name = name
     if name:
         split = name.split()
-        ret = split[-1] if split else ret
-    return ret
+        last_name = split[-1] if split else last_name
+    return last_name
 
 
 def organization_to_external_id(organization):
-    ret = None
+    org_external_id = None
     if organization is not None:
         import tasks
         res = tasks.create_or_update_company_in_marketo(organization.id)
-        ret = res['externalId'] if res and 'externalId' in res else ret
-    return ret
+        org_external_id = res['externalId'] if res and 'externalId' in res else org_external_id
+    return org_external_id
 
 
 def user_to_email(user):
-    ret = None
+    user_email = None
     if user is not None and BIG_BOT_ID != user.id:
-        ret = user.email
-    return ret
+        user_email = user.email
+    return user_email
 
 
 def user_to_first_name(user):
-    ret = None
+    user_first_name = None
     if user is not None and BIG_BOT_ID != user.id:
-        ret = split_name_get_first(user.name)
-    return ret
+        user_first_name = split_name_get_first(user.name)
+    return user_first_name
 
 
 def user_to_last_name(user):
-    ret = None
+    user_last_name = None
     if user is not None and BIG_BOT_ID != user.id:
-        ret = split_name_get_last(user.name)
-    return ret
+        user_last_name = split_name_get_last(user.name)
+    return user_last_name
 
 
 def toggle_boolean(boolean):
@@ -146,67 +146,67 @@ def toggle_boolean(boolean):
 
 
 def is_closed(status):
-    ret = False
+    closed = False
     if status == 'lost' or status == 'won':
-        ret = True
-    return ret
+        closed = True
+    return closed
 
 
 def is_won(status):
-    ret = False
+    won = False
     if status == 'won':
-        ret = True
-    return ret
+        won = True
+    return won
 
 
 def number_to_float(number):
-    ret = None
+    number_float = None
     if number:
-        ret = float(number)
-    return ret
+        number_float = float(number)
+    return number_float
 
 
 def datetime_to_date2(datetime_):
-    ret = None
+    date = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
+            date = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
         except ValueError:
             try:
-                ret = datetime.strptime(datetime_, '%Y-%m-%d').strftime('%Y-%m-%d')
+                date = datetime.strptime(datetime_, '%Y-%m-%d').strftime('%Y-%m-%d')
             except ValueError:
                 pass
-    return ret
+    return date
 
 
 def stage_to_name(stage):
-    ret = None
+    stage_name = None
     if stage is not None:
-        ret = stage.name
-    return ret
+        stage_name = stage.name
+    return stage_name
 
 
 def datetime_to_quarter(datetime_):
-    ret = None
+    quarter = None
     if datetime_:
         try:
-            ret = (datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').month - 1) // 3 + 1
+            quarter = (datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').month - 1) // 3 + 1
         except ValueError:
             try:
-                ret = (datetime.strptime(datetime_, '%Y-%m-%d').month - 1) // 3 + 1
+                quarter = (datetime.strptime(datetime_, '%Y-%m-%d').month - 1) // 3 + 1
             except ValueError:
                 pass
-    return ret
+    return quarter
 
 
 def datetime_to_year(datetime_):
-    ret = None
+    year = None
     if datetime_:
         try:
-            ret = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').year
+            year = datetime.strptime(datetime_, '%Y-%m-%d %H:%M:%S').year
         except ValueError:
             try:
-                ret = datetime.strptime(datetime_, '%Y-%m-%d').year
+                year = datetime.strptime(datetime_, '%Y-%m-%d').year
             except ValueError:
                 pass
-    return ret
+    return year

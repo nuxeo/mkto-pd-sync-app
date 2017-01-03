@@ -10,7 +10,7 @@ def sync_handler(task_name):
     import tasks
     rv = getattr(tasks, task_name)(id_)
 
-    # "Dequeue" task after processing (succeeded)
+    # Dequeue task - remove it from the datastore after processing (succeeded)
     enqueued_task = ndb.Key(urlsafe=request.form.get('task_urlsafe')).get()
     enqueued_task.key.delete()
 

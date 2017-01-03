@@ -7,12 +7,12 @@ PIPELINE_FILTER_NAME = 'NX Subscription (New and Upsell)'
 
 
 def create_or_update_person_in_pipedrive(lead_id):
-    """Creates or updates a person in Pipedrive with data from the
-    lead found in Marketo with the given id.
-    Update can be performed if the lead is already associated to a person
-    (field pipedriveId is populated).
+    """
+    Create or update a person in Pipedrive. Update can be performed if the lead is already associated to a person
+    (field pipedriveId is populated). If the person is already up-to-date with the associated lead, does nothing.
     Data to set is defined in mappings.
-    If the person is already up-to-date with any associated lead, does nothing.
+    :param lead_id: The lead id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
     """
     sync.get_logger().info('Fetching lead data from Marketo with id=%s', str(lead_id))
     lead = marketo.Lead(sync.get_marketo_client(), lead_id)
@@ -32,7 +32,7 @@ def create_or_update_person_in_pipedrive(lead_id):
                            or data_changed
 
         if data_changed:
-            # Perform the update only if data actually changed
+            # Perform the update only if data has actually changed
             sync.get_logger().info('Sending lead data with id=%s to Pipedrive%s', str(lead_id),
                                    ' for person with id=%s' % str(person.id) if person.id is not None else '')
             person.save()
@@ -46,7 +46,7 @@ def create_or_update_person_in_pipedrive(lead_id):
             sync.get_logger().info('Nothing to do in Pipedrive for person with id=%s', person.id)
             status = 'skipped'
 
-        ret = {
+        response = {
             'status': status,
             'id': person.id
         }
@@ -54,39 +54,47 @@ def create_or_update_person_in_pipedrive(lead_id):
     else:
         message = 'No lead found in Marketo with id=%s' % str(lead_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def delete_person_in_pipedrive(lead_pipedrive_id):
+    """
+    Delete a person in Pipedrive.
+    :param lead_pipedrive_id: The lead related person id to delete
+    :return: A custom response object containing the synchronized entity status and id
+    """
     sync.get_logger().info('Deleting person in Pipedrive with id=%s', str(lead_pipedrive_id))
-    data = sync.get_pipedrive_client().delete_resource('person', lead_pipedrive_id)
+    person = pipedrive.Person(sync.get_pipedrive_client(), lead_pipedrive_id, 'id', False)
+    person_id = person.delete()
 
-    if data:
-        ret = {
+    if person_id:
+        response = {
             'status': 'deleted',
-            'id': data['id']
+            'id': person_id
         }
 
     else:
         message = 'Could not delete person in Pipedrive with id=%s' % str(lead_pipedrive_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def create_or_update_organization_in_pipedrive(company_external_id):
-    """Creates or updates an organization in Pipedrive with data from the
-    company found in Marketo with the given name.
-    Update can be performed if the organization and the company share the same name.
+    """
+    Create or update an organization in Pipedrive. Update can be performed if the organization is already associated to
+    a company (field marketoid is populated) or if they share the same name or the same email domain. If the
+    organization is already up-to-date with the associated company, does nothing.
     Data to set is defined in mappings.
-    If the organization is already up-to-date with any associated company, does nothing.
+    :param company_external_id: The company external id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
     """
     sync.get_logger().info('Fetching company data from Marketo with external_id=%s', str(company_external_id))
     company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
@@ -117,7 +125,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
                            or data_changed
 
         if data_changed:
-            # Perform the update only if data actually changed
+            # Perform the update only if data has actually changed
             sync.get_logger().info('Sending company data with external_id=%s to Pipedrive%s', str(company_external_id),
                                    ' for organization with id=%s' % str(
                                        organization.id) if organization.id is not None else '')
@@ -126,7 +134,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
             sync.get_logger().info('Nothing to do in Pipedrive for organization with id=%s', organization.id)
             status = 'skipped'
 
-        ret = {
+        response = {
             'status': status,
             'id': organization.id
         }
@@ -134,20 +142,20 @@ def create_or_update_organization_in_pipedrive(company_external_id):
     else:
         message = 'No company found in Marketo with external_id=%s' % str(company_external_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def create_or_update_lead_in_marketo(person_id):
-    """Creates or updates a lead in Marketo with data from the
-    person found in Pipedrive with the given id.
-    Update can be performed if the person is already associated to a lead
-    (field marketoid is populated).
+    """
+    Create or update a lead in Marketo. Update can be performed if the person is already associated to a lead
+    (field marketoid is populated). If the lead is already up-to-date with the associated person, does nothing.
     Data to set is defined in mappings.
-    If the lead is already up-to-date with any associated person, does nothing.
+    :param person_id: The person id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
     """
     sync.get_logger().info('Fetching person data from Pipedrive with id=%s', str(person_id))
     person = pipedrive.Person(sync.get_pipedrive_client(), person_id)
@@ -167,7 +175,7 @@ def create_or_update_lead_in_marketo(person_id):
                            or data_changed
 
         if data_changed:
-            # Perform the update only if data actually changed
+            # Perform the update only if data has actually changed
             sync.get_logger().info('Sending person data with id=%s to Marketo%s', str(person_id),
                                    ' with id=%s' % str(person.id) if person.id is not None else '')
             lead.save()
@@ -181,7 +189,7 @@ def create_or_update_lead_in_marketo(person_id):
             sync.get_logger().info('Nothing to do in Marketo for lead with id=%s', lead.id)
             status = 'skipped'
 
-        ret = {
+        response = {
             'status': status,
             'id': lead.id
         }
@@ -189,19 +197,21 @@ def create_or_update_lead_in_marketo(person_id):
     else:
         message = 'No person found with id %s' % str(person_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def create_or_update_company_in_marketo(organization_id):
-    """Creates or updates a company in Marketo with data from the
-    organization found in Pipedrive with the given name.
-    Update can be performed if the company and the organization share the same name.
+    """
+    Create or update a company in Marketo. Update can be performed if the company is already associated to
+    an organization (organization field marketoid is populated) or if the external id comes from the organization id or
+    if they share the same name. If the company is already up-to-date with the associated organization, does nothing.
     Data to set is defined in mappings.
-    If the company is already up-to-date with any associated organization, does nothing.
+    :param organization_id: The organization id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
     """
     sync.get_logger().info('Fetching organization data from Pipedrive with id=%s', str(organization_id))
     organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
@@ -219,6 +229,7 @@ def create_or_update_company_in_marketo(organization_id):
             sync.get_logger().debug('Trying to fetch company data from Marketo with name=%s', organization.name)
             company = marketo.Company(sync.get_marketo_client(), organization.name, 'company')
 
+        data_changed = False
         if company.id is None:
             sync.get_logger().info('New company created')
             status = 'created'
@@ -230,13 +241,12 @@ def create_or_update_company_in_marketo(organization_id):
                                    company.externalCompanyId)
             status = 'updated'
 
-        data_changed = False
         for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
             data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field]) \
                            or data_changed
 
         if data_changed:
-            # Perform the update only if data actually changed
+            # Perform the update only if data has actually changed
             sync.get_logger().info('Sending organization data with id=%s to Marketo%s', str(organization_id),
                                    ' with id=%s/external_id=%s' % (
                                    str(company.id), company.externalCompanyId) if company.id is not None else '')
@@ -252,7 +262,7 @@ def create_or_update_company_in_marketo(organization_id):
                                    company.externalCompanyId)
             status = 'skipped'
 
-        ret = {
+        response = {
             'status': status,
             'id': company.id,
             'externalId': company.externalCompanyId
@@ -261,14 +271,19 @@ def create_or_update_company_in_marketo(organization_id):
     else:
         message = 'No organization found with id %s' % str(organization_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def delete_lead_in_marketo(pipedrive_marketo_id):
+    """
+    Delete a lead in Marketo.
+    :param pipedrive_marketo_id: The person related lead id to delete
+    :return: A custom response object containing the synchronized entity status and id
+    """
     sync.get_logger().info('Deleting person in Marketo with id=%s', str(pipedrive_marketo_id))
     lead = marketo.Lead(sync.get_marketo_client(), pipedrive_marketo_id)
 
@@ -277,34 +292,34 @@ def delete_lead_in_marketo(pipedrive_marketo_id):
         lead.save()
 
         if lead.id is not None:
-            ret = {
+            response = {
                 'status': 'Ready for deletion',
                 'id': lead.id
             }
         else:
             message = 'Could not prepare lead for deletion with id=%s' % str(pipedrive_marketo_id)
             sync.get_logger().error(message)
-            ret = {
+            response = {
                 'error': message
             }
     else:
         message = 'No lead found with id=%s' % str(pipedrive_marketo_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def create_or_update_opportunity_in_marketo(deal_id):
-    """Creates or updates an opportunity and an opportunity role in Marketo with data from the
-    deal found in Pipedrive with the given id.
-    Update can be performed if the deal is already associated to an opportunity
-    (externalOpportunityId is computed from deal id).
-    Role cannot be updated (no point for it unless we are mapping the only updateable field: isPrimary).
+    """
+    Create or update an opportunity in Marketo. Update can be performed if the opportunity external id comes from the
+    deal id. If the opportunity is already up-to-date with the associated deal, does nothing.
+    Role cannot be updated (the only updateable field would be isPrimary).
     Data to set is defined in mappings.
-    If the opportunity is already up-to-date with any associated deal, does nothing.
+    :param deal_id: The deal id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
     """
     sync.get_logger().info('Fetching deal data from Pipedrive with id=%s', str(deal_id))
     deal = pipedrive.Deal(sync.get_pipedrive_client(), deal_id)
@@ -320,6 +335,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
             opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id,
                                               'externalOpportunityId')
 
+            data_changed = False
             if opportunity.id is None:
                 sync.get_logger().info('New opportunity created')
                 opportunity_status = 'created'
@@ -330,13 +346,12 @@ def create_or_update_opportunity_in_marketo(deal_id):
                                        str(opportunity.id), opportunity_external_id)
                 opportunity_status = 'updated'
 
-            data_changed = False
             for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
                 data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field]) \
                                or data_changed
 
             if data_changed:
-                # Perform the update only if data actually changed
+                # Perform the update only if data has actually changed
                 sync.get_logger().info('Sending deal data with id=%s to Marketo%s', str(deal_id),
                                        ' for opportunity with id=%s/external_id=%s' % (str(opportunity.id),
                                                                                        opportunity_external_id) if opportunity.id is not None else '')
@@ -346,7 +361,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
                                        opportunity.id, opportunity_external_id)
                 opportunity_status = 'skipped'
 
-            ret = {
+            response = {
                 'opportunity': {
                     'status': opportunity_status,
                     'id': opportunity.id
@@ -354,7 +369,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
             }
 
             # Role
-            if deal.contact_person and deal.contact_person.marketoid:  # Ensure person has existed in Marketo # TODO: create if not?
+            if deal.contact_person and deal.contact_person.marketoid:  # Ensure person has existed in Marketo # TODO create if not?
                 # Role will be automatically created or updated using these 3 fields ("dedupeFields")
                 role = marketo.Role(sync.get_marketo_client())
                 role.externalOpportunityId = opportunity.externalOpportunityId
@@ -365,12 +380,12 @@ def create_or_update_opportunity_in_marketo(deal_id):
                     'Sending deal data with id=%s to Marketo for role with (externalOpportunityId=%s, leadId=%s, role=%s)',
                     str(deal_id), role.externalOpportunityId, role.leadId, role.role)
                 role.save()
-                ret['role'] = {'id': role.id}
+                response['role'] = {'id': role.id}
 
         else:
             message = 'Deal synchronization with id=%s not enabled for pipeline=%s' % (deal_id, pipeline.name)
             sync.get_logger().info(message)
-            ret = {
+            response = {
                 'status': 'skipped',
                 'message': message
             }
@@ -378,20 +393,26 @@ def create_or_update_opportunity_in_marketo(deal_id):
     else:
         message = 'No deal found in Pipedrive with id=%s' % str(deal_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
 def create_activity_in_pipedrive(lead_id):
+    """
+    Create an activity in Pipedrive.
+    Data to set is defined in mappings.
+    :param lead_id: The lead id to synchronize data from
+    :return: A custom response object containing the synchronized entity status and id
+    """
     sync.get_logger().info('Fetching lead data from Marketo with id=%s', str(lead_id))
     lead = marketo.Lead(sync.get_marketo_client(), lead_id)
 
     if lead.id is not None:
         if lead.conversicaLeadOwnerFirstName and lead.conversicaLeadOwnerLastName\
-                and lead.pipedriveId:  # If lead has owner and linked to person # TODO: what if incorrect pipedriveID?
+                and lead.pipedriveId:  # If lead has owner and is linked to a person
             activity = pipedrive.Activity(sync.get_pipedrive_client())
             sync.get_logger().info('New activity created')
             status = 'created'
@@ -402,7 +423,7 @@ def create_activity_in_pipedrive(lead_id):
             sync.get_logger().info('Sending lead data with id=%s to Pipedrive activity', str(lead_id))
             activity.save()
 
-            ret = {
+            response = {
                 'status': status,
                 'id': activity.id
             }
@@ -410,46 +431,60 @@ def create_activity_in_pipedrive(lead_id):
         else:
             message = 'Activity synchronization for lead with id=%s not enabled when no owner' % str(lead_id)
             sync.get_logger().info(message)
-            ret = {
+            response = {
                 'status': 'skipped',
                 'message': message
             }
     else:
         message = 'No lead found in Marketo with id=%s' % str(lead_id)
         sync.get_logger().error(message)
-        ret = {
+        response = {
             'error': message
         }
 
-    return ret
+    return response
 
 
-def update_field(from_resource, to_resource, to_field, mapping):
-    sync.get_logger().debug('Updating field=%s from resource=%s to resource=%s', to_field, from_resource, to_resource)
+def update_field(from_entity, to_entity, to_field, mapping):
+    """
+    Update an entity attribute if and only if the new value is different from the previous one and not empty.
+    :param from_entity: The entity to get the attribute value from
+    :param to_entity: The entity to update
+    :param to_field: The attribute name
+    :param mapping: The attribute mapping
+    :return: The update status
+    """
+    sync.get_logger().debug('Updating field=%s from entity=%s to entity=%s', to_field, from_entity, to_entity)
 
-    new_attr = get_new_attr(from_resource, mapping)
+    new_attr = get_new_attr(from_entity, mapping)
 
     updated = False
-    if hasattr(to_resource, to_field):
-        old_attr = getattr(to_resource, to_field)
+    if hasattr(to_entity, to_field):
+        old_attr = getattr(to_entity, to_field)
         if new_attr != old_attr and new_attr is not None and new_attr != '':
             sync.get_logger().debug('(old=%s, new=%s) for field=%s', old_attr, new_attr, to_field)
-            setattr(to_resource, to_field, new_attr)
+            setattr(to_entity, to_field, new_attr)
             updated = True
     else:
         sync.get_logger().debug('field=%s not found', to_field)
-        setattr(to_resource, to_field, new_attr)
+        setattr(to_entity, to_field, new_attr)
         updated = True
 
     return updated
 
 
-def get_new_attr(from_resource, mapping):
+def get_new_attr(from_entity, mapping):
+    """
+    Return the new attribute value after it has been processed with a mapping.
+    :param from_entity: The entity to get the attribute value from
+    :param mapping: The attribute mapping
+    :return: The new attribute value
+    """
     from_values = []
 
     if 'fields' in mapping:
         for from_field in mapping['fields']:
-            from_attr = getattr(from_resource, from_field)
+            from_attr = getattr(from_entity, from_field)
 
             # Call pre adapter on field raw value
             if 'pre_adapter' in mapping and callable(mapping['pre_adapter']):
@@ -458,30 +493,30 @@ def get_new_attr(from_resource, mapping):
 
             from_values.append(from_attr)
     else:
-        # Pass the whole resource
+        # Pass the whole entity
         if 'transformer' in mapping and callable(mapping['transformer']):
-            sync.get_logger().debug('And transforming resource=%s', from_resource)
-            from_attr = mapping['transformer'](from_resource)
+            sync.get_logger().debug('And transforming entity=%s', from_entity)
+            from_attr = mapping['transformer'](from_entity)
             from_values.append(from_attr)
 
-    ret = None
+    new_attr = None
     if len(from_values):
-        ret = from_values[0]  # Assume first value is the right one
+        new_attr = from_values[0]  # Assume first value is the right one
         if len(from_values) > 1:  # Unless a mode is provided
             if 'mode' in mapping:
                 if mapping['mode'] == 'join':
                     # For join mode assume separator is space
                     sync.get_logger().debug('And joining values=%s with space', from_values)
-                    ret = ' '.join(value for value in from_values if value)
-                    ret = ret if ret.strip() else None
+                    new_attr = ' '.join(value for value in from_values if value)
+                    new_attr = new_attr if new_attr.strip() else None
                 elif mapping['mode'] == 'choose':
                     # Get first non empty value
                     sync.get_logger().debug('And choosing first non empty value from values=%s', from_values)
-                    ret = next((value for value in from_values if value), None)
+                    new_attr = next((value for value in from_values if value), None)
 
     # Call post adapter on result
     if 'post_adapter' in mapping and callable(mapping['post_adapter']):
-        sync.get_logger().debug('And post-adapting result=%s', ret)
-        ret = mapping['post_adapter'](ret)
+        sync.get_logger().debug('And post-adapting result=%s', new_attr)
+        new_attr = mapping['post_adapter'](new_attr)
 
-    return ret
+    return new_attr
