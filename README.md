@@ -2,6 +2,10 @@
 
 Synchronize data between Marketo and Pipedrive.
 
+## sync module
+
+Parent module containing client submodules and synchronization application.
+
 ## marketo module
 
 Simple Python client for the Marketo REST API.
@@ -10,19 +14,21 @@ Simple Python client for the Marketo REST API.
 
 Lead, opportunities, roles and companies are classes that can be instantiated given a Marketo client instance.
 
-All fields are loaded and available for reading and a defined subset for each resource is available for updating.
+All fields are loaded and available for reading and a defined subset for each entity is available for updating.
 
-A resource also has an "id field" that will be used to match an existing resource.
+An entity also has an "id field" that will be used to match an existing entity.
 
-An existing resource can be loaded given an identifier and an eventual id field to look for different from its actual one
+An existing entity can be loaded given an identifier to the constructor and an eventual id field to look for different from its actual one
 which can be any exiting field for leads but should be a "searchable field" for opportunities, roles and companies.
 
-A resource can be saved: it is then created or updated depending on if it matches an existing one.
+An entity can be saved: it is then created or updated depending on if it matches an existing one.
+
+An entity can be deleted.
 
 ### Usage
 
 ```python
-import marketo
+import sync.marketo as marketo
 
 mkto = marketo.MarketoClient(IDENTITY_ENDPOINT, CLIENT_ID, CLIENT_SECRET, API_ENDPOINT)
 
@@ -35,6 +41,9 @@ lead = marketo.Lead(mkto, "lead@mail.com", "email")
 # Update lead data
 lead.firstName = "New Name"
 lead.save()
+
+# Delete lead
+lead.delete()
 ```
 
 ## pipedrive module
@@ -43,26 +52,28 @@ Simple Python client for the Pipedrive REST API.
 
 ### Main features
 
-People, organizations and deals are classes that can be instantiated given a Pipedrive client instance.
+People, organizations deals and activities are classes that can be instantiated given a Pipedrive client instance.
 
 All fields are loaded and available for reading and updating.
 
-An existing resource can be loaded given an identifier or a name if the "id field" parameter is given as "name".
+An existing entity can be loaded given an identifier or a name if the "id field" parameter is given as "name". A lead can also be loaded given a custom filter a the "id field". Currently supported filters are "email domain" and "marketo id".
 
-Custom fields can be read using a nicer name (snake case display name) than their hash key.
+Custom fields can be read using the snake case display name rather than their hash key.
 
-Some resources are related to other and can be loaded as well if so.
+Some entities are related to other and can be loaded as well if so.
 
-A resource can be saved: it is then created or updated depending on if it matches an existing one.
+An entity can be saved: it is then created or updated depending on if it matches an existing one.
 
-For related resources, only the link can be updated.
+For related entities, only the association can be updated (no cascade update).
+
+An entity can be deleted.
 
 ### Usage
 
 ```python
-import pipedrive
+import sync.pipedrive as pipedrive
 
-pd = pipedrive.PipedriveClient(secret.PD_API_TOKEN)
+pd = pipedrive.PipedriveClient(PD_API_TOKEN)
 
 # Get a person by id
 person = pipedrive.Person(pd, "12345")
@@ -79,6 +90,9 @@ organization = person.organization
 # Update person data
 person.name = "New Name"
 person.save()
+
+# Delete person
+person.delete()
 ```
 
 ## sync module
@@ -89,22 +103,28 @@ Simple Flask app to synchronize data between Marketo and Pipedrive.
 
 #### Endpoints
 
-5 endpoints accessible through a POST request:
+List of endpoints accessible through a POST request:
 - `/marketo/lead/<int:lead_id>`: to send lead data from Marketo to Pipedrive
 
 Actually synchronizes data if and only if it is new or it has changed.
 
-- `/pipedrive/person/<int:person_id>`: to send person data from Pipedrive to Marketo
+- `/pipedrive/person/<int:person_id>` (or `/pipedrive/person` for Pipedrive notification usage): to send person data from Pipedrive to Marketo
 
 Actually synchronizes data if and only if it is new or it has changed.
 
-- `/pipedrive/deal/<int:deal_id>`: to send deal data from Pipedrive to Marketo
+- `/pipedrive/organization/<int:organization_id>` (or `/pipedrive/organization` for Pipedrive notification usage): to send organization data from Pipedrive to Marketo
+
+Actually synchronizes data if and only if it is new or it has changed.
+
+- `/pipedrive/deal/<int:deal_id>` (or `/pipedrive/deal` for Pipedrive notification usage): to send deal data from Pipedrive to Marketo
 
 Actually synchronizes data if and only if it is new or it has changed.
 
 - `/marketo/lead/<int:lead_pipedrive_id>/delete`: to delete a person in Pipedrive (using lead pipedrive id)
 
-- `/pipedrive/person/<int:pipedrive_marketo_id>/delete`: to delete a lead in Marketo (using person marketo id)
+- `/pipedrive/person/<int:pipedrive_marketo_id>/delete` (or `/pipedrive/person/delete` for Pipedrive notification usage): to delete a lead in Marketo (using person marketo id)
+
+- `/marketo/lead/<int:lead_id>/activity` : to send an activity to Pipedrive from Marketo lead data
 
 #### Authentication
 
@@ -112,7 +132,7 @@ All routes require authentication using an API key as GET parameter.
 
 #### Mapping
 
-A mapping file describes how Marketo and Pipedrive resource fields should be matched.
+A mapping file describes how Marketo and Pipedrive entity fields should be matched.
 
 ##### Schema
 ```
@@ -129,9 +149,11 @@ MAPPING_NAME = {
 }
 ```
 
-### Usage
+## Processing
 
-Any call returns the synchronisation status ("created", "updated" or "skipped") as well as the id of the created/updated resource in JSON.
+Any call to one of the endpoint enqueue a task to a Google Push task queue that is handling the processing asynchronously but sequentially.
+
+It returns the name and the task ETA while tasks return the synchronisation status ("created", "updated" or "skipped") as well as the id of the created/updated entity in JSON.
 
 ## Testing
 
