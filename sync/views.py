@@ -132,24 +132,36 @@ def enqueue_task(task_name, params):
     :param params: The task parameters
     :return: A custom response object containing a message
     """
-    # Look for the the task in the datastore to prevent from duplicates
-    if EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get():
-        response = {'message': 'Task already enqueued.'}  # Found
+    # Search for the the task in the datastore
+    already_enqueued_task = EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get()
+    if already_enqueued_task and not already_enqueued_task.ata:  # Enqueued and never running
+        response = {'message': 'Task already enqueued.'}
 
     else:
-        # If not found then store it
+        if already_enqueued_task:
+            # Enqueued but running or failed, how to make the difference?
+            try:
+                # Delete it in any case
+                already_enqueued_task.key.delete()  # It may delete a running task
+                q = taskqueue.Queue('default')
+                t = taskqueue.Task(name=already_enqueued_task.task_name)
+                q.delete_tasks(t)
+            except taskqueue.BadTaskStateError:
+                pass
+        # Store the task to prevent from duplicates
         enqueued_task = EnqueuedTask(name=task_name, params=params)
-        task_key = enqueued_task.put()
+        enqueued_task.put()
 
         # Create and enqueue task
-        params.update({'task_urlsafe': task_key.urlsafe()})
+        params.update({'task_urlsafe': enqueued_task.key.urlsafe()})
         task = taskqueue.add(
             url='/task/%s' % task_name,
             target='worker',
             params=params)
-        if not task.was_enqueued:
-            enqueued_task.key.delete()
-
+        
+        enqueued_task.task_name = task.name
+        enqueued_task.put()
+        
         response = {'message': 'Task {} enqueued, ETA {}.'.format(task.name, task.eta)}
 
     return response
