@@ -162,6 +162,11 @@ class PipedriveTestCase(unittest.TestCase):
     def test_load_organization_with_name_non_unique_result(self):
         organization = sync.pipedrive.Organization(self.pd, 'MyCompany', 'name')
         self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+
+    def test_load_organization_with_name_no_match(self):
+        organization = sync.pipedrive.Organization(self.pd, 'MyComp', 'name')
+        self.assertIsNotNone(organization)
         self.assertIsNone(organization.id)
 
     def test_load_organization_with_email_domain(self):

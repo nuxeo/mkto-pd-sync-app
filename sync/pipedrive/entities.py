@@ -206,7 +206,17 @@ class Entity:
                 if len(data_array) == 1:
                     id_ = data_array[0]['id']
                 else:
-                    self._logger.warning('More than one entity=%s found with name=%s', self.entity_name, name)
+                    match = False
+                    for data in data_array:
+                        if data['name'] == name:
+                            id_ = data['id']
+                            match = True
+                            break
+                    if match:
+                        self._logger.debug('More than one entity=%s found with name=%s and found one exact match',
+                                           self.entity_name, name)
+                    else:
+                        self._logger.warning('More than one entity=%s found with name=%s', self.entity_name, name)
             else:
                 self._logger.warning('No entity=%s found with name=%s',
                                      self.entity_name, name)
