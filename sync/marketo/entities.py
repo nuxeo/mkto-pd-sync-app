@@ -21,11 +21,10 @@ class Entity:
             if load:
                 if id_field == 'id' and self._id_field != 'id':
                     # id field is not specified - filter on entity id field to load data
-                    data = self._load_data(id_, self._id_field)
+                    self._load(id_, self._id_field)
                 else:
                     # Load data filtering on the given field or default "id"
-                    data = self._load_data(id_, id_field)
-                self.load(data)
+                    self._load(id_, id_field)
             else:
                 # Store the given id for further loading
                 if id_field and hasattr(self, id_field):
@@ -72,32 +71,37 @@ class Entity:
         else:
             raise InitializationError('Load fields', 'No data returned for entity=%s', self.entity_name)
 
-    def load(self, data=[]):
+    def _load(self, id_, id_field):
         """
-        Initialize the entity with data.
-        """
-        if not data:
-            data = self._load_data(getattr(self, self._id_field), self._id_field)
-        if data:
-            for field_key in data:
-                setattr(self, field_key, data[field_key])
-            if self._id_field != 'id':
-                self.id = getattr(self, self._id_field)  # Set id value with id field value
-
-    def _load_data(self, id_, id_field):
-        """
-        Return the entity loaded data from Marketo.
+        Load and initialize entity data from Marketo.
         :param id_: The entity id
         :param id_field: The entity field to filter on
-        :return: The loaded data
         """
         data = {}
         if id_ and id_field:
             data = self._client.get_entity_data(self.entity_name, id_, id_field, self._fields)
-            if not data:
+            if data:
+                self.init(data)
+            else:
                 self._logger.warning('No data could be loaded for entity=%s with %s=%s',
                                      self.entity_name, id_field, id_)
         return data
+
+    def init(self, data):
+        """
+        Initialize the entity with data.
+        :param data: Data to initialize the entity with
+        """
+        for field_key in data:
+            setattr(self, field_key, data[field_key])
+        if self._id_field != 'id':
+            self.id = getattr(self, self._id_field)  # Set id value with id field value
+
+    def load(self):
+        """
+        Load entity.
+        """
+        self._load(getattr(self, self._id_field), self._id_field)
 
     def save(self):
         """
@@ -105,7 +109,7 @@ class Entity:
         """
         data = self._client.put_entity_data(self.entity_name, self.entity_data, self.id)
         if data:
-            self.load(data)
+            self.init(data)
         else:
             raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
                               ' with id=%s' if self.id is not None else '')

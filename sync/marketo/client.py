@@ -88,7 +88,7 @@ class MarketoClient:
             entity_class = getattr(entities_module, entity_name.capitalize())
             for data in data_array:
                 entity = entity_class(self)
-                entity.load(data)
+                entity.init(data)
                 entities.append(entity)
         return entities
 
@@ -148,7 +148,7 @@ class MarketoClient:
             i = 0
             for data in data_array:
                 if i < len(return_entities):
-                    return_entities[i].load(data)
+                    return_entities[i].init(data)
                     if data['status'] == 'skipped':
                         for reason in data['reasons']:
                             self._logger.warning('entity=%s%s has been skipped for reason=%s', entity_name,

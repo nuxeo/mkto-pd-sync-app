@@ -1,5 +1,5 @@
 import logging
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta
 
 from requests import HTTPError
 
@@ -22,8 +22,7 @@ class Entity:
 
         if id_:
             if load:
-                data = self._load_data(id_, id_field)
-                self.load(data)
+                self._load(id_, id_field)
             else:
                 # Store the given id for further loading
                 if id_field and hasattr(self, id_field):
@@ -149,22 +148,11 @@ class Entity:
         else:
             raise InitializationError('Load fields', 'No data returned for entity=%s', self.entity_name)
 
-    def load(self, data=[]):
+    def _load(self, id_, id_field):
         """
-        Initialize the entity with data.
-        """
-        if not data:
-            data = self._load_data(self.id, 'id')
-        if data:
-            for key in data:
-                setattr(self, key, data[key])
-
-    def _load_data(self, id_, id_field):
-        """
-        Return the entity loaded data from Pipedrive.
+        Load and initialize entity data from Pipedrive.
         :param id_: The entity id
         :param id_field: The entity field to filter on
-        :return: The loaded data
         """
         # Find entity id first
         if id_field == 'name':
@@ -174,13 +162,13 @@ class Entity:
         else:
             id_to_look_for = id_
 
-        data = {}
         if id_to_look_for:
             try:
                 data = self._client.get_entity_data(self.entity_name, id_to_look_for)
-                if not data or \
-                        ('active_flag' in data and not data['active_flag'] or 'active_flag' not in data):
+                if data and ('active_flag' not in data or ('active_flag' in data and data['active_flag'])):
                     # Prevent from loading deleted entity
+                    self.init(data)
+                else:
                     self._logger.warning('No data could be loaded for entity=%s for %s=%s',
                                          self.entity_name, id_field, id_to_look_for)
             except HTTPError as e:
@@ -190,7 +178,13 @@ class Entity:
                 else:
                     raise e
 
-        return data
+    def init(self, data):
+        """
+        Initialize the entity with data.
+        :param data: Data to initialize the entity with
+        """
+        for key in data:
+            setattr(self, key, data[key])
 
     def _find_by_name(self, name):
         """
@@ -231,13 +225,19 @@ class Entity:
         """
         return None
 
+    def load(self):
+        """
+        Load entity.
+        """
+        self._load(self.id, 'id')
+
     def save(self):
         """
         Save (i.e. create or update) entity.
         """
         data = self._client.put_entity_data(self.entity_name, self.entity_data, self.id)
         if data:
-            self.load(data)
+            self.init(data)
         else:
             raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
                               ' with id=%s' if self.id is not None else '')
