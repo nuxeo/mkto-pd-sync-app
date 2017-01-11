@@ -14,7 +14,7 @@ class Entity:
     __metaclass__ = ABCMeta  # Define Abstract Base Class
 
     def __init__(self, client, id_=None, id_field='id', load=True):
-        self._logger = logging.getLogger(__name__)  # The class logger
+        self._logger = logging.getLogger(__name__)
         self._client = client  # The class corresponding client instance
         self.id = None  # Entities should always have an id
 
@@ -30,8 +30,7 @@ class Entity:
 
     def __getattr__(self, field_name):
         if field_name != '_field_keys':
-            if field_name in self._field_keys \
-                    and field_name != self._field_keys[field_name]:
+            if field_name in self._field_keys and field_name != self._field_keys[field_name]:
                 # Prevent from infinite looping when field name = field key
 
                 field_key = self._field_keys[field_name]
@@ -39,12 +38,12 @@ class Entity:
                 self._logger.debug('Looking for custom attribute with name=%s (key=%s)', field_name, field_key)
                 attr = getattr(self, field_key)
 
-                # Look for a related entity
+                # Search for a related entity
                 if field_key in self._field_types and self._field_types[field_key] in self._related_entities:
                     entity_class = self._related_entities[self._field_types[field_key]]
 
-                    if attr is not None \
-                            and not isinstance(attr, entity_class):  # Related entity is already loaded
+                    if attr is not None and not isinstance(attr, entity_class):
+                        # Related entity has already been loaded
                         related_name = entity_class.__name__.lower()
                         related_id = attr
                         self._logger.debug('Loading related entity=%s with id=%s', related_name, related_id)
@@ -52,11 +51,11 @@ class Entity:
                         attr = entity_class(self._client, related_id)
                         setattr(self, field_key, attr)  # Cache related entity to prevent from further reloading
 
-                # Look for an enum
+                # Search for an enum
                 if field_key in self._field_options and attr:
                     try:
                         attr = self._field_options[field_key][int(attr)]
-                    except ValueError:  # In case attribute is not an integer
+                    except ValueError:  # In case the attribute is not an integer
                         pass
 
                 return attr
@@ -65,7 +64,7 @@ class Entity:
                 raise AttributeError('No attribute found with name=%s' % field_name)
 
         else:
-            # "_field_keys" is not initialized yet but return an empty dict to make the whole thing work
+            # "_field_keys" is not initialized yet but return an empty dict for the magic to happen
             return {}
 
     def __setattr__(self, key_or_name, value):
@@ -77,7 +76,7 @@ class Entity:
 
     def _get_data_value(self, value):
         data_value = value
-        if type(value) is dict and 'value' in value:  # "Flatten" complex field value such as org_id
+        if type(value) is dict and 'value' in value:  # "Flatten" complex field value such as org_id: get value only
             data_value = value['value']
         elif type(value) is list:  # In case of a list, keep only primary value and "flatten" field value
             for v in value:
@@ -102,8 +101,8 @@ class Entity:
             if attr is None or attr == '':
                 attr = self._field_defaults.get(field_key, attr)
             elif isinstance(attr, Entity):
-                attr = getattr(attr, 'id')  # "Flatten" related entities - keep id only
-            elif type(attr) is dict and 'id' in attr:  # In case of a dict, keep id only as well
+                attr = getattr(attr, 'id')  # "Flatten" related entities: get id only
+            elif type(attr) is dict and 'id' in attr:  # Same in case of a dict
                 attr = attr['id']
             data[field_key] = attr
         return data
@@ -219,8 +218,9 @@ class Entity:
 
     def _find_by_filter(self, filter_name, filter_value):
         """
-        Return the entity id given a filter value.
-        :param name: A filter value
+        Return the entity id given a filter.
+        :param filter_name: The filter name
+        :param filter_value: The filter value
         :return: The entity id
         """
         return None

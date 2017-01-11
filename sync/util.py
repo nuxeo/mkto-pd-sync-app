@@ -28,6 +28,7 @@ def authenticate(authorized_keys):
     :param authorized_keys: A list of authorized keys
     :return: The decorated method result in case of proper authentication, otherwise raise an error
     """
+
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):

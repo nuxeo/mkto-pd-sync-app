@@ -24,6 +24,7 @@ def memoize(method_name):
     :param method_name: The method name that will be used as a key for the cache
     :return: The decorated method result
     """
+
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args):

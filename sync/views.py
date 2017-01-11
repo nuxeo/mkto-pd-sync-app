@@ -56,8 +56,9 @@ def sync_person_delete(person_marketo_id):
 def sync_person_delete_with_params():
     params = request.get_json()
     # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID hash key
-    if params is not None and 'previous' in params and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params[
-        'previous'] and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:
+    if params is not None and 'previous' in params \
+            and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params['previous'] \
+            and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:
         try:
             person_marketo_id = int(params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'])
             rv = enqueue_task('delete_lead_in_marketo', {'id': person_marketo_id})
@@ -132,7 +133,7 @@ def enqueue_task(task_name, params):
     :param params: The task parameters
     :return: A custom response object containing a message
     """
-    # Search for the the task in the datastore
+    # Search for the task in the datastore
     already_enqueued_task = EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get()
     if already_enqueued_task and not already_enqueued_task.ata:  # Enqueued and never running
         response = {'message': 'Task already enqueued.'}
@@ -152,16 +153,16 @@ def enqueue_task(task_name, params):
         enqueued_task = EnqueuedTask(name=task_name, params=params)
         enqueued_task.put()
 
-        # Create and enqueue task
+        # Create and enqueue App Engine task
         params.update({'task_urlsafe': enqueued_task.key.urlsafe()})
         task = taskqueue.add(
             url='/task/%s' % task_name,
             target='worker',
             params=params)
-        
+
         enqueued_task.task_name = task.name
         enqueued_task.put()
-        
+
         response = {'message': 'Task {} enqueued, ETA {}.'.format(task.name, task.eta)}
 
     return response

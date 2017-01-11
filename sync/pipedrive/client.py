@@ -13,7 +13,7 @@ class PipedriveClient:
     API_ENDPOINT = 'https://api.pipedrive.com/v1'
 
     def __init__(self, api_token):
-        self._logger = logging.getLogger(__name__)  # The class logger
+        self._logger = logging.getLogger(__name__)
         self._memo = {}  # The class cache
 
         self._session = Session()  # Reuse session for better performance within a single instance of the client
@@ -36,8 +36,7 @@ class PipedriveClient:
         :param entity_fields: The entity fields to return, default if not specified
         :return: A dictionary of field keys mapped against their value for the entity
         """
-        return self._fetch_data(simple_pluralize(entity_name),  # Entity name should be of plural form
-                                entity_id, entity_fields)
+        return self._fetch_data(simple_pluralize(entity_name), entity_id, entity_fields)
 
     def put_entity_data(self, entity_name, entity_data, entity_id=None):
         """
@@ -47,8 +46,7 @@ class PipedriveClient:
         :param entity_id: The entity id (update only)
         :return: A dictionary of field keys mapped against their value for the entity
         """
-        return self._push_data(simple_pluralize(entity_name),  # Entity name should be of plural form
-                               entity_data, entity_id)
+        return self._push_data(simple_pluralize(entity_name), entity_data, entity_id)
 
     def delete_entity(self, entity_name, id_):
         """
@@ -62,7 +60,7 @@ class PipedriveClient:
         if id_:
             self._logger.warning('Deleting entity=%s with id=%s', entity_name, str(id_))
 
-            url = self._build_url(simple_pluralize(entity_name), id_)  # Entity name should be of plural form
+            url = self._build_url(simple_pluralize(entity_name), id_)
 
             r = self._session.delete(url)
             self._logger.info('Called url=%s', r.url)
@@ -168,8 +166,8 @@ class PipedriveClient:
         # Search for existing filter
         filter_id = next((filter_['id'] for filter_ in filters if filter_['name'] == filter_name), None)
         if filter_id:
-            filter_ = self._fetch_data('filters', filter_id)  # Ensure filter still exists
-            if not filter_:  # Case it does not
+            filter_ = self._fetch_data('filters', filter_id)  # Ensure the filter still exists
+            if not filter_:
                 filter_id = None
                 self._memo['get_filters'] = {}  # Reset cache because the filter has probably been deleted
 

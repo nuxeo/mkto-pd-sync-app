@@ -11,7 +11,7 @@ class Entity:
     __metaclass__ = ABCMeta  # Define Abstract Base Class
 
     def __init__(self, client, id_=None, id_field='id', load=True):
-        self._logger = logging.getLogger(__name__)  # The class logger
+        self._logger = logging.getLogger(__name__)
         self._client = client  # The class corresponding client instance
         self.id = None  # Entities should always have an id
 
@@ -20,10 +20,10 @@ class Entity:
         if id_:
             if load:
                 if id_field == 'id' and self._id_field != 'id':
-                    # id field is not specified - filter on entity id field to load data
+                    # Load entity by its id field if not id
                     self._load(id_, self._id_field)
                 else:
-                    # Load data filtering on the given field or default "id"
+                    # Load entity by the given id field or id
                     self._load(id_, id_field)
             else:
                 # Store the given id for further loading
@@ -159,7 +159,7 @@ class Lead(Entity):
             'leadScore': None,
             'mKTODateSQL': None
         }
-        # Some fields that cannot be updated while other are being
+        # Fields that cannot be updated at the same time
         if self.externalCompanyId:
             field_defaults['externalCompanyId'] = None
         else:

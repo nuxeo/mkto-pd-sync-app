@@ -1,7 +1,7 @@
-from re import compile, search
+from re import compile
 
 
-def is_marketo_guid(id):
+def is_marketo_guid(id_):
     """
     Return True if the given id is a Marketo GUID, False otherwise.
     >>> is_marketo_guid('6a38a3bd-edce-4d86-bcc0-83f1feef8997')
@@ -10,7 +10,7 @@ def is_marketo_guid(id):
     False
     """
     p = compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
-    return p.match(str(id))
+    return p.match(str(id_))
 
 
 def compute_external_id(pd_entity_name, id_, prefix='pd'):

@@ -15,7 +15,7 @@ class MarketoClient:
     API_VERSION = 'v1'
 
     def __init__(self, identity_endpoint, client_id, client_secret, api_endpoint):
-        self._logger = logging.getLogger(__name__)  # The class logger
+        self._logger = logging.getLogger(__name__)
         self._memo = {}  # The class cache
 
         self._identity_endpoint = identity_endpoint
@@ -152,8 +152,8 @@ class MarketoClient:
                     if data['status'] == 'skipped':
                         for reason in data['reasons']:
                             self._logger.warning('entity=%s%s has been skipped for reason=%s', entity_name,
-                                                 ' with id=%s' % return_entities[i].id if return_entities[i].id is not None
-                                                 else '', reason['message'])
+                                                 ' with id=%s' % return_entities[i].id
+                                                 if return_entities[i].id is not None else '', reason['message'])
                     else:
                         self._logger.info('entity=%s%s has been %s', entity_name,
                                           ' with id=%s' % return_entities[i].id if return_entities[i].id is not None
@@ -271,8 +271,7 @@ class MarketoClient:
         return result_data
 
     def _build_url(self, entity_name, action=None):
-        url = '%s/%s/%s' % (self._api_endpoint, self.API_VERSION,
-                            simple_pluralize(entity_name))  # Entity name should be of plural form
+        url = '%s/%s/%s' % (self._api_endpoint, self.API_VERSION, simple_pluralize(entity_name))
         if action:
             url += '/' + action
         url += '.json'

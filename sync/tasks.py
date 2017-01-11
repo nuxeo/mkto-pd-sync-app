@@ -28,8 +28,7 @@ def create_or_update_person_in_pipedrive(lead_id):
 
         data_changed = False
         for pd_field in mappings.PERSON_TO_LEAD:
-            data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field]) \
-                           or data_changed
+            data_changed = update_field(lead, person, pd_field, mappings.PERSON_TO_LEAD[pd_field]) or data_changed
 
         if data_changed:
             # Perform the update only if data has actually changed
@@ -100,7 +99,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
     company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
 
     if company.id is not None:
-        # Search organization in Pipedrive
+        # Search for the organization in Pipedrive
         # Try id
         sync.get_logger().debug('Trying to fetch organization data from Pipedrive with marketo_id=%s', company.id)
         organization = pipedrive.Organization(sync.get_pipedrive_client(), company.id, 'marketoid')
@@ -171,8 +170,7 @@ def create_or_update_lead_in_marketo(person_id):
 
         data_changed = False
         for mkto_field in mappings.LEAD_TO_PERSON:
-            data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field]) \
-                           or data_changed
+            data_changed = update_field(person, lead, mkto_field, mappings.LEAD_TO_PERSON[mkto_field]) or data_changed
 
         if data_changed:
             # Perform the update only if data has actually changed
@@ -217,7 +215,7 @@ def create_or_update_company_in_marketo(organization_id):
     organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
 
     if organization.id is not None:
-        # Search organization in Pipedrive
+        # Search for the organization in Pipedrive
         # Try id
         sync.get_logger().debug('Trying to fetch company data from Marketo with id=%s', organization.marketoid)
         company = marketo.Company(sync.get_marketo_client(), organization.marketoid)
@@ -248,11 +246,12 @@ def create_or_update_company_in_marketo(organization_id):
         if data_changed:
             # Perform the update only if data has actually changed
             sync.get_logger().info('Sending organization data with id=%s to Marketo%s', str(organization_id),
-                                   ' with id=%s/external_id=%s' % (
-                                   str(company.id), company.externalCompanyId) if company.id is not None else '')
+                                   ' with id=%s/external_id=%s' % (str(company.id), company.externalCompanyId)
+                                   if company.id is not None else '')
             company.save()
-            
-            if not organization.marketoid or len(organization.marketoid.split(',')) > 1 or int(organization.marketoid) != company.id:
+
+            if not organization.marketoid \
+                    or len(organization.marketoid.split(',')) > 1 or int(organization.marketoid) != company.id:
                 sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', organization.id,
                                        ' (old=%s)' % organization.marketoid if organization.marketoid else '')
                 organization.marketoid = company.id
@@ -332,8 +331,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
             # Opportunity
             opportunity_external_id = marketo.compute_external_id('deal', deal.id)
-            opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id,
-                                              'externalOpportunityId')
+            opportunity = marketo.Opportunity(sync.get_marketo_client(), opportunity_external_id, 'externalOpportunityId')
 
             data_changed = False
             if opportunity.id is None:
@@ -353,8 +351,9 @@ def create_or_update_opportunity_in_marketo(deal_id):
             if data_changed:
                 # Perform the update only if data has actually changed
                 sync.get_logger().info('Sending deal data with id=%s to Marketo%s', str(deal_id),
-                                       ' for opportunity with id=%s/external_id=%s' % (str(opportunity.id),
-                                                                                       opportunity_external_id) if opportunity.id is not None else '')
+                                       ' for opportunity with id=%s/external_id=%s'
+                                       % (str(opportunity.id), opportunity_external_id)
+                                       if opportunity.id is not None else '')
                 opportunity.save()
             else:
                 sync.get_logger().info('Nothing to do in Marketo for opportunity with id=%s/external_id=%s',
@@ -369,8 +368,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
             }
 
             # Role
-            if deal.contact_person and deal.contact_person.marketoid:  # Ensure person has existed in Marketo # TODO create if not?
-                # Role will be automatically created or updated using these 3 fields ("dedupeFields")
+            if deal.contact_person and deal.contact_person.marketoid:  # Ensure person has been synced # TODO create if not?
+                # Role will automatically be created or updated using these 3 fields ("dedupeFields")
                 role = marketo.Role(sync.get_marketo_client())
                 role.externalOpportunityId = opportunity.externalOpportunityId
                 role.leadId = deal.contact_person.marketoid
@@ -411,8 +410,8 @@ def create_activity_in_pipedrive(lead_id):
     lead = marketo.Lead(sync.get_marketo_client(), lead_id)
 
     if lead.id is not None:
-        if lead.conversicaLeadOwnerFirstName and lead.conversicaLeadOwnerLastName\
-                and lead.pipedriveId:  # If lead has owner and is linked to a person
+        if lead.conversicaLeadOwnerFirstName and lead.conversicaLeadOwnerLastName  and lead.pipedriveId:
+            # If lead has owner and is linked to a person
             activity = pipedrive.Activity(sync.get_pipedrive_client())
             sync.get_logger().info('New activity created')
             status = 'created'
@@ -493,7 +492,7 @@ def get_new_attr(from_entity, mapping):
 
             from_values.append(from_attr)
     else:
-        # Pass the whole entity
+        # Pass the entity object
         if 'transformer' in mapping and callable(mapping['transformer']):
             sync.get_logger().debug('And transforming entity=%s', from_entity)
             from_attr = mapping['transformer'](from_entity)
@@ -501,7 +500,7 @@ def get_new_attr(from_entity, mapping):
 
     new_attr = None
     if len(from_values):
-        new_attr = from_values[0]  # Assume first value is the right one
+        new_attr = from_values[0]  # Assume first value is the one to keep
         if len(from_values) > 1:  # Unless a mode is provided
             if 'mode' in mapping:
                 if mapping['mode'] == 'join':
