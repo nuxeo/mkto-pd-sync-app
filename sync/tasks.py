@@ -180,7 +180,7 @@ def create_or_update_lead_in_marketo(person_id):
                                    ' with id=%s' % str(person.id) if person.id is not None else '')
             lead.save()
 
-            if not person.marketoid or int(person.marketoid) != lead.id:
+            if not person.marketoid or len(person.marketoid.split(',')) > 1 or int(person.marketoid) != lead.id:
                 sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', lead.id,
                                        ' (old=%s)' % person.marketoid if person.marketoid else '')
                 person.marketoid = lead.id
@@ -252,7 +252,7 @@ def create_or_update_company_in_marketo(organization_id):
                                    str(company.id), company.externalCompanyId) if company.id is not None else '')
             company.save()
             
-            if not organization.marketoid or int(organization.marketoid) != company.id:
+            if not organization.marketoid or len(organization.marketoid.split(',')) > 1 or int(organization.marketoid) != company.id:
                 sync.get_logger().info('Updating marketo_id=%s in Pipedrive%s', organization.id,
                                        ' (old=%s)' % organization.marketoid if organization.marketoid else '')
                 organization.marketoid = company.id
