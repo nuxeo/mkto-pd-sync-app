@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Real Time API filter",
+    "active_flag": true,
+    "type": "org",
+    "temporary_flag": null,
+    "user_id": 1628545,
+    "add_time": "2016-11-16 17:02:51",
+    "update_time": "2016-12-19 22:20:02",
+    "visible_to": "7",
+    "custom_view_id": null,
+    "conditions": {
+      "glue": "and",
+      "conditions": [
+        {
+          "glue": "and",
+          "conditions": [
+            {
+              "object": "organization",
+              "field_id": "3999",
+              "operator": "=",
+              "value": "1",
+              "extra_value": null
+            }
+          ]
+        },
+        {
+          "glue": "or",
+          "conditions": []
+        }
+      ]
+    }
+  }
+}

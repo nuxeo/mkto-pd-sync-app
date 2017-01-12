@@ -55,7 +55,7 @@ def sync_person_delete(person_marketo_id):
 @authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
 def sync_person_delete_with_params():
     params = request.get_json()
-    # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo ID hash key
+    # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo id hash key
     if params is not None and 'previous' in params \
             and '9a9714c55a34f5faf2956584040ca245b7ab641b' in params['previous'] \
             and params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'] is not None:

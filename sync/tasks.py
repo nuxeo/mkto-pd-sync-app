@@ -99,18 +99,7 @@ def create_or_update_organization_in_pipedrive(company_external_id):
     company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
 
     if company.id is not None:
-        # Search for the organization in Pipedrive
-        # Try id
-        sync.get_logger().debug('Trying to fetch organization data from Pipedrive with marketo_id=%s', company.id)
-        organization = pipedrive.Organization(sync.get_pipedrive_client(), company.id, 'marketoid')
-        if organization.id is None:  # Then name
-            sync.get_logger().debug('Trying to fetch organization data from Pipedrive with name=%s', company.company)
-            organization = pipedrive.Organization(sync.get_pipedrive_client(), company.company, 'name')
-        if organization.id is None:  # Finally Email domain
-            sync.get_logger().debug('Trying to fetch organization data from Pipedrive with email_domain=%s',
-                                    company.website)
-            organization = pipedrive.Organization(sync.get_pipedrive_client(), company.website, 'email_domain')
-
+        organization = find_organization_in_pipedrive(company)
         if organization.id is None:
             sync.get_logger().info('New organization created')
             status = 'created'
@@ -146,6 +135,21 @@ def create_or_update_organization_in_pipedrive(company_external_id):
         }
 
     return response
+
+
+def find_organization_in_pipedrive(company):
+    # Search for the organization in Pipedrive
+    # Try by id
+    sync.get_logger().debug('Trying to fetch organization data from Pipedrive with marketo_id=%s', company.id)
+    organization = pipedrive.Organization(sync.get_pipedrive_client(), company.id, 'marketoid')
+    if organization.id is None:  # Then name
+        sync.get_logger().debug('Trying to fetch organization data from Pipedrive with name=%s', company.company)
+        organization = pipedrive.Organization(sync.get_pipedrive_client(), company.company, 'name')
+    if organization.id is None:  # Finally Email domain
+        sync.get_logger().debug('Trying to fetch organization data from Pipedrive with email_domain=%s',
+                                company.website)
+        organization = pipedrive.Organization(sync.get_pipedrive_client(), company.website, 'email_domain')
+    return organization
 
 
 def create_or_update_lead_in_marketo(person_id):
@@ -215,17 +219,7 @@ def create_or_update_company_in_marketo(organization_id):
     organization = pipedrive.Organization(sync.get_pipedrive_client(), organization_id)
 
     if organization.id is not None:
-        # Search for the organization in Pipedrive
-        # Try id
-        sync.get_logger().debug('Trying to fetch company data from Marketo with id=%s', organization.marketoid)
-        company = marketo.Company(sync.get_marketo_client(), organization.marketoid)
-        if company.id is None:  # Then external id
-            company_external_id = marketo.compute_external_id('organization', organization.id)
-            sync.get_logger().debug('Trying to fetch company data from Marketo with external_id=%s', company_external_id)
-            company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
-        if company.id is None:  # Finally name
-            sync.get_logger().debug('Trying to fetch company data from Marketo with name=%s', organization.name)
-            company = marketo.Company(sync.get_marketo_client(), organization.name, 'company')
+        company = find_company_in_marketo(organization)
 
         data_changed = False
         if company.id is None:
@@ -275,6 +269,21 @@ def create_or_update_company_in_marketo(organization_id):
         }
 
     return response
+
+
+def find_company_in_marketo(organization):
+    # Search for the company in Marketo
+    # Try id
+    sync.get_logger().debug('Trying to fetch company data from Marketo with id=%s', organization.marketoid)
+    company = marketo.Company(sync.get_marketo_client(), organization.marketoid)
+    if company.id is None:  # Then external id  # TODO remove because useless?
+        company_external_id = marketo.compute_external_id('organization', organization.id)
+        sync.get_logger().debug('Trying to fetch company data from Marketo with external_id=%s', company_external_id)
+        company = marketo.Company(sync.get_marketo_client(), company_external_id, 'externalCompanyId')
+    if company.id is None:  # Finally name
+        sync.get_logger().debug('Trying to fetch company data from Marketo with name=%s', organization.name)
+        company = marketo.Company(sync.get_marketo_client(), organization.name, 'company')
+    return company
 
 
 def delete_lead_in_marketo(pipedrive_marketo_id):
@@ -461,11 +470,11 @@ def update_field(from_entity, to_entity, to_field, mapping):
     if hasattr(to_entity, to_field):
         old_attr = getattr(to_entity, to_field)
         if new_attr != old_attr and new_attr is not None and new_attr != '':
-            sync.get_logger().debug('(old=%s, new=%s) for field=%s', old_attr, new_attr, to_field)
+            sync.get_logger().info('(old=%s, new=%s) for field=%s', old_attr, new_attr, to_field)
             setattr(to_entity, to_field, new_attr)
             updated = True
     else:
-        sync.get_logger().debug('field=%s not found', to_field)
+        sync.get_logger().info('field=%s not found', to_field)
         setattr(to_entity, to_field, new_attr)
         updated = True
 

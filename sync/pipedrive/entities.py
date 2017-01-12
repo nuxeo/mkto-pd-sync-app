@@ -157,7 +157,7 @@ class Entity:
         if id_field == 'name':
             id_to_look_for = self._find_by_name(id_)
         elif id_field:
-            id_to_look_for = self._find_by_filter(id_field, id_) or id_
+            id_to_look_for = self._find_by_filter(id_field, id_)
         else:
             id_to_look_for = id_
 
@@ -223,6 +223,8 @@ class Entity:
         :param filter_value: The filter value
         :return: The entity id
         """
+        if filter_name == 'id':
+            return filter_value
         return None
 
     def load(self):
@@ -285,7 +287,7 @@ class Organization(Entity):
         }
 
     def _find_by_filter(self, filter_name, filter_value):
-        id_ = None
+        id_ = Entity._find_by_filter(self, filter_name, filter_value)
         if filter_value and (filter_name == 'email_domain' or filter_name == 'marketoid'):
             if filter_name == 'email_domain':
                 filter_data = self._client.get_organization_email_domain_filter(filter_value.strip())

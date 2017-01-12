@@ -1,0 +1,105 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 20,
+      "company_id": 1,
+      "owner_id": {
+        "id": 1628545,
+        "name": "Helene Jonin",
+        "email": "hjonin@nuxeo.com",
+        "has_pic": false,
+        "pic_hash": null,
+        "active_flag": true,
+        "value": 1628545
+      },
+      "name": "Test Flask Linked Organization",
+      "open_deals_count": 0,
+      "related_open_deals_count": 0,
+      "closed_deals_count": 0,
+      "related_closed_deals_count": 0,
+      "email_messages_count": 0,
+      "people_count": 0,
+      "activities_count": 0,
+      "done_activities_count": 0,
+      "undone_activities_count": 0,
+      "reference_activities_count": 0,
+      "files_count": 0,
+      "notes_count": 0,
+      "followers_count": 1,
+      "won_deals_count": 0,
+      "related_won_deals_count": 0,
+      "lost_deals_count": 0,
+      "related_lost_deals_count": 0,
+      "active_flag": true,
+      "category_id": null,
+      "picture_id": null,
+      "country_code": null,
+      "first_char": "m",
+      "update_time": "2016-01-01 00:00:00",
+      "add_time": "2016-01-01 00:00:00",
+      "visible_to": "3",
+      "next_activity_date": null,
+      "next_activity_time": null,
+      "next_activity_id": null,
+      "last_activity_id": null,
+      "last_activity_date": null,
+      "address": "Rue Mouffetard",
+      "address_subpremise": null,
+      "address_street_number": null,
+      "address_route": null,
+      "address_sublocality": null,
+      "address_locality": null,
+      "address_admin_area_level_1": null,
+      "address_admin_area_level_2": null,
+      "address_country": null,
+      "address_postal_code": null,
+      "address_formatted_address": null,
+      "e0bfbdecdeb91a3627b4f5d1e725eb46aac56677": null,
+      "30431aa832f01f2abc5c3bc3686db680db575c8e": null,
+      "e6d335da65e8dd72f6a80c0110df7cdaf16a6a3b": "20",
+      "388df3d8858ede1312c043ea4a2b6ffbbdb83bff": null,
+      "bef78943301772ffb7d014891480eef0e4a334ed": null,
+      "ba3adbd18379a97ef111d79aedc2a4e87af45abf": null,
+      "ff323ac7d9ceb908998950ba85d63c802fb700ed": null,
+      "e228e7412c28d93f22ff6d001a493b55c458d7a4": "Consulting",
+      "e7643330494f95ff087d91a5903af0b86f3507cf": null,
+      "0a5c87711ca9460761f4bae44982ccfb4c9fb916": "0192837465",
+      "7018eef1abb8cd22198de7c3bf3495554406f723": 2000000,
+      "a190f47cabba3031660133722ae78930fe18519e": 20,
+      "acdda8843735d179b0fcbd1ad257f3533a094ec0": "Paris",
+      "6d357984be3de178ae8c6a5f516682c04037f300": "France",
+      "b97ac2f12d2071c4c5efbf3a89c812c970f04af1": "France",
+      "cc_email": null,
+      "owner_name": "Helene Jonin",
+      "edit_name": true,
+      "last_activity": null,
+      "next_activity": null
+    }
+  ],
+  "additional_data": {
+    "followers": {
+      "1628545": {
+        "name": "Helene Jonin",
+        "email": "hjonin@nuxeo.com",
+        "user_id": 1628545,
+        "has_pic": false,
+        "pic_hash": null,
+        "id": 103142
+      }
+    },
+    "dropbox_email": null
+  },
+  "related_objects": {
+    "user": {
+      "1628545": {
+        "id": 1628545,
+        "name": "Helene Jonin",
+        "email": "hjonin@nuxeo.com",
+        "has_pic": false,
+        "pic_hash": null,
+        "active_flag": true
+      }
+    }
+  }
+}

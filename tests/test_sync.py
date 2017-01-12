@@ -5,61 +5,67 @@ import datetime
 import json
 import mock
 import os
+import re
 import requests
 import unittest
 
 from google.appengine.ext import ndb, testbed
 
-vals = {
-    (sync.get_config('API_ENDPOINT') + '/v1/leads/describe.json',):               {'{}': 'resources/leadFields.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/leads.json',):                        {
+RESOURCE_MAPPING = {
+    '/v1/leads/describe.json':               {'{}': 'resources/leadFields.json'},
+    '/v1/leads.json':                        {
         "{'filterType': 'id', 'filterValues': '10'}": 'resources/lead10.json',
         "{'filterType': 'id', 'filterValues': '20'}": 'resources/lead20.json',
         "{'filterType': 'id', 'filterValues': '30'}": 'resources/lead30.json',
         "{'filterType': 'id', 'filterValues': '40'}": 'resources/lead40.json'
-        },
-    ('https://api.pipedrive.com/v1/personFields',):                               {'{}': 'resources/personFields.json'},
-    ('https://api.pipedrive.com/v1/persons/10',):                                 {'{}': 'resources/person10.json'},
-    ('https://api.pipedrive.com/v1/persons/20',):                                 {'{}': 'resources/person20.json'},
-    ('https://api.pipedrive.com/v1/persons/30',):                                 {'{}': 'resources/person30.json'},
-    ('https://api.pipedrive.com/v1/userFields',):                                 {'{}': 'resources/userFields.json'},
-    ('https://api.pipedrive.com/v1/users/find',):                                 {"{'term': u'Helene Jonin'}": 'resources/userHeleneJonin.json'},
-    ('https://api.pipedrive.com/v1/users/1628545',):                              {'{}': 'resources/user1628545.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/companies/describe.json',):           {'{}': 'resources/companyFields.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/companies.json',):                    {
+    },
+    '/v1/personFields':                      {'{}': 'resources/personFields.json'},
+    '/v1/persons/10':                        {'{}': 'resources/person10.json'},
+    '/v1/persons/20':                        {'{}': 'resources/person20.json'},
+    '/v1/persons/30':                        {'{}': 'resources/person30.json'},
+    '/v1/userFields':                        {'{}': 'resources/userFields.json'},
+    '/v1/users/find':                        {"{'term': u'Helene Jonin'}": 'resources/userHeleneJonin.json'},
+    '/v1/users/1628545':                     {'{}': 'resources/user1628545.json'},
+    '/v1/companies/describe.json':           {'{}': 'resources/companyFields.json'},
+    '/v1/companies.json':                    {
         "{'filterType': 'externalCompanyId', 'filterValues': 'testFlaskCompany'}"      : 'resources/company10.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-10'}"    : 'resources/empty.json',
         "{'filterType': 'company', 'filterValues': 'Test Flask Organization'}"         : 'resources/empty.json',
         "{'filterType': 'id', 'filterValues': '20'}"                                   : 'resources/company20.json',
+        "{'filterType': 'id', 'filterValues': '30'}"                                   : 'resources/company30.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-20'}"    : 'resources/company20.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-30'}"    : 'resources/company30.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'mkto-lead-company-40'}"  : 'resources/empty.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-50'}"    : 'resources/empty.json',
         "{'filterType': 'company', 'filterValues': 'Test Flask Unlinked Organization'}": 'resources/company50.json'
-        },
-    ('https://api.pipedrive.com/v1/organizationFields',):                         {'{}': 'resources/organizationFields.json'},
-    ('https://api.pipedrive.com/v1/organizations/find',):                         {"{'term': u'Test Flask Company'}": 'resources/emptyPdFind.json'},
-    ('https://api.pipedrive.com/v1/organizations/10',):                           {'{}': 'resources/organization10.json'},
-    ('https://api.pipedrive.com/v1/organizations/20',):                           {'{}': 'resources/organization20.json'},
-    ('https://api.pipedrive.com/v1/organizations/30',):                           {'{}': 'resources/organization30.json'},
-    ('https://api.pipedrive.com/v1/organizations/50',):                           {'{}': 'resources/organization50.json'},
-    ('https://api.pipedrive.com/v1/dealFields',):                                 {'{}': 'resources/dealFields.json'},
-    ('https://api.pipedrive.com/v1/deals/10',):                                   {'{}': 'resources/deal10.json'},
-    ('https://api.pipedrive.com/v1/deals/20',):                                   {'{}': 'resources/deal20.json'},
-    ('https://api.pipedrive.com/v1/deals/30',):                                   {'{}': 'resources/deal30.json'},
-    ('https://api.pipedrive.com/v1/pipelines/12',):                               {'{}': 'resources/pipeline12.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/opportunities/describe.json',):       {'{}': 'resources/opportunityFields.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/opportunities/roles/describe.json',): {'{}': 'resources/opportunityRoleFields.json'},
-    (sync.get_config('API_ENDPOINT') + '/v1/opportunities.json',):                {
+    },
+    '/v1/organizationFields':                {'{}': 'resources/organizationFields.json'},
+    '/v1/organizations/find':                {"{'term': u'Test Flask Company'}": 'resources/emptyPdFind.json'},
+    '/v1/organizations/10':                  {'{}': 'resources/organization10.json'},
+    '/v1/organizations/20':                  {'{}': 'resources/organization20.json'},
+    '/v1/organizations/30':                  {'{}': 'resources/organization30.json'},
+    '/v1/organizations/50':                  {'{}': 'resources/organization50.json'},
+    '/v1/organizations':                     {
+        "{'filter_id': 1}": 'resources/empty.json',
+        "{'filter_id': 2}": 'resources/organization20_filter.json',
+        "{'filter_id': 3}": 'resources/organization30_filter.json'
+    },
+    '/v1/dealFields':                        {'{}': 'resources/dealFields.json'},
+    '/v1/deals/10':                          {'{}': 'resources/deal10.json'},
+    '/v1/deals/20':                          {'{}': 'resources/deal20.json'},
+    '/v1/deals/30':                          {'{}': 'resources/deal30.json'},
+    '/v1/pipelines/12':                      {'{}': 'resources/pipeline12.json'},
+    '/v1/opportunities/describe.json':       {'{}': 'resources/opportunityFields.json'},
+    '/v1/opportunities/roles/describe.json': {'{}': 'resources/opportunityRoleFields.json'},
+    '/v1/opportunities.json':                {
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-10'}": 'resources/empty.json',
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-20'}": 'resources/opportunity20.json',
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-30'}": 'resources/opportunity30.json'
-        },
-    ('https://api.pipedrive.com/v1/stages/34',):                                  {'{}': 'resources/stage34.json'},
-    ('https://api.pipedrive.com/v1/activityFields',):                             {'{}': 'resources/activityFields.json'},
-    ('https://api.pipedrive.com/v1/filters',):                                    {'{}': 'resources/filters.json'},
-    ('https://api.pipedrive.com/v1/filters/1',):                                  {'{}': 'resources/filter1.json'},
-    ('https://api.pipedrive.com/v1/organizations',):                              {"{'filter_id': 1}": 'resources/emptyPdFind.json'}
+    },
+    '/v1/stages/34':                         {'{}': 'resources/stage34.json'},
+    '/v1/activityFields':                    {'{}': 'resources/activityFields.json'},
+    '/v1/filters':                           {'{}': 'resources/filters.json'},
+    '/v1/filters/1':                         {'{}': 'resources/filter1.json'}
 }
 
 
@@ -70,8 +76,10 @@ def side_effect_get(*args, **kwargs):
         value = "{'filterType': '%s', 'filterValues': '%s'}" % (params['filterType'], params['filterValues'])
     else:
         value = str(params)
-    rv.url = '%s -> %s' % (args[0], vals[args][value])
-    with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
+    endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
+    url = RESOURCE_MAPPING[endpoint][value]
+    rv.url = '%s -> %s' % (args[0], url)
+    with open(os.path.join(os.path.dirname(__file__), url)) as f:
         rv.json.return_value = json.load(f)
     f.closed
     return rv
@@ -84,8 +92,10 @@ def side_effect_post(*args, **kwargs):
         value = "{'filterType': '%s', 'filterValues': '%s'}" % (payload['filterType'], payload['filterValues'])
     else:
         value = str(payload)
-    rv.url = '%s -> %s' % (args[0], vals[args][value])
-    with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
+    endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
+    url = RESOURCE_MAPPING[endpoint][value]
+    rv.url = '%s -> %s' % (args[0], url)
+    with open(os.path.join(os.path.dirname(__file__), url)) as f:
         rv.json.return_value = json.load(f)
     f.closed
     return rv
@@ -94,8 +104,10 @@ def side_effect_post(*args, **kwargs):
 def side_effect_put(*args, **kwargs):
     rv = mock.MagicMock(spec=requests.Response)
     value = '{}'
-    rv.url = '%s -> %s' % (args[0], vals[args][value])
-    with open(os.path.join(os.path.dirname(__file__), vals[args][value])) as f:
+    endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
+    url = RESOURCE_MAPPING[endpoint][value]
+    rv.url = '%s -> %s' % (args[0], url)
+    with open(os.path.join(os.path.dirname(__file__), url)) as f:
         rv.json.return_value = json.load(f)
     f.closed
     return rv
@@ -146,6 +158,12 @@ def mock_save_activity(activity):
     saved_instances['activity' + str(activity.id)] = activity
 
 
+def setup_get_filter_mock(mock_get_filter, filter_id):
+    with open(os.path.join(os.path.dirname(__file__), 'resources/filter%s.json' % str(filter_id))) as f:
+        mock_get_filter.return_value = json.load(f)['data']
+    f.closed
+
+
 @mock.patch.object(requests.Session, 'get', side_effect=side_effect_get)
 @mock.patch.object(requests.Session, 'post', side_effect=side_effect_post)
 @mock.patch.object(requests.Session, 'put', side_effect=side_effect_put)
@@ -161,7 +179,8 @@ class SyncTestCase(unittest.TestCase):
     AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')['test']
 
     @classmethod
-    def setUpClass(cls):
+    @mock.patch('sync.marketo.MarketoClient._get_auth_token')
+    def setUpClass(cls, mock_mkto_get_token):
         cls.context = sync.app.app_context()
         cls.context.push()
 
@@ -182,6 +201,9 @@ class SyncTestCase(unittest.TestCase):
         # Otherwise, only the 'default' queue will be available.
         cls.testbed.init_taskqueue_stub(root_path='..')
         cls.taskqueue_stub = cls.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+
+        cls.mkto = sync.marketo.MarketoClient('', '', '', '')
+        cls.pd = sync.pipedrive.PipedriveClient('')
 
     @classmethod
     def tearDownClass(cls):
@@ -217,200 +239,313 @@ class SyncTestCase(unittest.TestCase):
 
     # Test tasks
 
-    def test_create_person_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_person_in_pipedrive(10)
+    def test_create_person_and_organization_from_company_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        lead_to_sync = sync.marketo.Lead(self.mkto, 10)
+        self.assertIsNone(lead_to_sync.pipedriveId)  # Pipedrive id is empty
 
-        person_id = saved_instances['lead10'].pipedriveId
-        self.assertIsNotNone(person_id)  # Pipedrive id has been updated
+        company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
+        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        self.assertIsNone(found_organization.id)  # Organization does not exist
 
-        person = saved_instances['person' + str(ret['id'])]
-        self.assertIsNotNone(person)  # Person has been created
-        self.assertIsNotNone(person.id)
-        self.assertEquals(person.name, 'Test Flask Lead')
-        self.assertEquals(person.email, 'lead@testflask.com')
-        self.assertIsNotNone(person.org_id)
-        self.assertEquals(person.title, 'Manager')
-        self.assertEquals(person.phone, '9876543210')
-        self.assertEquals(person.inferred_country, 'Italy')
-        self.assertEquals(person.lead_source, 'Organic Search')
-        self.assertEquals(person.owner_id, 1628545)
-        self.assertEquals(person.created_date, '2016-01-01')
-        self.assertEquals(person.state, 'Italy')
-        self.assertEquals(person.city, 'Milano')
-        self.assertEquals(person.lead_score, 10)
-        self.assertEquals(person.date_sql, '2016-11-16')
-        self.assertEquals(person.lead_status, 'Recycled')
+        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
-        # Test Organization sync
-        organization = saved_instances['organization' + str(person.org_id)]  # Organization has been created
-        self.assertEquals(organization.name, 'Test Flask Company')
-        self.assertEquals(organization.address, '11th St')
-        self.assertEquals(organization.city, 'New York')
-        self.assertEquals(organization.state, 'NY')
-        self.assertEquals(organization.country, 'United States')
-        self.assertEquals(organization.company_phone, '0123456789')
-        self.assertEquals(organization.industry, 'Finance')
-        self.assertEquals(organization.annual_revenue, 1000000)
-        self.assertEquals(organization.number_of_employees, 10)
-        self.assertEquals(organization.marketoid, '10')
+        # Test Lead sync
+        synced_lead = saved_instances['lead' + str(lead_to_sync.id)]
+        self.assertIsNotNone(synced_lead.pipedriveId)  # Pipedrive id has been updated
 
-        # Test return data
-        self.assertEquals(ret['status'], 'created')
+        # Person has been created
+        synced_person = saved_instances['person' + str(rv['id'])]
+        self.assertIsNotNone(synced_person.id)
+        self.assertEquals(rv['status'], 'created')
 
-    def test_update_person_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_person_in_pipedrive(20)
-
-        person = saved_instances['person20']
-        self.assertEquals(person.name, 'Test Linked Flask Lead')  # Person has been updated
-        self.assertEquals(person.email, 'lead@testlinkedflask.com')
-        self.assertIsNotNone(person.org_id)
-        self.assertEquals(person.title, 'Accountant')
-        self.assertEquals(person.phone, '1357924680')
-        self.assertEquals(person.inferred_country, 'Spain')
-        self.assertEquals(person.lead_source, 'Product')
-        self.assertEquals(person.owner_id, 1628545)
-        self.assertEquals(person.created_date, '2016-01-02')
-        self.assertEquals(person.state, 'Spain')
-        self.assertEquals(person.city, 'Barcelona')
-        self.assertEquals(person.lead_score, 13)
-        self.assertEquals(person.date_sql, '2016-11-16')
-        self.assertEquals(person.lead_status, 'Prospect')
+        # Test values
+        self.assertEquals(synced_person.name, 'Test Flask Lead')
+        self.assertEquals(synced_person.email, 'lead@testflask.com')
+        self.assertIsNotNone(synced_person.org_id)
+        self.assertEquals(synced_person.title, 'Manager')
+        self.assertEquals(synced_person.phone, '9876543210')
+        self.assertEquals(synced_person.inferred_country, 'Italy')
+        self.assertEquals(synced_person.lead_source, 'Organic Search')
+        self.assertEquals(synced_person.owner_id, 1628545)
+        self.assertEquals(synced_person.created_date, '2016-01-01')
+        self.assertEquals(synced_person.state, 'Italy')
+        self.assertEquals(synced_person.city, 'Milano')
+        self.assertEquals(synced_person.lead_score, 10)
+        self.assertEquals(synced_person.date_sql, '2016-11-16')
+        self.assertEquals(synced_person.lead_status, 'Recycled')
 
         # Test Organization sync
-        organization = saved_instances['organization20']  # Organization has been created
-        self.assertEquals(organization.name, 'Test Flask Linked Company')  # Organization has been updated
+        synced_organization = saved_instances['organization' + str(synced_person.org_id)]  # Organization has been created
 
-        # Test return data
-        self.assertEquals(ret['status'], 'updated')
-        self.assertEquals(ret['id'], person.id)
+        # Test values
+        self.assertEquals(synced_organization.name, 'Test Flask Company')
+        self.assertEquals(synced_organization.address, '11th St')
+        self.assertEquals(synced_organization.city, 'New York')
+        self.assertEquals(synced_organization.state, 'NY')
+        self.assertEquals(synced_organization.country, 'United States')
+        self.assertEquals(synced_organization.company_phone, '0123456789')
+        self.assertEquals(synced_organization.industry, 'Finance')
+        self.assertEquals(synced_organization.annual_revenue, 1000000)
+        self.assertEquals(synced_organization.number_of_employees, 10)
+        self.assertEquals(synced_organization.marketoid, '10')
 
-    def test_update_person_in_pipedrive_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_person_in_pipedrive(30)
+    @mock.patch('sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
+    def test_update_person_and_linked_organization_in_pipedrive(self, mock_get_filter, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        setup_get_filter_mock(mock_get_filter, 2)
 
-        # Test return data
-        self.assertEquals(ret['status'], 'skipped')
+        lead_to_sync = sync.marketo.Lead(self.mkto, 20)
 
-    def test_create_person_in_pipedrive_company_form_fields(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_person_in_pipedrive(40)
+        # Lead has already been synced
+        self.assertIsNotNone(lead_to_sync.pipedriveId)
+        person_to_sync = sync.pipedrive.Person(self.pd, lead_to_sync.pipedriveId)
+        self.assertIsNotNone(person_to_sync.id)
 
-        person_id = saved_instances['lead40'].pipedriveId
-        self.assertIsNotNone(person_id)  # Pipedrive id has been updated
+        company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
+        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        self.assertIsNotNone(found_organization.id)  # Organization exists
+        found_organization = sync.pipedrive.Organization(self.pd, company_to_sync.id, 'marketoid')
+        self.assertIsNotNone(found_organization.id)  # Organization has been found with marketo id
 
-        person = saved_instances['person' + str(ret['id'])]
-        self.assertIsNotNone(person)  # Person has been created
-        self.assertIsNotNone(person.id)
-        self.assertEquals(person.name, 'Test Other Flask Lead')
-        self.assertEquals(person.email, 'lead2@testflask.com')
-#         self.assertIsNotNone(person.org_id)  # Company not truly saved => no possible to be found
+        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
+
+        # Test Lead sync
+
+        # Person has been updated
+        synced_person = saved_instances['person' + str(lead_to_sync.pipedriveId)]
+        self.assertEquals(rv['status'], 'updated')
+        self.assertEquals(rv['id'], synced_person.id)
+
+        # Test values
+        self.assertEquals(synced_person.name, 'Test Linked Flask Lead')
+        self.assertEquals(synced_person.email, 'lead@testlinkedflask.com')
+        self.assertIsNotNone(synced_person.org_id)
+        self.assertEquals(synced_person.title, 'Accountant')
+        self.assertEquals(synced_person.phone, '1357924680')
+        self.assertEquals(synced_person.inferred_country, 'Spain')
+        self.assertEquals(synced_person.lead_source, 'Product')
+        self.assertEquals(synced_person.owner_id, 1628545)
+        self.assertEquals(synced_person.created_date, '2016-01-02')
+        self.assertEquals(synced_person.state, 'Spain')
+        self.assertEquals(synced_person.city, 'Barcelona')
+        self.assertEquals(synced_person.lead_score, 13)
+        self.assertEquals(synced_person.date_sql, '2016-11-16')
+        self.assertEquals(synced_person.lead_status, 'Prospect')
 
         # Test Organization sync
-#         self.assertEquals(person.organization.name, 'another-flask-company.com')
-#         self.assertEquals(person.organization.country, 'Canada')
+        synced_organization = saved_instances['organization' + str(found_organization.id)]  # Organization has been updated
+
+        # Test values
+        self.assertEquals(synced_organization.name, 'Test Flask Linked Company')
+
+    @mock.patch('sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
+    def test_update_person_in_pipedrive_no_change(self, mock_get_filter, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        setup_get_filter_mock(mock_get_filter, 3)
+
+        lead_to_sync = sync.marketo.Lead(self.mkto, 30)
+
+        # Lead has already been synced
+        self.assertIsNotNone(lead_to_sync.pipedriveId)
+        person_to_sync = sync.pipedrive.Person(self.pd, lead_to_sync.pipedriveId)
+        self.assertIsNotNone(person_to_sync.id)
+
+        company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
+        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        self.assertIsNotNone(found_organization.id)  # Organization exists
+        found_organization = sync.pipedrive.Organization(self.pd, company_to_sync.id, 'marketoid')
+        self.assertIsNotNone(found_organization.id)  # Organization has been found with marketo id
+
+        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
         # Test return data
-        self.assertEquals(ret['status'], 'created')
+        self.assertEquals(rv['status'], 'skipped')
 
-    def test_create_lead_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_lead_in_marketo(10)
+    def test_create_person_in_pipedrive_and_company_from_form_fields_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        lead_to_sync = sync.marketo.Lead(self.mkto, 40)
+        self.assertIsNone(lead_to_sync.pipedriveId)  # Pipedrive id is empty
+        self.assertIsNone(lead_to_sync.externalCompanyId)
 
-        lead_id = saved_instances['person10'].marketoid
-        self.assertIsNotNone(lead_id)  # Marketo id has been updated
+        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
-        lead = saved_instances['lead' + str(ret['id'])]
-        self.assertIsNotNone(lead)  # Lead has been created
-        self.assertIsNotNone(lead.id)
-        self.assertEquals(lead.firstName, 'Test Flask')
-        self.assertEquals(lead.lastName, 'Person')
-        self.assertEquals(lead.email, 'person@testflask.com')
-        self.assertIsNotNone(lead.externalCompanyId)
-        self.assertEquals(lead.title, 'Dev')
-        self.assertEquals(lead.phone, '5647382910')
-        self.assertEquals(lead.leadSource, 'Direct Traffic')
-        self.assertEquals(lead.conversicaLeadOwnerEmail, 'hjonin@nuxeo.com')
-        self.assertEquals(lead.conversicaLeadOwnerFirstName, 'Helene')
-        self.assertEquals(lead.conversicaLeadOwnerLastName, 'Jonin')
-        self.assertEquals(lead.leadStatus, 'Disqualified')
+        # Test Lead sync
+        synced_lead = saved_instances['lead' + str(lead_to_sync.id)]
+        self.assertIsNotNone(synced_lead.pipedriveId)  # Pipedrive id has been updated
+
+        # Person has been created
+        synced_person = saved_instances['person' + str(rv['id'])]
+        self.assertIsNotNone(synced_person.id)
+        self.assertEquals(rv['status'], 'created')
+
+        # Test values
+        self.assertEquals(synced_person.name, 'Test Other Flask Lead')
+        self.assertEquals(synced_person.email, 'lead2@testflask.com')
+
+        created_company = saved_instances['company15']  # Company has been created
+        self.assertIsNotNone(created_company.id)
+        self.assertIsNotNone(synced_lead.externalCompanyId)  # External company id has been updated
+
+        # Organization cannot be created because company not actually saved
+        # self.assertIsNotNone(synced_person.org_id)
+        # self.assertEquals(synced_person.organization.name, 'another-flask-company.com')
+        # self.assertEquals(synced_person.organization.country, 'Canada')
+
+    def test_create_lead_and_company_from_organization_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        person_to_sync = sync.pipedrive.Person(self.pd, 10)
+        self.assertIsNone(person_to_sync.marketoid)  # Marketo id is empty
+
+        organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
+        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        self.assertIsNone(found_company.id)  # Company does not exist
+
+        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+
+        # Test Person sync
+        synced_person = saved_instances['person' + str(person_to_sync.id)]
+        self.assertIsNotNone(synced_person.marketoid)  # Marketo id has been updated
+
+        # Lead has been created
+        synced_lead = saved_instances['lead' + str(rv['id'])]
+        self.assertIsNotNone(synced_lead.id)
+        self.assertEquals(rv['status'], 'created')
+
+        # Test values
+        self.assertEquals(synced_lead.firstName, 'Test Flask')
+        self.assertEquals(synced_lead.lastName, 'Person')
+        self.assertEquals(synced_lead.email, 'person@testflask.com')
+        self.assertIsNotNone(synced_lead.externalCompanyId)
+        self.assertEquals(synced_lead.title, 'Dev')
+        self.assertEquals(synced_lead.phone, '5647382910')
+        self.assertEquals(synced_lead.leadSource, 'Direct Traffic')
+        self.assertEquals(synced_lead.conversicaLeadOwnerEmail, 'hjonin@nuxeo.com')
+        self.assertEquals(synced_lead.conversicaLeadOwnerFirstName, 'Helene')
+        self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
+        self.assertEquals(synced_lead.leadStatus, 'Disqualified')
 
         # Test Company sync
-        company = saved_instances['company' + str(15)]
-        self.assertIsNotNone(company)  # Company has been created
-        self.assertEquals(company.company, 'Test Flask Organization')
-        self.assertEquals(company.billingStreet, 'Rue Mouffetard')
-        self.assertEquals(company.billingCity, u'Paris')
-        self.assertEquals(company.billingState, 'France')
-        self.assertEquals(company.billingCountry, 'France')
-        self.assertEquals(company.mainPhone, '0192837465')
-        self.assertEquals(company.industry, 'Consulting')
-        self.assertEquals(company.annualRevenue, 2000000)
-        self.assertEquals(company.numberOfEmployees, 20)
+        synced_company = saved_instances['company' + str(15)]  # Company has been created
 
-        # Test return data
-        self.assertEquals(ret['status'], 'created')
+        # Test values
+        self.assertEquals(synced_company.company, 'Test Flask Organization')
+        self.assertEquals(synced_company.billingStreet, 'Rue Mouffetard')
+        self.assertEquals(synced_company.billingCity, u'Paris')
+        self.assertEquals(synced_company.billingState, 'France')
+        self.assertEquals(synced_company.billingCountry, 'France')
+        self.assertEquals(synced_company.mainPhone, '0192837465')
+        self.assertEquals(synced_company.industry, 'Consulting')
+        self.assertEquals(synced_company.annualRevenue, 2000000)
+        self.assertEquals(synced_company.numberOfEmployees, 20)
 
-    def test_update_lead_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_lead_in_marketo(20)
+    def test_update_lead_and_linked_company_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        person_to_sync = sync.pipedrive.Person(self.pd, 20)
 
-        lead = saved_instances['lead20']
-        self.assertEquals(lead.firstName, 'Test Linked Flask')  # Lead has been updated
-        self.assertEquals(lead.lastName, 'Person')
-        self.assertEquals(lead.email, 'person@testlinkedflask.com')
-        self.assertEquals(lead.externalCompanyId, 'pd-organization-20')
-        self.assertEquals(lead.title, 'Consultant')
-        self.assertEquals(lead.phone, '2468013579')
-        self.assertEquals(lead.leadSource, 'Web Referral')
-        self.assertEquals(lead.conversicaLeadOwnerEmail, 'hjonin@nuxeo.com')
-        self.assertEquals(lead.conversicaLeadOwnerFirstName, 'Helene')
-        self.assertEquals(lead.conversicaLeadOwnerLastName, 'Jonin')
-        self.assertEquals(lead.leadStatus, 'MQL')
+        # Person has already been synced
+        self.assertIsNotNone(person_to_sync.marketoid)
+        lead_to_sync = sync.marketo.Lead(self.mkto, person_to_sync.marketoid)
+        self.assertIsNotNone(lead_to_sync.id)
+
+        organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
+        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        self.assertIsNotNone(found_company.id)  # Company exists
+        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        self.assertIsNotNone(found_company.id)  # Company has been found with marketo id
+
+        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+
+        # Test Person sync
+
+        # Lead has been updated
+        synced_lead = saved_instances['lead' + str(person_to_sync.marketoid)]
+        self.assertEquals(rv['status'], 'updated')
+        self.assertEquals(rv['id'], synced_lead.id)
+
+        # Test values
+        self.assertEquals(synced_lead.firstName, 'Test Linked Flask')
+        self.assertEquals(synced_lead.lastName, 'Person')
+        self.assertEquals(synced_lead.email, 'person@testlinkedflask.com')
+        self.assertEquals(synced_lead.externalCompanyId, 'pd-organization-20')
+        self.assertEquals(synced_lead.title, 'Consultant')
+        self.assertEquals(synced_lead.phone, '2468013579')
+        self.assertEquals(synced_lead.leadSource, 'Web Referral')
+        self.assertEquals(synced_lead.conversicaLeadOwnerEmail, 'hjonin@nuxeo.com')
+        self.assertEquals(synced_lead.conversicaLeadOwnerFirstName, 'Helene')
+        self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
+        self.assertEquals(synced_lead.leadStatus, 'MQL')
 
         # Test Company sync
-        company = saved_instances['company20']
-        self.assertEquals(company.company, 'Test Flask Linked Organization')  # Company has been updated
+        synced_company = saved_instances['company' + str(found_company.id)]  # Company has been updated
 
-        # Test return data
-        self.assertEquals(ret['status'], 'updated')
+        # Test values
+        self.assertEquals(synced_company.company, 'Test Flask Linked Organization')
 
     def test_update_lead_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_lead_in_marketo(30)
+        person_to_sync = sync.pipedrive.Person(self.pd, 30)
+
+        # Person has already been synced
+        self.assertIsNotNone(person_to_sync.marketoid)
+        lead_to_sync = sync.marketo.Lead(self.mkto, person_to_sync.marketoid)
+        self.assertIsNotNone(lead_to_sync.id)
+
+        organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
+        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        self.assertIsNotNone(found_company.id)  # Company exists
+        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        self.assertIsNotNone(found_company.id)  # Company has been found with marketo id
+
+        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+
         # Test return data
-        self.assertEquals(ret['status'], 'skipped')
+        self.assertEquals(rv['status'], 'skipped')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_opportunity_in_marketo(10)
+        deal_to_sync = sync.pipedrive.Deal(self.pd, 10)
 
-        opportunity = saved_instances['opportunity' + str(ret['opportunity']['id'])]
-        self.assertIsNotNone(opportunity)  # Opportunity has been created
-        self.assertIsNotNone(opportunity.id)
-        self.assertEquals(opportunity.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
-        self.assertEquals(opportunity.name, 'Test Flask Deal')
-        self.assertEquals(opportunity.type, 'New Business')
-        self.assertEquals(opportunity.description, 'Dummy description 1')
-        self.assertEquals(opportunity.lastActivityDate, '2016-11-14')
-        self.assertEquals(opportunity.isClosed, False)
-        self.assertEquals(opportunity.isWon, False)
-        self.assertEquals(opportunity.amount, 10000)
-        self.assertIsNone(opportunity.closeDate)  # Not closed -> no close date
-        self.assertEquals(opportunity.stage, 'Sales Qualified Lead')
-        self.assertIsNone(opportunity.fiscalQuarter)  # Not closed -> no close date
-        self.assertIsNone(opportunity.fiscalYear)  # Not closed -> no close date
+        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
 
-        role = saved_instances['role' + str(ret['role']['id'])]
-        self.assertIsNotNone(role)  # Role has been created
-        self.assertIsNotNone(role.id)
-        self.assertEquals(role.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
-        self.assertEquals(role.leadId, '20')
-        self.assertEquals(role.role, 'Default Role')
+        # Test Deal sync
 
-        # Test return data
-        self.assertEquals(ret['opportunity']['status'], 'created')
+        # Opportunity has been created
+        synced_opportunity = saved_instances['opportunity' + str(rv['opportunity']['id'])]
+        self.assertIsNotNone(synced_opportunity.id)
+        self.assertEquals(rv['opportunity']['status'], 'created')
+
+        # Test values
+        self.assertEquals(synced_opportunity.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
+        self.assertEquals(synced_opportunity.name, 'Test Flask Deal')
+        self.assertEquals(synced_opportunity.type, 'New Business')
+        self.assertEquals(synced_opportunity.description, 'Dummy description 1')
+        self.assertEquals(synced_opportunity.lastActivityDate, '2016-11-14')
+        self.assertEquals(synced_opportunity.isClosed, False)
+        self.assertEquals(synced_opportunity.isWon, False)
+        self.assertEquals(synced_opportunity.amount, 10000)
+        self.assertIsNone(synced_opportunity.closeDate)  # Not closed -> no close date
+        self.assertEquals(synced_opportunity.stage, 'Sales Qualified Lead')
+        self.assertIsNone(synced_opportunity.fiscalQuarter)  # Not closed -> no close date
+        self.assertIsNone(synced_opportunity.fiscalYear)  # Not closed -> no close date
+
+        # Role has been created
+        synced_role = saved_instances['role' + str(rv['role']['id'])]
+        self.assertIsNotNone(synced_role.id)
+
+        # Test values
+        self.assertEquals(synced_role.externalOpportunityId, sync.marketo.compute_external_id('deal', 10))
+        self.assertEquals(synced_role.leadId, '20')
+        self.assertEquals(synced_role.role, 'Default Role')
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_opportunity_in_marketo(20)
+        deal_to_sync = sync.pipedrive.Deal(self.pd, 20)
 
+        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
+
+        # Test Deal sync
+
+        # Opportunity has been updated
         opportunity = saved_instances['opportunity6a38a3bd-edce-4d86-bcc0-83f1feef8997']
-        self.assertEquals(opportunity.name, 'Test Flask Linked Deal')  # Opportunity has been updated
+        self.assertEquals(rv['opportunity']['status'], 'updated')
+        self.assertEquals(rv['opportunity']['id'], opportunity.id)
+
+        # Test values
+        self.assertEquals(opportunity.name, 'Test Flask Linked Deal')
         self.assertEquals(opportunity.type, 'Consulting')
         self.assertEquals(opportunity.description, 'Dummy description 2')
         self.assertEquals(opportunity.lastActivityDate, '2016-11-15')
@@ -422,30 +557,45 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(opportunity.fiscalQuarter, 4)
         self.assertEquals(opportunity.fiscalYear, 2016)
 
-        # Test return data
-        self.assertEquals(ret['opportunity']['status'], 'updated')
-
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
     def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_opportunity_in_marketo(30)
+        deal_to_sync = sync.pipedrive.Deal(self.pd, 30)
+
+        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
 
         # Test return data
-        self.assertEquals(ret['opportunity']['status'], 'skipped')
+        self.assertEquals(rv['opportunity']['status'], 'skipped')
 
     def test_update_company_in_marketo_find_by_name_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_or_update_company_in_marketo(50)
+        organization_to_sync = sync.pipedrive.Organization(self.pd, 50)
 
-#         updated_company = saved_instances['company50']  # Not saved
+        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        self.assertIsNotNone(found_company.id)  # Company exists
+        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        self.assertIsNone(found_company.id)  # Company has not been found with marketo id
+        found_company = sync.marketo.Company(sync.get_marketo_client(),
+                                             sync.marketo.compute_external_id('organization', organization_to_sync.id),
+                                             'externalCompanyId')
+        self.assertIsNone(found_company.id)  # Company has not been found with external company id
+        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.name, 'company')
+        self.assertIsNotNone(found_company.id)  # Company has been found with name
+
+        rv = tasks.create_or_update_company_in_marketo(organization_to_sync.id)
 
         # Test return data
-        self.assertEquals(ret['status'], 'skipped')
+        self.assertEquals(rv['status'], 'skipped')
 
     def test_create_activity_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        ret = tasks.create_activity_in_pipedrive(20)
+        lead_to_sync = sync.marketo.Lead(self.mkto, 20)
 
-        activity = saved_instances['activity' + str(ret['id'])]
-        self.assertIsNotNone(activity)  # Person has been created
+        rv = tasks.create_activity_in_pipedrive(lead_to_sync.id)
+
+        # Activity has been created
+        activity = saved_instances['activity' + str(rv['id'])]
         self.assertIsNotNone(activity.id)
+        self.assertEquals(rv['status'], 'created')
+
+        # Test values
         self.assertEquals(activity.user_id, 1628545)
         self.assertEquals(activity.person_id, 20)
         self.assertEquals(activity.type, 'call')
@@ -453,5 +603,5 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(activity.note, 'Did something interesting on 12/19/2016')
         self.assertEquals(activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
 
-        # Test return data
-        self.assertEquals(ret['status'], 'created')
+if __name__ == '__main__':
+    unittest.main()
