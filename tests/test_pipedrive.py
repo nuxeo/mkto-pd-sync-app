@@ -120,6 +120,13 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created person
         person.delete()
 
+    def test_save_person_deleted(self):
+        person = sync.pipedrive.Person(self.pd, 65023, 'id', False)
+        person.id = 65023
+        person.name = 'Test Person Undefined'
+        with self.assertRaises(sync.common.SavingError):
+            person.save()
+
     def test_update_person(self):
         # Get person first
         person = sync.pipedrive.Person(self.pd, 63080)

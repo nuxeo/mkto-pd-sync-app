@@ -235,12 +235,19 @@ class Entity:
         """
         Save (i.e. create or update) entity.
         """
-        data = self._client.put_entity_data(self.entity_name, self.entity_data, self.id)
-        if data:
-            self.init(data)
-        else:
-            raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
-                              ' with id=%s' if self.id is not None else '')
+        try:
+            data = self._client.put_entity_data(self.entity_name, self.entity_data, self.id)
+            if data:
+                self.init(data)
+            else:
+                raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
+                                  ' with id=%s' if self.id is not None else '')
+        except HTTPError as e:
+            if e.response.status_code == 400:
+                raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
+                                  ' with id=%s' if self.id is not None else '')
+            else:
+                raise e
 
     def delete(self):
         """
