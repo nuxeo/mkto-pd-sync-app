@@ -7,7 +7,7 @@ from .context import sync
 class PipedriveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.pd = sync.pipedrive.PipedriveClient(sync.get_config('PD_API_TOKEN'))
+        cls.pd = sync.pipedrive.PipedriveClient(sync.app.config['PD_API_TOKEN'])
 
     def test_load_person(self):
         person = sync.pipedrive.Person(self.pd, 63080)

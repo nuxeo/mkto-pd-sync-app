@@ -3,8 +3,10 @@ from functools import wraps
 from flask import request
 from google.appengine.ext import ndb
 
+from .common import Error
 
-class InvalidUsage(Exception):
+
+class InvalidUsage(Error):
     """Exception raised for errors in the authentication.
     """
     status_code = 400  # "Bad Request" HTTP response code

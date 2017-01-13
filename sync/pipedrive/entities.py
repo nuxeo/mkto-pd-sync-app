@@ -145,7 +145,7 @@ class Entity:
 
                 setattr(self, field_key, None)  # Initialize field
         else:
-            raise InitializationError('Load fields', 'No data returned for entity=%s', self.entity_name)
+            raise InitializationError('Load fields', 'No data returned for entity={}', self.entity_name)
 
     def _load(self, id_, id_field):
         """
@@ -242,12 +242,12 @@ class Entity:
             if data:
                 self.init(data)
             else:
-                raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
-                                  ' with id=%s' if self.id is not None else '')
+                raise SavingError('Save entity', 'No data returned for entity={}{}', self.entity_name,
+                                  ' with id=%s' % self.id if self.id else '')
         except HTTPError as e:
             if e.response.status_code == 400:
-                raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
-                                  ' with id=%s' if self.id is not None else '')
+                raise SavingError('Save entity', 'No data returned for entity={}{}', self.entity_name,
+                                  ' with id=%s' % self.id if self.id else '')
             else:
                 raise e
 
@@ -259,8 +259,8 @@ class Entity:
         if data:
             return data['id']
         else:
-            raise SavingError('Delete entity', 'No data returned for entity=%s%s', self.entity_name,
-                              ' with id=%s' if self.id is not None else '')
+            raise SavingError('Delete entity', 'No data returned for entity={}{}', self.entity_name,
+                              ' with id=%s' % self.id if self.id else '')
         return None
 
 

@@ -1,5 +1,5 @@
 # coding=UTF-8
-from .context import sync, tasks
+from .context import sync
 
 import datetime
 import json
@@ -174,12 +174,12 @@ def setup_get_filter_mock(mock_get_filter, filter_id):
 @mock.patch.object(sync.pipedrive.Person, 'save', mock_save_person)
 @mock.patch.object(sync.pipedrive.Organization, 'save', mock_save_organization)
 @mock.patch.object(sync.pipedrive.Activity, 'save', mock_save_activity)
-@mock.patch('sync.marketo.MarketoClient._get_auth_token')
+@mock.patch('sync.sync.marketo.MarketoClient._get_auth_token')
 class SyncTestCase(unittest.TestCase):
-    AUTHENTICATION_PARAM = '?api_key=' + sync.get_config('FLASK_AUTHORIZED_KEYS')['test']
+    AUTHENTICATION_PARAM = '?api_key=' + sync.app.config['FLASK_AUTHORIZED_KEYS']['test']
 
     @classmethod
-    @mock.patch('sync.marketo.MarketoClient._get_auth_token')
+    @mock.patch('sync.sync.marketo.MarketoClient._get_auth_token')
     def setUpClass(cls, mock_mkto_get_token):
         cls.context = sync.app.app_context()
         cls.context.push()
@@ -218,15 +218,6 @@ class SyncTestCase(unittest.TestCase):
             data = json.loads(rv.data)
             self.assertEqual(data['message'], 'Authentication required')
 
-    @mock.patch('sync.views.enqueue_task')
-    def test_internal_server_error(self, mock_sync_lead, mock_mkto_get_token, mock_put, mock_post, mock_get):
-        mock_sync_lead.side_effect = Exception('Boom!')
-        with sync.app.test_client() as c:
-            rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
-            self.assertEqual(rv.status_code, 500)
-            data = json.loads(rv.data)
-            self.assertEqual(data['message'], 'Boom!')
-
     def test_flow(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         with sync.app.test_client() as c:
             rv = c.post('/marketo/lead/1' + self.AUTHENTICATION_PARAM)
@@ -244,10 +235,10 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNone(lead_to_sync.pipedriveId)  # Pipedrive id is empty
 
         company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
-        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        found_organization = sync.tasks.find_organization_in_pipedrive(company_to_sync)
         self.assertIsNone(found_organization.id)  # Organization does not exist
 
-        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
+        rv = sync.tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
         # Test Lead sync
         synced_lead = saved_instances['lead' + str(lead_to_sync.id)]
@@ -289,7 +280,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_organization.number_of_employees, 10)
         self.assertEquals(synced_organization.marketoid, '10')
 
-    @mock.patch('sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
+    @mock.patch('sync.sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
     def test_update_person_and_linked_organization_in_pipedrive(self, mock_get_filter, mock_mkto_get_token, mock_put, mock_post, mock_get):
         setup_get_filter_mock(mock_get_filter, 2)
 
@@ -301,12 +292,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(person_to_sync.id)
 
         company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
-        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        found_organization = sync.tasks.find_organization_in_pipedrive(company_to_sync)
         self.assertIsNotNone(found_organization.id)  # Organization exists
         found_organization = sync.pipedrive.Organization(self.pd, company_to_sync.id, 'marketoid')
         self.assertIsNotNone(found_organization.id)  # Organization has been found with marketo id
 
-        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
+        rv = sync.tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
         # Test Lead sync
 
@@ -337,7 +328,7 @@ class SyncTestCase(unittest.TestCase):
         # Test values
         self.assertEquals(synced_organization.name, 'Test Flask Linked Company')
 
-    @mock.patch('sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
+    @mock.patch('sync.sync.pipedrive.PipedriveClient.get_organization_marketoid_filter')
     def test_update_person_in_pipedrive_no_change(self, mock_get_filter, mock_mkto_get_token, mock_put, mock_post, mock_get):
         setup_get_filter_mock(mock_get_filter, 3)
 
@@ -349,12 +340,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(person_to_sync.id)
 
         company_to_sync = sync.marketo.Company(self.mkto, lead_to_sync.externalCompanyId, 'externalCompanyId')
-        found_organization = tasks.find_organization_in_pipedrive(company_to_sync)
+        found_organization = sync.tasks.find_organization_in_pipedrive(company_to_sync)
         self.assertIsNotNone(found_organization.id)  # Organization exists
         found_organization = sync.pipedrive.Organization(self.pd, company_to_sync.id, 'marketoid')
         self.assertIsNotNone(found_organization.id)  # Organization has been found with marketo id
 
-        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
+        rv = sync.tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
         # Test return data
         self.assertEquals(rv['status'], 'skipped')
@@ -364,7 +355,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNone(lead_to_sync.pipedriveId)  # Pipedrive id is empty
         self.assertIsNone(lead_to_sync.externalCompanyId)
 
-        rv = tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
+        rv = sync.tasks.create_or_update_person_in_pipedrive(lead_to_sync.id)
 
         # Test Lead sync
         synced_lead = saved_instances['lead' + str(lead_to_sync.id)]
@@ -393,10 +384,10 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNone(person_to_sync.marketoid)  # Marketo id is empty
 
         organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
-        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        found_company = sync.tasks.find_company_in_marketo(organization_to_sync)
         self.assertIsNone(found_company.id)  # Company does not exist
 
-        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+        rv = sync.tasks.create_or_update_lead_in_marketo(person_to_sync.id)
 
         # Test Person sync
         synced_person = saved_instances['person' + str(person_to_sync.id)]
@@ -443,12 +434,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(lead_to_sync.id)
 
         organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
-        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        found_company = sync.tasks.find_company_in_marketo(organization_to_sync)
         self.assertIsNotNone(found_company.id)  # Company exists
-        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        found_company = sync.marketo.Company(self.mkto, organization_to_sync.marketoid)
         self.assertIsNotNone(found_company.id)  # Company has been found with marketo id
 
-        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+        rv = sync.tasks.create_or_update_lead_in_marketo(person_to_sync.id)
 
         # Test Person sync
 
@@ -485,12 +476,12 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(lead_to_sync.id)
 
         organization_to_sync = sync.pipedrive.Organization(self.pd, person_to_sync.org_id)
-        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        found_company = sync.tasks.find_company_in_marketo(organization_to_sync)
         self.assertIsNotNone(found_company.id)  # Company exists
-        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        found_company = sync.marketo.Company(self.mkto, organization_to_sync.marketoid)
         self.assertIsNotNone(found_company.id)  # Company has been found with marketo id
 
-        rv = tasks.create_or_update_lead_in_marketo(person_to_sync.id)
+        rv = sync.tasks.create_or_update_lead_in_marketo(person_to_sync.id)
 
         # Test return data
         self.assertEquals(rv['status'], 'skipped')
@@ -499,7 +490,7 @@ class SyncTestCase(unittest.TestCase):
     def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 10)
 
-        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
+        rv = sync.tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
 
         # Test Deal sync
 
@@ -535,7 +526,7 @@ class SyncTestCase(unittest.TestCase):
     def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 20)
 
-        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
+        rv = sync.tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
 
         # Test Deal sync
 
@@ -561,7 +552,7 @@ class SyncTestCase(unittest.TestCase):
     def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 30)
 
-        rv = tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
+        rv = sync.tasks.create_or_update_opportunity_in_marketo(deal_to_sync.id)
 
         # Test return data
         self.assertEquals(rv['opportunity']['status'], 'skipped')
@@ -569,18 +560,17 @@ class SyncTestCase(unittest.TestCase):
     def test_update_company_in_marketo_find_by_name_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         organization_to_sync = sync.pipedrive.Organization(self.pd, 50)
 
-        found_company = tasks.find_company_in_marketo(organization_to_sync)
+        found_company = sync.tasks.find_company_in_marketo(organization_to_sync)
         self.assertIsNotNone(found_company.id)  # Company exists
-        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.marketoid)
+        found_company = sync.marketo.Company(self.mkto, organization_to_sync.marketoid)
         self.assertIsNone(found_company.id)  # Company has not been found with marketo id
-        found_company = sync.marketo.Company(sync.get_marketo_client(),
-                                             sync.marketo.compute_external_id('organization', organization_to_sync.id),
-                                             'externalCompanyId')
+        found_company = sync.marketo.Company(self.mkto, sync.marketo.compute_external_id('organization', organization_to_sync.id),
+                                        'externalCompanyId')
         self.assertIsNone(found_company.id)  # Company has not been found with external company id
-        found_company = sync.marketo.Company(sync.get_marketo_client(), organization_to_sync.name, 'company')
+        found_company = sync.marketo.Company(self.mkto, organization_to_sync.name, 'company')
         self.assertIsNotNone(found_company.id)  # Company has been found with name
 
-        rv = tasks.create_or_update_company_in_marketo(organization_to_sync.id)
+        rv = sync.tasks.create_or_update_company_in_marketo(organization_to_sync.id)
 
         # Test return data
         self.assertEquals(rv['status'], 'skipped')
@@ -588,7 +578,7 @@ class SyncTestCase(unittest.TestCase):
     def test_create_activity_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         lead_to_sync = sync.marketo.Lead(self.mkto, 20)
 
-        rv = tasks.create_activity_in_pipedrive(lead_to_sync.id)
+        rv = sync.tasks.create_activity_in_pipedrive(lead_to_sync.id)
 
         # Activity has been created
         activity = saved_instances['activity' + str(rv['id'])]

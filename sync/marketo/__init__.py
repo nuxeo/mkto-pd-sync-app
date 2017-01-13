@@ -16,6 +16,3 @@ except ImportError:
             pass
 
 logging.getLogger(__name__).addHandler(NullHandler())
-
-# Disable propagation of logged events to allow module level configuration.
-logging.getLogger(__name__).propagate = False

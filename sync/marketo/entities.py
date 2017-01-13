@@ -69,7 +69,7 @@ class Entity:
                 self._fields.append(field['name'])
                 setattr(self, field['name'], None)  # Initialize field
         else:
-            raise InitializationError('Load fields', 'No data returned for entity=%s', self.entity_name)
+            raise InitializationError('Load fields', 'No data returned for entity={}', self.entity_name)
 
     def _load(self, id_, id_field):
         """
@@ -111,8 +111,8 @@ class Entity:
         if data:
             self.init(data)
         else:
-            raise SavingError('Save entity', 'No data returned for entity=%s%s', self.entity_name,
-                              ' with id=%s' if self.id is not None else '')
+            raise SavingError('Save entity', 'No data returned for entity={}{}', self.entity_name,
+                              ' with id=%s' % self.id if self.id else '')
 
     def delete(self, id_field=None):
         """
@@ -138,7 +138,7 @@ class Lead(Entity):
                 setattr(self, name, None)  # Initialize field
                 self._id_field = 'id'  # Manually set id field
         else:
-            raise InitializationError('Load fields', 'No data returned for entity=%s', self.entity_name)
+            raise InitializationError('Load fields', 'No data returned for entity={}', self.entity_name)
 
     @property
     def _entity_fields_to_update(self):

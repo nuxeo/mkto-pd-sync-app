@@ -1,6 +1,6 @@
 import logging
 
-from .errors import InitializationError, SavingError
+from .errors import Error, InitializationError, SavingError
 from .util import memoize, simple_pluralize
 
 # Set default logging handler to avoid "No handler found" warnings.

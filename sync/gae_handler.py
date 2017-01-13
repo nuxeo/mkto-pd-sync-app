@@ -2,7 +2,20 @@ from datetime import datetime
 from flask import Flask, jsonify, request
 from google.appengine.ext import ndb
 
+from .common import Error
+
 gae_app = Flask(__name__)
+
+
+@gae_app.errorhandler(Error)
+def handle_internal_server_error(error):
+    gae_app.logger.error('%s: %s', error.__class__.__name__, error)
+    response = jsonify({
+        'status': 'error',
+        'message': error.message
+    })
+    response.status_code = 500
+    return response
 
 
 @gae_app.route('/task/<string:task_name>', methods=['POST'])

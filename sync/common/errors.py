@@ -1,7 +1,12 @@
 class Error(Exception):
     """Base class for exceptions in this module.
     """
-    pass
+    def __init__(self, title, message, *data):
+        self.title = title
+        self.message = message.format(*data)
+ 
+    def __str__(self):
+        return '{}: {}'.format(self.title, self.message)
 
 
 class InitializationError(Error):

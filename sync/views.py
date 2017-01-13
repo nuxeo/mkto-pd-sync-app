@@ -2,33 +2,33 @@ from flask import jsonify, request
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
-import sync
+from sync import app
 from .util import authenticate, EnqueuedTask
 
 
-@sync.app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/marketo/lead/<int:lead_id>', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_lead(lead_id):
     rv = enqueue_task('create_or_update_person_in_pipedrive', {'id': lead_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/marketo/lead/<int:lead_pipedrive_id>/delete', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/marketo/lead/<int:lead_pipedrive_id>/delete', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_lead_delete(lead_pipedrive_id):
     rv = enqueue_task('delete_person_in_pipedrive', {'id': lead_pipedrive_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/person/<int:person_id>', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_person(person_id):
     rv = enqueue_task('create_or_update_lead_in_marketo', {'id': person_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/person', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/person', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_person_with_params():
     params = request.get_json()
     if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
@@ -37,22 +37,22 @@ def sync_person_with_params():
             rv = enqueue_task('create_or_update_lead_in_marketo', {'id': person_id})
         except ValueError:
             message = 'Incorrect id=%s' % str(params['current']['id'])
-            sync.get_logger().error(message)
+            app.logger.error(message)
             rv = {'error': message}
     else:
         rv = {}
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/person/<int:person_marketo_id>/delete', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/person/<int:person_marketo_id>/delete', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_person_delete(person_marketo_id):
     rv = enqueue_task('delete_lead_in_marketo', {'id': person_marketo_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/person/delete', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/person/delete', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_person_delete_with_params():
     params = request.get_json()
     # 9a9714c55a34f5faf2956584040ca245b7ab641b = marketo id hash key
@@ -64,22 +64,22 @@ def sync_person_delete_with_params():
             rv = enqueue_task('delete_lead_in_marketo', {'id': person_marketo_id})
         except ValueError:
             message = 'Incorrect marketo_id=%s' % str(params['previous']['9a9714c55a34f5faf2956584040ca245b7ab641b'])
-            sync.get_logger().error(message)
+            app.logger.error(message)
             rv = {'error': message}
     else:
         rv = {}
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/organization/<int:organization_id>', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/organization/<int:organization_id>', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_organization(organization_id):
     rv = enqueue_task('create_or_update_company_in_marketo', {'id': organization_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/organization', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/organization', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_organization_with_params():
     params = request.get_json()
     if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
@@ -88,22 +88,22 @@ def sync_organization_with_params():
             rv = enqueue_task('create_or_update_company_in_marketo', {'id': organization_id})
         except ValueError:
             message = 'Incorrect id=%s' % str(params['current']['id'])
-            sync.get_logger().error(message)
+            app.logger.error(message)
             rv = {'error': message}
     else:
         rv = {}
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/deal/<int:deal_id>', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_deal(deal_id):
     rv = enqueue_task('create_or_update_opportunity_in_marketo', {'id': deal_id})
     return jsonify(**rv)
 
 
-@sync.app.route('/pipedrive/deal', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/pipedrive/deal', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_deal_with_params():
     params = request.get_json()
     if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
@@ -112,15 +112,15 @@ def sync_deal_with_params():
             rv = enqueue_task('create_or_update_opportunity_in_marketo', {'id': deal_id})
         except ValueError:
             message = 'Incorrect id=%s' % str(params['current']['id'])
-            sync.get_logger().error(message)
+            app.logger.error(message)
             rv = {'error': message}
     else:
         rv = {}
     return jsonify(**rv)
 
 
-@sync.app.route('/marketo/lead/<int:lead_id>/activity', methods=['POST'])
-@authenticate(authorized_keys=sync.get_config('FLASK_AUTHORIZED_KEYS'))
+@app.route('/marketo/lead/<int:lead_id>/activity', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_lead_activity(lead_id):
     rv = enqueue_task('create_activity_in_pipedrive', {'id': lead_id})
     return jsonify(**rv)
