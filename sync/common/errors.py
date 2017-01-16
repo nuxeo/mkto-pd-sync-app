@@ -1,7 +1,7 @@
 class Error(Exception):
     """Base class for exceptions in this module.
     """
-    def __init__(self, title, message, *data):
+    def __init__(self, title, message='', *data):
         self.title = title
         self.message = message.format(*data)
  

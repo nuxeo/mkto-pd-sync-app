@@ -51,4 +51,3 @@ class EnqueuedTask(ndb.Model):
     name = ndb.StringProperty()
     params = ndb.JsonProperty(indexed=True)
     ata = ndb.DateTimeProperty()
-    task_name = ndb.StringProperty()  # The generated app engine unique name, for deletion

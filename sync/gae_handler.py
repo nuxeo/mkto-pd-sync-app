@@ -1,15 +1,18 @@
+import logging
+
 from datetime import datetime
 from flask import Flask, jsonify, request
 from google.appengine.ext import ndb
 
 from .common import Error
+from .util import EnqueuedTask
 
 gae_app = Flask(__name__)
 
 
 @gae_app.errorhandler(Error)
 def handle_internal_server_error(error):
-    gae_app.logger.error('%s: %s', error.__class__.__name__, error)
+    logging.getLogger('sync').error('%s: %s', error.__class__.__name__, error)
     response = jsonify({
         'status': 'error',
         'message': error.message
@@ -21,7 +24,7 @@ def handle_internal_server_error(error):
 @gae_app.route('/task/<string:task_name>', methods=['POST'])
 def sync_handler(task_name):
     # Get task first in case it is deleted in the app while running
-    enqueued_task_key = ndb.Key(urlsafe=request.form.get('task_urlsafe'))
+    enqueued_task_key = ndb.Key(EnqueuedTask, request.headers.get('X-AppEngine-TaskName'))
     enqueued_task = enqueued_task_key.get()
     # Acknowledge the task: set its arrival time
     enqueued_task.ata = datetime.utcnow()

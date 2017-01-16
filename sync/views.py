@@ -134,7 +134,8 @@ def enqueue_task(task_name, params):
     :return: A custom response object containing a message
     """
     # Search for the task in the datastore
-    already_enqueued_task = EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params)).get()
+    already_enqueued_task = EnqueuedTask.query(ndb.AND(EnqueuedTask.name == task_name, EnqueuedTask.params == params))\
+        .get()
     if already_enqueued_task and not already_enqueued_task.ata:  # Enqueued and never running
         response = {'message': 'Task already enqueued.'}
 
@@ -143,24 +144,23 @@ def enqueue_task(task_name, params):
             # Enqueued but running or failed, how to make the difference?
             try:
                 # Delete it in any case
-                already_enqueued_task.key.delete()  # It may delete a running task
-                q = taskqueue.Queue('default')
-                t = taskqueue.Task(name=already_enqueued_task.task_name)
-                q.delete_tasks(t)
+                already_enqueued_task_key = already_enqueued_task.key
+                already_enqueued_task_id = already_enqueued_task_key.id()
+                already_enqueued_task_key.delete()  # It may delete a running task
+                queue = taskqueue.Queue('default')
+                former_task = taskqueue.Task(name=already_enqueued_task_id)
+                queue.delete_tasks(former_task)
             except taskqueue.BadTaskStateError:
                 pass
-        # Store the task to prevent from duplicates
-        enqueued_task = EnqueuedTask(name=task_name, params=params)
-        enqueued_task.put()
 
         # Create and enqueue App Engine task
-        params.update({'task_urlsafe': enqueued_task.key.urlsafe()})
         task = taskqueue.add(
             url='/task/%s' % task_name,
             target='worker',
             params=params)
 
-        enqueued_task.task_name = task.name
+        # Store the task to prevent from duplicates
+        enqueued_task = EnqueuedTask(name=task_name, params=params, id=task.name)
         enqueued_task.put()
 
         response = {'message': 'Task {} enqueued, ETA {}.'.format(task.name, task.eta)}
