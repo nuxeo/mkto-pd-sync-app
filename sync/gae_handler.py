@@ -27,8 +27,9 @@ def sync_handler(task_name):
     enqueued_task_key = ndb.Key(EnqueuedTask, request.headers.get('X-AppEngine-TaskName'))
     enqueued_task = enqueued_task_key.get()
     # Acknowledge the task: set its arrival time
-    enqueued_task.ata = datetime.utcnow()
-    enqueued_task.put()
+    if enqueued_task:
+        enqueued_task.ata = datetime.utcnow()
+        enqueued_task.put()
 
     id_ = int(request.form.get('id'))
     import tasks
