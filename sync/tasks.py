@@ -4,7 +4,7 @@ import pipedrive
 
 from sync import app, get_marketo_client, get_pipedrive_client
 
-PIPELINE_FILTER_NAME = 'NX Subscription (New and Upsell)'
+PIPELINE_FILTER_NAMES = ['Subscriptions (New and Upsell)', 'Renewals', 'Professional Services']
 
 
 def create_or_update_person_in_pipedrive(lead_id):
@@ -337,7 +337,7 @@ def create_or_update_opportunity_in_marketo(deal_id):
 
         # Filter deals
         pipeline = pipedrive.Pipeline(get_pipedrive_client(), deal.pipeline_id)
-        if pipeline.name == PIPELINE_FILTER_NAME:
+        if pipeline.name in PIPELINE_FILTER_NAMES:
 
             # Opportunity
             opportunity_external_id = marketo.compute_external_id('deal', deal.id)

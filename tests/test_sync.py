@@ -486,7 +486,7 @@ class SyncTestCase(unittest.TestCase):
         # Test return data
         self.assertEquals(rv['status'], 'skipped')
 
-    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
+    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAMES', ['Fake Pipeline', 'Foo'])
     def test_create_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 10)
 
@@ -522,7 +522,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_role.leadId, '20')
         self.assertEquals(synced_role.role, 'Default Role')
 
-    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
+    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAMES', ['Fake Pipeline'])
     def test_update_opportunity_and_role_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 20)
 
@@ -548,7 +548,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(opportunity.fiscalQuarter, 4)
         self.assertEquals(opportunity.fiscalYear, 2016)
 
-    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAME', 'Fake Pipeline')
+    @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAMES', ['Fake Pipeline'])
     def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         deal_to_sync = sync.pipedrive.Deal(self.pd, 30)
 
