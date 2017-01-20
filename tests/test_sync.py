@@ -410,6 +410,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_lead.conversicaLeadOwnerFirstName, 'Helene')
         self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
         self.assertEquals(synced_lead.leadStatus, 'Disqualified')
+        self.assertEqual(synced_lead.leadCountry, 'Germany')
 
         # Test Company sync
         synced_company = saved_instances['company' + str(15)]  # Company has been created
@@ -460,6 +461,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_lead.conversicaLeadOwnerFirstName, 'Helene')
         self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
         self.assertEquals(synced_lead.leadStatus, 'MQL')
+        self.assertEqual(synced_lead.leadCountry, 'United Kingdom')
 
         # Test Company sync
         synced_company = saved_instances['company' + str(found_company.id)]  # Company has been updated
@@ -531,22 +533,22 @@ class SyncTestCase(unittest.TestCase):
         # Test Deal sync
 
         # Opportunity has been updated
-        opportunity = saved_instances['opportunity6a38a3bd-edce-4d86-bcc0-83f1feef8997']
+        synced_opportunity = saved_instances['opportunity6a38a3bd-edce-4d86-bcc0-83f1feef8997']
         self.assertEquals(rv['opportunity']['status'], 'updated')
-        self.assertEquals(rv['opportunity']['id'], opportunity.id)
+        self.assertEquals(rv['opportunity']['id'], synced_opportunity.id)
 
         # Test values
-        self.assertEquals(opportunity.name, 'Test Flask Linked Deal')
-        self.assertEquals(opportunity.type, 'Consulting')
-        self.assertEquals(opportunity.description, 'Dummy description 2')
-        self.assertEquals(opportunity.lastActivityDate, '2016-11-15')
-        self.assertEquals(opportunity.isClosed, True)
-        self.assertEquals(opportunity.isWon, False)
-        self.assertEquals(opportunity.amount, 20000)
-        self.assertEquals(opportunity.closeDate, '2016-11-16')
-        self.assertEquals(opportunity.stage, 'Sales Qualified Lead')
-        self.assertEquals(opportunity.fiscalQuarter, 4)
-        self.assertEquals(opportunity.fiscalYear, 2016)
+        self.assertEquals(synced_opportunity.name, 'Test Flask Linked Deal')
+        self.assertEquals(synced_opportunity.type, 'Consulting')
+        self.assertEquals(synced_opportunity.description, 'Dummy description 2')
+        self.assertEquals(synced_opportunity.lastActivityDate, '2016-11-15')
+        self.assertEquals(synced_opportunity.isClosed, True)
+        self.assertEquals(synced_opportunity.isWon, False)
+        self.assertEquals(synced_opportunity.amount, 20000)
+        self.assertEquals(synced_opportunity.closeDate, '2016-11-16')
+        self.assertEquals(synced_opportunity.stage, 'Sales Qualified Lead')
+        self.assertEquals(synced_opportunity.fiscalQuarter, 4)
+        self.assertEquals(synced_opportunity.fiscalYear, 2016)
 
     @mock.patch.object(sync.tasks, 'PIPELINE_FILTER_NAMES', ['Fake Pipeline'])
     def test_update_opportunity_and_role_in_marketo_no_change(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
@@ -581,17 +583,17 @@ class SyncTestCase(unittest.TestCase):
         rv = sync.tasks.create_activity_in_pipedrive(lead_to_sync.id)
 
         # Activity has been created
-        activity = saved_instances['activity' + str(rv['id'])]
-        self.assertIsNotNone(activity.id)
+        synced_activity = saved_instances['activity' + str(rv['id'])]
+        self.assertIsNotNone(synced_activity.id)
         self.assertEquals(rv['status'], 'created')
 
         # Test values
-        self.assertEquals(activity.user_id, 1628545)
-        self.assertEquals(activity.person_id, 20)
-        self.assertEquals(activity.type, 'call')
-        self.assertEquals(activity.subject, 'Follow up with Test Linked Flask Lead')
-        self.assertEquals(activity.note, 'Did something interesting on 12/19/2016')
-        self.assertEquals(activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
+        self.assertEquals(synced_activity.user_id, 1628545)
+        self.assertEquals(synced_activity.person_id, 20)
+        self.assertEquals(synced_activity.type, 'call')
+        self.assertEquals(synced_activity.subject, 'Follow up with Test Linked Flask Lead')
+        self.assertEquals(synced_activity.note, 'Did something interesting on 12/19/2016')
+        self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
 
 if __name__ == '__main__':
     unittest.main()

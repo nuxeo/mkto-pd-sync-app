@@ -182,6 +182,9 @@ LEAD_TO_PERSON = {
     'toDelete': {
         'fields': ['active_flag'],
         'post_adapter': adapters.toggle_boolean
+    },
+    'leadCountry': {
+        'fields': ['inferred_country']
     }
 }
 

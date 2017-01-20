@@ -157,7 +157,8 @@ class Lead(Entity):
             'leadStatus': None,
             'toDelete': False,
             'leadScore': None,
-            'mKTODateSQL': None
+            'mKTODateSQL': None,
+            'leadCountry': None
         }
         # Fields that cannot be updated at the same time
         if self.externalCompanyId:

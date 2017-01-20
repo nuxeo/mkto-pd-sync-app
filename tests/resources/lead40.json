@@ -34,7 +34,8 @@
       "industry": "",
       "annualRevenue": "",
       "numberOfEmployees": "",
-      "lastInterestingMoment": ""
+      "lastInterestingMoment": "",
+      "leadCountry": ""
     }
   ],
   "success": true
