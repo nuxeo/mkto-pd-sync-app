@@ -421,30 +421,20 @@ def create_activity_in_pipedrive(lead_id):
     lead = marketo.Lead(get_marketo_client(), lead_id)
 
     if lead.id is not None:
-        if lead.conversicaLeadOwnerFirstName and lead.conversicaLeadOwnerLastName and lead.pipedriveId:
-            # If lead has owner and is linked to a person
-            activity = pipedrive.Activity(get_pipedrive_client())
-            app.logger.info('New activity created')
-            status = 'created'
+        activity = pipedrive.Activity(get_pipedrive_client())
+        app.logger.info('New activity created')
+        status = 'created'
 
-            for pd_field in mappings.ACTIVITY_TO_LEAD:
-                update_field(lead, activity, pd_field, mappings.ACTIVITY_TO_LEAD[pd_field])
+        for pd_field in mappings.ACTIVITY_TO_LEAD:
+            update_field(lead, activity, pd_field, mappings.ACTIVITY_TO_LEAD[pd_field])
 
-            app.logger.info('Sending lead data with id=%s to Pipedrive activity', str(lead_id))
-            activity.save()
+        app.logger.info('Sending lead data with id=%s to Pipedrive activity', str(lead_id))
+        activity.save()
 
-            response = {
-                'status': status,
-                'id': activity.id
-            }
-
-        else:
-            message = 'Activity synchronization for lead with id=%s not enabled when no owner' % str(lead_id)
-            app.logger.info(message)
-            response = {
-                'status': 'skipped',
-                'message': message
-            }
+        response = {
+            'status': status,
+            'id': activity.id
+        }
     else:
         message = 'No lead found in Marketo with id=%s' % str(lead_id)
         app.logger.error(message)

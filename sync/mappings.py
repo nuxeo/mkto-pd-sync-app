@@ -111,7 +111,7 @@ ACTIVITY_TO_LEAD = {
     'user_id': {
         'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
         'mode': 'join',
-        'post_adapter': adapters.user_name_to_user_id
+        'post_adapter': adapters.user_name_to_user_id_or_big_bot
     },
     'person_id': {
         'fields': ['pipedriveId']
