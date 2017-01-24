@@ -192,7 +192,7 @@ class Entity:
         :return: The entity id
         """
         id_ = None
-        if name and name.strip():
+        if name and name.strip() and len(name.strip()) >= 2:  # Search term must be at least 2 characters long
             name = name.strip()
             data_array = self._client.get_entity_data(self.entity_name, 'find', {'term': name})
             if data_array:
