@@ -104,6 +104,15 @@ class MarketoTestCase(unittest.TestCase):
         # Delete created lead
         lead.delete()
 
+    def test_save_lead_no_email(self):
+        lead = sync.marketo.Lead(self.mkto)
+        lead.firstName = 'Test'
+        lead.lastName = 'Lead no email'
+        self.assertIsNone(lead.id)
+        lead.save()
+        self.assertIsNotNone(lead)
+        self.assertIsNone(lead.id)
+
     def test_save_multiple_lead(self):
         leads = []
         lead = sync.marketo.Lead(self.mkto)

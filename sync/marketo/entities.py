@@ -146,7 +146,7 @@ class Lead(Entity):
             'id': None,  # id is mandatory for update
             'firstName': None,
             'lastName': None,
-            'email': 'unknown@unknown.com', # Set a default value to prevent from unexpected side effects (e.g. duplicate companies)
+            'email': None,
             'title': None,
             'phone': None,
             'leadSource': None,
@@ -167,6 +167,14 @@ class Lead(Entity):
             field_defaults['website'] = None
             field_defaults['country'] = None
         return field_defaults
+
+    def save(self):
+        # Filter leads with no email to prevent from unexpected side effects (e.g. duplicate companies)
+        if self.email:
+            super(Lead, self).save()
+        else:
+            self._logger.warning('No data could be saved for entity=%s%s (no email)', self.entity_name,
+                              ' with id=%s' % self.id if self.id else '')
 
 
 class Opportunity(Entity):
