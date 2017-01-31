@@ -241,8 +241,25 @@ class PipedriveTestCase(unittest.TestCase):
         deal.last_activity_date = '2016-11-17'
         deal.save()
         # self.assertEquals(deal.last_activity_date, '2016-11-17')  # FIXME not updateable?
-        # Delete created person
+        # Delete created deal
         deal.delete()
+
+    def test_save_organization(self):
+        organization = sync.pipedrive.Organization(self.pd)
+        organization.name = 'Test organization 1'
+        organization.owner_id = 1628545  # my (Helene Jonin) owner id
+        organization.address_country = 'France'
+        organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1 = 'Spain'
+        self.assertIsNone(organization.id)
+        organization.save()
+        self.assertIsNotNone(organization)
+        self.assertIsNotNone(organization.id)
+        with self.assertRaises(AttributeError):
+            organization.country
+        self.assertEquals(organization.address_country, 'France')
+        self.assertEquals(organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1, 'Spain')
+        # Delete created deal
+        organization.delete()
 
     def test_create_and_use_filter(self):
         filter_data = self.pd.get_organization_email_domain_filter('test-company.com')

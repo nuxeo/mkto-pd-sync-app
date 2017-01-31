@@ -84,9 +84,9 @@ ORGANIZATION_TO_COMPANY = {
     'state': {
         'fields': ['billingState']
     },
-    'country': {
+    'b97ac2f12d2071c4c5efbf3a89c812c970f04af1': {  # Use key to differentiate country from address_country fields
         'fields': ['billingCountry'],
-        'pre_adapter': adapters.country_iso_to_name
+        'post_adapter': adapters.country_iso_to_name
     },
     'company_phone': {
         'fields': ['mainPhone']
@@ -150,7 +150,7 @@ LEAD_TO_PERSON = {
     },
     'externalCompanyId': {
         'fields': ['organization'],
-        'pre_adapter': adapters.organization_to_external_id,
+        'post_adapter': adapters.organization_to_external_id,
     },
     'title': {
         'fields': ['title']
@@ -163,15 +163,15 @@ LEAD_TO_PERSON = {
     },
     'conversicaLeadOwnerEmail': {
         'fields': ['owner'],
-        'pre_adapter': adapters.user_to_email
+        'post_adapter': adapters.user_to_email
     },
     'conversicaLeadOwnerFirstName': {
         'fields': ['owner'],
-        'pre_adapter': adapters.user_to_first_name
+        'post_adapter': adapters.user_to_first_name
     },
     'conversicaLeadOwnerLastName': {
         'fields': ['owner'],
-        'pre_adapter': adapters.user_to_last_name
+        'post_adapter': adapters.user_to_last_name
     },
     'pipedriveId': {
         'fields': ['id']
@@ -202,8 +202,8 @@ COMPANY_TO_ORGANIZATION = {
         'fields': ['state']
     },
     'billingCountry': {
-        'fields': ['country'],
-        'pre_adapter': adapters.country_iso_to_name
+        'fields': ['b97ac2f12d2071c4c5efbf3a89c812c970f04af1'],  # Use key to differentiate country from address_country fields
+        'post_adapter': adapters.country_iso_to_name
     },
     'mainPhone': {
         'fields': ['company_phone']
@@ -251,7 +251,7 @@ DEAL_TO_OPPORTUNITY = {
     },
     'stage': {
         'fields': ['stage'],
-        'pre_adapter': adapters.stage_to_name
+        'post_adapter': adapters.stage_to_name
     },
     'fiscalQuarter': {
         'fields': ['close_time', 'expected_close_date'],

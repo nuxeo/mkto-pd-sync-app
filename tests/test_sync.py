@@ -273,7 +273,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_organization.address, '11th St')
         self.assertEquals(synced_organization.city, 'New York')
         self.assertEquals(synced_organization.state, 'NY')
-        self.assertEquals(synced_organization.country, 'United States')
+        self.assertEquals(synced_organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1, 'United States')
         self.assertEquals(synced_organization.company_phone, '0123456789')
         self.assertEquals(synced_organization.industry, 'Finance')
         self.assertEquals(synced_organization.annual_revenue, 1000000)
@@ -377,7 +377,7 @@ class SyncTestCase(unittest.TestCase):
         # Organization cannot be created because company not actually saved
         # self.assertIsNotNone(synced_person.org_id)
         # self.assertEquals(synced_person.organization.name, 'another-flask-company.com')
-        # self.assertEquals(synced_person.organization.country, 'Canada')
+        # self.assertEquals(synced_person.organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1, 'Canada')
 
     def test_create_lead_and_company_from_organization_in_marketo(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         person_to_sync = sync.pipedrive.Person(self.pd, 10)

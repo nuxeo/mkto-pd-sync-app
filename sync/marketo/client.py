@@ -4,7 +4,7 @@ import logging
 from requests import Session
 
 from .helpers import is_marketo_guid
-from ..common import memoize, simple_pluralize
+from sync.common import memoize, simple_pluralize
 
 
 class MarketoClient:

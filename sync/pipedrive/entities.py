@@ -135,7 +135,12 @@ class Entity:
             for field in fields:
                 field_key = field['key']
                 field_name = to_snake_case(field['name'])
-                self._field_keys[field_name] = field_key
+                # If multiple fields share the same name use key to access them all
+                count_name = len([f for f in fields if to_snake_case(f['name']) == field_name])
+                if count_name < 2:
+                    self._field_keys[field_name] = field_key
+                else:
+                    self._field_keys[field_key] = field_key
                 self._field_types[field_key] = field['field_type']
 
                 if 'options' in field:

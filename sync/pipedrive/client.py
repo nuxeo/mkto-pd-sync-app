@@ -2,7 +2,7 @@ import logging
 
 from requests import HTTPError, Session
 
-from ..common import memoize, simple_pluralize
+from sync.common import memoize, simple_pluralize
 
 
 class PipedriveClient:
