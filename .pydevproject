@@ -2,10 +2,11 @@
 <?eclipse-pydev version="1.0"?><pydev_project>
 <pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
 <key>GOOGLE_APP_ENGINE</key>
-<value>/Users/helene/SDK/google-cloud-sdk/platform/google_appengine</value>
+<value>${HOME}/SDK/google-cloud-sdk/platform/google_appengine</value>
 </pydev_variables_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/${PROJECT_DIR_NAME}</path>
+<path>/${PROJECT_DIR_NAME}/venv/lib/python2.7/site-packages</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
 <path>${GOOGLE_APP_ENGINE}</path>
@@ -51,5 +52,5 @@
 <path>${GOOGLE_APP_ENGINE}/lib/yaml/lib</path>
 </pydev_pathproperty>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">venv</pydev_property>
+<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">python</pydev_property>
 </pydev_project>
