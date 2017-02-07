@@ -5,7 +5,10 @@ API_ENDPOINT = ''
 
 PD_API_TOKEN = ''
 
-FLASK_AUTHORIZED_KEYS = {}
+FLASK_AUTHORIZED_KEYS = {
+    'test': '',
+    'prod': ''
+}
 
 DEBUG = False
 TESTING = False
