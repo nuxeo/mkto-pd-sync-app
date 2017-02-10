@@ -219,6 +219,8 @@ COMPANY_TO_ORGANIZATION = {
     }
 }
 
+PIPELINE_FILTER_NAMES = ['Subscriptions (New and Upsell)', 'Renewals', 'Professional Services']
+
 DEAL_TO_OPPORTUNITY = {
     'name': {
         'fields': ['title']

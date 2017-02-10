@@ -1,7 +1,7 @@
 import logging
 from abc import ABCMeta, abstractproperty
 
-from ..common import InitializationError, SavingError
+from sync.common import InitializationError, SavingError
 
 
 class Entity:
