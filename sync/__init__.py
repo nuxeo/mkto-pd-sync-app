@@ -8,7 +8,7 @@ from .util import InvalidUsage
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
-app.config.from_pyfile('config.py')  # Override configuration with your own objects
+app.config.from_pyfile('config.py', silent=True)  # Override configuration with your own objects
 
 
 # Register error handlers to prevent from resulting in internal server errors
