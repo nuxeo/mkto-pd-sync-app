@@ -353,8 +353,8 @@ def create_or_update_opportunity_in_marketo(deal_id):
                              str(opportunity.id), opportunity_external_id)
                 opportunity_status = 'updated'
 
-            for mkto_field in mappings.DEAL_TO_OPPORTUNITY:
-                data_changed = update_field(deal, opportunity, mkto_field, mappings.DEAL_TO_OPPORTUNITY[mkto_field]) \
+            for mkto_field in mappings.OPPORTUNITY_TO_DEAL:
+                data_changed = update_field(deal, opportunity, mkto_field, mappings.OPPORTUNITY_TO_DEAL[mkto_field]) \
                                or data_changed
 
             if data_changed:
@@ -435,6 +435,35 @@ def create_activity_in_pipedrive(lead_id):
         }
     else:
         message = 'No lead found in Marketo with id=%s' % str(lead_id)
+        app.logger.error(message)
+        response = {
+            'error': message
+        }
+
+    return response
+
+
+def compute_organization_in_pipedrive(organization_id):
+    app.logger.info('Fetching organization data from Pipedrive with id=%s', str(organization_id))
+    organization = pipedrive.Organization(get_pipedrive_client(), organization_id)
+
+    if organization.id is not None:
+        # Use keys to avoid conflicts in field names and keys
+        old_region = organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15
+        new_region = mappings.COUNTRY_TO_REGION[organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1]
+        if new_region and new_region != old_region:
+            organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15 = new_region
+            organization.save()
+            status = 'updated'
+        else:
+            status = 'skipped'
+
+        response = {
+            'status': status
+        }
+
+    else:
+        message = 'No organization found with id %s' % str(organization_id)
         app.logger.error(message)
         response = {
             'error': message

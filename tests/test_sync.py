@@ -595,5 +595,15 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_activity.note, 'Did something interesting on 12/19/2016')
         self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
 
+    def test_compute_organization_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        organization_to_compute = sync.pipedrive.Organization(self.pd, 10)
+
+        rv = sync.tasks.compute_organization_in_pipedrive(organization_to_compute.id)
+        computed_organization = saved_instances['organization' + str(organization_to_compute.id)]
+        self.assertEquals(rv['status'], 'updated')
+        self.assertEquals(computed_organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1, 'France')
+        self.assertEquals(computed_organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15, 'EMEA')
+
+
 if __name__ == '__main__':
     unittest.main()
