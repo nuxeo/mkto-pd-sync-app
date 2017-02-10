@@ -150,7 +150,7 @@ LEAD_TO_PERSON = {
     },
     'externalCompanyId': {
         'fields': ['organization'],
-        'post_adapter': adapters.organization_to_external_id,
+        'post_adapter': adapters.organization_to_external_id
     },
     'title': {
         'fields': ['title']
@@ -159,7 +159,8 @@ LEAD_TO_PERSON = {
         'fields': ['phone']
     },
     'leadSource': {
-        'fields': ['lead_source']
+        'fields': ['lead_source'],
+        'post_adapter': adapters.lead_source_pipedrive_default
     },
     'conversicaLeadOwnerEmail': {
         'fields': ['owner'],

@@ -120,6 +120,10 @@ def organization_to_external_id(organization):
     return org_external_id
 
 
+def lead_source_pipedrive_default(lead_source):
+    return lead_source or 'Pipedrive'
+
+
 def user_to_email(user):
     user_email = None
     if user is not None and BIG_BOT_ID != user.id:

@@ -405,7 +405,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertIsNotNone(synced_lead.externalCompanyId)
         self.assertEquals(synced_lead.title, 'Dev')
         self.assertEquals(synced_lead.phone, '5647382910')
-        self.assertEquals(synced_lead.leadSource, 'Direct Traffic')
+        self.assertEquals(synced_lead.leadSource, 'Pipedrive')
         self.assertEquals(synced_lead.conversicaLeadOwnerEmail, 'hjonin@nuxeo.com')
         self.assertEquals(synced_lead.conversicaLeadOwnerFirstName, 'Helene')
         self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
