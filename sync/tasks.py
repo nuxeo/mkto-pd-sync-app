@@ -448,15 +448,16 @@ def compute_organization_in_pipedrive(organization_id):
     organization = pipedrive.Organization(get_pipedrive_client(), organization_id)
 
     if organization.id is not None:
+        status = 'skipped'
         # Use keys to avoid conflicts in field names and keys
-        old_region = organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15
-        new_region = mappings.COUNTRY_TO_REGION[organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1]
-        if new_region and new_region != old_region:
-            organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15 = new_region
-            organization.save()
-            status = 'updated'
-        else:
-            status = 'skipped'
+        if organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1\
+                and organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1 in mappings.COUNTRY_TO_REGION:
+            old_region = organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15
+            new_region = mappings.COUNTRY_TO_REGION[organization.b97ac2f12d2071c4c5efbf3a89c812c970f04af1]
+            if new_region and new_region != old_region:
+                organization.e1cfd37b3fa5a3847f662fb7a3728c181b6dac15 = new_region
+                organization.save()
+                status = 'updated'
 
         response = {
             'status': status
