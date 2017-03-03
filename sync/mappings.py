@@ -68,6 +68,10 @@ PERSON_TO_LEAD = {
     },
     'lead_status': {
         'fields': ['leadStatus']
+    },
+    'marketing_suspended': {
+        'fields': ['pDMarketingSuspended'],
+        'post_adapter': adapters.boolean_to_boolean_string
     }
 }
 
@@ -134,6 +138,7 @@ ACTIVITY_TO_LEAD = {
 }
 
 # To send from Pipedrive to Marketo
+# /!\ If you add a field here don't forget to add it in marketo.Entity._entity_fields_to_update() too
 
 LEAD_TO_PERSON = {
     'firstName': {
@@ -185,6 +190,10 @@ LEAD_TO_PERSON = {
     },
     'leadCountry': {
         'fields': ['inferred_country']
+    },
+    'pDMarketingSuspended': {
+        'fields': ['marketing_suspended'],
+        'post_adapter': adapters.boolean_string_to_boolean
     }
 }
 

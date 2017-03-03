@@ -264,6 +264,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_person.lead_score, 10)
         self.assertEquals(synced_person.date_sql, '2016-11-16')
         self.assertEquals(synced_person.lead_status, 'Recycled')
+        self.assertEquals(synced_person.marketing_suspended, 'Yes')
 
         # Test Organization sync
         synced_organization = saved_instances['organization' + str(synced_person.org_id)]  # Organization has been created
@@ -321,6 +322,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_person.lead_score, 13)
         self.assertEquals(synced_person.date_sql, '2016-11-16')
         self.assertEquals(synced_person.lead_status, 'Prospect')
+        self.assertEquals(synced_person.marketing_suspended, 'No')
 
         # Test Organization sync
         synced_organization = saved_instances['organization' + str(found_organization.id)]  # Organization has been updated
@@ -411,6 +413,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
         self.assertEquals(synced_lead.leadStatus, 'Disqualified')
         self.assertEqual(synced_lead.leadCountry, 'Germany')
+        self.assertEquals(synced_lead.pDMarketingSuspended, True)
 
         # Test Company sync
         synced_company = saved_instances['company' + str(15)]  # Company has been created
@@ -462,6 +465,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_lead.conversicaLeadOwnerLastName, 'Jonin')
         self.assertEquals(synced_lead.leadStatus, 'MQL')
         self.assertEqual(synced_lead.leadCountry, 'United Kingdom')
+        self.assertEquals(synced_lead.pDMarketingSuspended, False)
 
         # Test Company sync
         synced_company = saved_instances['company' + str(found_company.id)]  # Company has been updated

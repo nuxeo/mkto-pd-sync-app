@@ -166,6 +166,14 @@ def toggle_boolean(boolean):
     return not boolean
 
 
+def boolean_to_boolean_string(boolean):
+    return 'Yes' if boolean else 'No'
+
+
+def boolean_string_to_boolean(boolean_string):
+    return boolean_string == 'Yes'
+
+
 def is_closed(status):
     closed = False
     if status == 'lost' or status == 'won':

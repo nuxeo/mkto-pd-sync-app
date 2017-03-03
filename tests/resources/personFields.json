@@ -17,6 +17,7 @@
       "add_visible_flag": true,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "use_field": "id",
       "link": "/person/details/",
       "mandatory_flag": true
@@ -37,6 +38,7 @@
       "add_visible_flag": true,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -55,6 +57,7 @@
       "add_visible_flag": true,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -73,6 +76,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -91,6 +95,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -109,6 +114,7 @@
       "add_visible_flag": true,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "use_field": "org_id",
       "display_field": "org_name",
       "link": "/org/details/",
@@ -131,6 +137,7 @@
       "add_visible_flag": true,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "use_field": "owner_id",
       "display_field": "owner_name",
       "mandatory_flag": true
@@ -151,6 +158,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -168,6 +176,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 1,
@@ -196,6 +205,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -214,6 +224,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -223,7 +234,7 @@
       "order_nr": 12,
       "field_type": "varchar",
       "add_time": null,
-      "update_time": "2015-01-26 19:55:56",
+      "update_time": "2017-01-09 16:35:58",
       "active_flag": true,
       "edit_flag": true,
       "index_visible_flag": true,
@@ -231,6 +242,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -248,6 +260,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -265,6 +278,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -282,6 +296,7 @@
       "add_visible_flag": true,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -299,6 +314,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -316,6 +332,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -333,6 +350,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -350,6 +368,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -467,6 +486,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 10,
@@ -506,6 +526,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -523,6 +544,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -540,6 +562,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -557,6 +580,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -574,6 +598,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -591,6 +616,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 111,
@@ -619,50 +645,8 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
-    },
-    {
-      "id": 9046,
-      "key": "4a0dcea7a2db834fa27885885bee8f2ce395e147",
-      "name": "Revenue Range",
-      "order_nr": 28,
-      "field_type": "enum",
-      "add_time": "2014-09-29 14:33:14",
-      "update_time": "2014-10-20 19:28:45",
-      "active_flag": true,
-      "edit_flag": true,
-      "index_visible_flag": true,
-      "details_visible_flag": true,
-      "add_visible_flag": false,
-      "important_flag": false,
-      "bulk_edit_allowed": true,
-      "options": [
-        {
-          "id": 123,
-          "label": ">$5B"
-        },
-        {
-          "id": 124,
-          "label": "$1B to $4.9B"
-        },
-        {
-          "id": 125,
-          "label": "$500M to $999M"
-        },
-        {
-          "id": 126,
-          "label": "$100M to $499M"
-        },
-        {
-          "id": 127,
-          "label": "$25M to $99M"
-        },
-        {
-          "id": 128,
-          "label": "$10M to $24.9M"
-        }
-      ],
-      "mandatory_flag": false
     },
     {
       "id": 9047,
@@ -679,6 +663,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -696,6 +681,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -713,6 +699,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -730,6 +717,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -747,6 +735,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": true,
       "mandatory_flag": false
     },
     {
@@ -764,6 +753,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -782,6 +772,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -800,6 +791,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -818,6 +810,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -836,6 +829,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -854,6 +848,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -872,6 +867,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -889,6 +885,7 @@
       "add_visible_flag": true,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 130,
@@ -917,6 +914,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -934,6 +932,7 @@
       "add_visible_flag": true,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "mandatory_flag": false
     },
     {
@@ -952,6 +951,7 @@
       "add_visible_flag": false,
       "important_flag": true,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -961,7 +961,7 @@
       "order_nr": 46,
       "field_type": "enum",
       "add_time": "2016-01-19 23:42:56",
-      "update_time": "2016-11-28 16:09:43",
+      "update_time": "2017-02-10 17:05:45",
       "active_flag": true,
       "edit_flag": true,
       "index_visible_flag": true,
@@ -969,6 +969,7 @@
       "add_visible_flag": true,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 197,
@@ -1021,6 +1022,10 @@
         {
           "id": 212,
           "label": "Web Referral"
+        },
+        {
+          "id": 277,
+          "label": "Pipedrive"
         }
       ],
       "mandatory_flag": false
@@ -1041,6 +1046,7 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
     },
     {
@@ -1059,24 +1065,8 @@
       "add_visible_flag": false,
       "important_flag": false,
       "bulk_edit_allowed": false,
+      "searchable_flag": false,
       "mandatory_flag": true
-    },
-    {
-      "id": 9068,
-      "key": "1f195d5acd481fae2dc155254a01469d8b706aeb",
-      "name": "No. of Employees (Range)",
-      "order_nr": 49,
-      "field_type": "varchar",
-      "add_time": "2016-07-20 14:31:58",
-      "update_time": "2016-08-12 15:10:03",
-      "active_flag": true,
-      "edit_flag": true,
-      "index_visible_flag": true,
-      "details_visible_flag": true,
-      "add_visible_flag": false,
-      "important_flag": false,
-      "bulk_edit_allowed": true,
-      "mandatory_flag": false
     },
     {
       "id": 9072,
@@ -1093,6 +1083,7 @@
       "add_visible_flag": true,
       "important_flag": false,
       "bulk_edit_allowed": true,
+      "searchable_flag": false,
       "options": [
         {
           "id": 187,
@@ -1133,6 +1124,34 @@
         {
           "id": 196,
           "label": "Disqualified"
+        }
+      ],
+      "mandatory_flag": false
+    },
+    {
+      "id": 9073,
+      "key": "a37a56245b1d74c6cb19f09c27ca4240769bdf27",
+      "name": "Marketing Suspended",
+      "order_nr": 54,
+      "field_type": "enum",
+      "add_time": "2017-03-02 20:39:15",
+      "update_time": "2017-03-02 20:39:15",
+      "active_flag": true,
+      "edit_flag": true,
+      "index_visible_flag": true,
+      "details_visible_flag": true,
+      "add_visible_flag": true,
+      "important_flag": false,
+      "bulk_edit_allowed": true,
+      "searchable_flag": false,
+      "options": [
+        {
+          "id": 278,
+          "label": "Yes"
+        },
+        {
+          "id": 279,
+          "label": "No"
         }
       ],
       "mandatory_flag": false

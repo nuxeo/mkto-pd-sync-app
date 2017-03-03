@@ -37,7 +37,8 @@
       "lastInterestingMoment": null,
       "leadCountry": "United Kingdom",
       "contactReason": null,
-      "directFollowUp": false
+      "directFollowUp": false,
+      "pDMarketingSuspended": false
     }
   ],
   "success": true
