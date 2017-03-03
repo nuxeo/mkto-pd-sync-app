@@ -27,15 +27,17 @@
       "inferredCity": "London",
       "city": "London",
       "company": "Test Flask Linked Organization",
-      "leadCountry": "",
-      "street": "",
-      "postalCode": "",
-      "mainPhone": "",
-      "industry": "",
-      "annualRevenue": "",
-      "numberOfEmployees": "",
-      "lastInterestingMoment": "",
-      "leadCountry": "United Kingdom"
+      "leadCountry": null,
+      "street": null,
+      "postalCode": null,
+      "mainPhone": null,
+      "industry": null,
+      "annualRevenue": null,
+      "numberOfEmployees": null,
+      "lastInterestingMoment": null,
+      "leadCountry": "United Kingdom",
+      "contactReason": null,
+      "directFollowUp": false
     }
   ],
   "success": true

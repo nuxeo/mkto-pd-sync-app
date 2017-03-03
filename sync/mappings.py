@@ -117,8 +117,7 @@ ACTIVITY_TO_LEAD = {
         'fields': ['pipedriveId']
     },
     'type': {
-        'fields': [],
-        'post_adapter': adapters.call_type
+        'transformer': adapters.activity_type
     },
     'subject': {
         'fields': ['firstName', 'lastName'],

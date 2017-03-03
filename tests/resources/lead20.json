@@ -27,15 +27,17 @@
       "inferredCity": "Barcelona",
       "city": "Barcelona",
       "company": "Test Flask Linked Company",
-      "leadCountry": "",
-      "street": "",
-      "postalCode": "",
-      "mainPhone": "",
-      "industry": "",
-      "annualRevenue": "",
-      "numberOfEmployees": "",
+      "leadCountry": null,
+      "street": null,
+      "postalCode": null,
+      "mainPhone": null,
+      "industry": null,
+      "annualRevenue": null,
+      "numberOfEmployees": null,
       "lastInterestingMoment": "Did something interesting on 12/19/2016",
-      "leadCountry": "United Kingdom"
+      "leadCountry": "United Kingdom",
+      "contactReason": "Request a Quote",
+      "directFollowUp": false
     }
   ],
   "success": true

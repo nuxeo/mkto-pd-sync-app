@@ -83,8 +83,25 @@ def number_to_string(number):
     return number_str
 
 
-def call_type(nothing):
-    return 'call'
+def activity_type(lead):
+    activity_type = 'call'
+    if lead.contactReason == 'Request a Demo':
+        activity_type = 'mkto_demo_request'
+    elif lead.contactReason == 'Request a Quote':
+        activity_type = 'mkto_quote_request'
+    elif lead.contactReason == 'Product Question':
+        activity_type = 'mkto_product_question'
+    elif lead.contactReason == 'Partnership':
+        activity_type = 'mkto_partnership_request'
+    elif lead.contactReason == 'Training':
+        activity_type = 'mkto_training_request'
+    elif lead.contactReason == 'Professional Services':
+        activity_type = 'mkto_professional_services'
+    elif lead.contactReason == 'Other':
+        activity_type = 'mkto_contact_request_other'
+    elif lead.directFollowUp:
+        activity_type = 'mkto_direct_follow_up'
+    return activity_type
 
 
 def custom_subject(name):

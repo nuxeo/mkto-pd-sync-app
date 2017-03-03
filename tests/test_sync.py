@@ -590,7 +590,7 @@ class SyncTestCase(unittest.TestCase):
         # Test values
         self.assertEquals(synced_activity.user_id, 1628545)
         self.assertEquals(synced_activity.person_id, 20)
-        self.assertEquals(synced_activity.type, 'call')
+        self.assertEquals(synced_activity.type, 'mkto_quote_request')
         self.assertEquals(synced_activity.subject, 'Follow up with Test Linked Flask Lead')
         self.assertEquals(synced_activity.note, 'Did something interesting on 12/19/2016')
         self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
