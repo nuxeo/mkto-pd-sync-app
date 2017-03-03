@@ -21,6 +21,17 @@ def handle_internal_server_error(error):
     return response
 
 
+@gae_app.errorhandler(AttributeError)
+def handle_internal_server_attribute_error(error):
+    logging.getLogger('sync').error('%s: %s', error.__class__.__name__, error)
+    response = jsonify({
+        'status': 'error',
+        'message': error.message
+    })
+    response.status_code = 500
+    return response
+
+
 @gae_app.route('/task/<string:task_name>', methods=['POST'])
 def sync_handler(task_name):
     # Get task first in case it is deleted in the app while running

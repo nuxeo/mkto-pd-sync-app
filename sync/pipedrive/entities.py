@@ -321,7 +321,9 @@ class Deal(Entity):
     def _related_entities(self):
         return {
             'people': Person,
-            'stage': Stage
+            'stage': Stage,
+            'user': User,
+            'org': Organization
         }
 
 

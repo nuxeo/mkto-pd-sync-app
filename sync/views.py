@@ -151,6 +151,31 @@ def compute_organization_with_params():
     return jsonify(**rv)
 
 
+@app.route('/pipedrive/deal/<int:deal_id>/compute', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
+def compute_deal(deal_id):
+    rv = enqueue_task('compute_deal_in_pipedrive', {'id': deal_id})
+    return jsonify(**rv)
+
+
+@app.route('/pipedrive/deal/compute', methods=['POST'])
+@authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
+def compute_deal_with_params():
+    params = request.get_json()
+    if params is not None and 'current' in params and 'id' in params['current'] and params['current']['id'] is not None:
+        try:
+            deal_id = int(params['current']['id'])
+
+            rv = enqueue_task('compute_deal_in_pipedrive', {'id': deal_id})
+        except ValueError:
+            message = 'Incorrect id=%s' % str(params['current']['id'])
+            app.logger.error(message)
+            rv = {'error': message}
+    else:
+        rv = {}
+    return jsonify(**rv)
+
+
 def enqueue_task(task_name, params):
     """
     Create a task and place it in a push queue for further processing.

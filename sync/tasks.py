@@ -1,3 +1,5 @@
+import requests
+
 import mappings
 import marketo
 import pipedrive
@@ -465,6 +467,67 @@ def compute_organization_in_pipedrive(organization_id):
 
     else:
         message = 'No organization found with id %s' % str(organization_id)
+        app.logger.error(message)
+        response = {
+            'error': message
+        }
+
+    return response
+
+
+def compute_deal_in_pipedrive(deal_id):
+    app.logger.info('Fetching deal data from Pipedrive with id=%s', str(deal_id))
+    deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
+
+    if deal.id is not None:
+        status = 'skipped'
+        if deal.status in ('won', 'lost'):
+            url = app.config['SLACK_WEBHOOK_URL']
+            payload = {
+                'attachments': [
+                    {
+                        'fallback': 'New Deal {}: <{}/deal/{}|Pipedrive Record>'
+                            .format(deal.status, app.config['PD_APP_URL'], deal.id),
+                        'pretext': 'New Deal {}: <{}/deal/{}|Pipedrive Record>'
+                            .format(deal.status, app.config['PD_APP_URL'], deal.id),
+                        'text': '{} has {} the deal {}'.format(deal.owner.name, deal.status, deal.title),
+                        'color': 'good' if deal.status == 'won' else 'danger',
+                        'fields': [
+                            {
+                                'title': 'Details',
+                                'value': ('InternalPO : PO#{}\n'
+                                          'Company: {}\n'
+                                          'Value : {} {}\n'
+                                          'Start Date : {}\n'
+                                          'Duration (month) : {}\n'
+                                          'Reseller (if any) : {}\n'
+                                          'Won Time : {}\n'
+                                          'Status : {}').format(deal.id,
+                                                                deal.organization.name,
+                                                                deal.currency,
+                                                                deal.value,
+                                                                deal.contract_start_date,
+                                                                deal.duration,
+                                                                '',
+                                                                deal.won_time,
+                                                                deal.status),
+                                'short': False
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            r = requests.post(url, json=payload)
+            r.raise_for_status()
+            status = r.content
+
+        response = {
+            'status': status
+        }
+
+    else:
+        message = 'No deal found with id %s' % str(deal_id)
         app.logger.error(message)
         response = {
             'error': message
