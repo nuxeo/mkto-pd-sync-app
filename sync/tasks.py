@@ -490,7 +490,9 @@ def compute_deal_in_pipedrive(deal_id):
                             .format(deal.status, app.config['PD_APP_URL'], deal.id),
                         'pretext': 'New Deal {}: <{}/deal/{}|Pipedrive Record>'
                             .format(deal.status, app.config['PD_APP_URL'], deal.id),
-                        'text': '{} has {} the deal {}'.format(deal.owner.name, deal.status, deal.title),
+                        'text': '{} has {} the deal {}'.format(deal.owner.name.encode('utf-8'),
+                                                               deal.status,
+                                                               deal.title.encode('utf-8')),
                         'color': 'good' if deal.status == 'won' else 'danger',
                         'fields': [
                             {
@@ -503,7 +505,7 @@ def compute_deal_in_pipedrive(deal_id):
                                           'Reseller (if any) : {}\n'
                                           'Won Time : {}\n'
                                           'Status : {}').format(deal.id,
-                                                                deal.organization.name,
+                                                                deal.organization.name.encode('utf-8'),
                                                                 deal.currency,
                                                                 deal.value,
                                                                 deal.contract_start_date,
