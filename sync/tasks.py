@@ -483,8 +483,12 @@ def compute_deal_in_pipedrive(deal_id):
     if deal.id is not None:
         status = 'skipped'
         deal_flow = get_pipedrive_client().get_entity_flow('deal', deal.id)
-        deal_change_filtered_flow = [update for update in deal_flow if update['object'] == 'dealChange']
-        if deal_change_filtered_flow and deal_change_filtered_flow[0]['data']['new_value'] in ('won', 'lost'):
+        # Deal status change should be the last activity
+        # or the activity before the last in case a comment was supplied
+        if deal_flow and (deal_flow[0]['object'] == 'dealChange'
+                          and deal_flow[0]['data']['new_value'] in ('won', 'lost'))\
+                or (len(deal_flow) > 1 and deal_flow[1]['object'] == 'dealChange'
+                    and deal_flow[1]['data']['new_value'] in ('won', 'lost')):
             encoded_deal_title = deal.title.encode('utf-8')
             encoded_organization_name = deal.organization.name.encode('utf-8')
             status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
