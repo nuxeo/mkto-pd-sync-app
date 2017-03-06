@@ -28,6 +28,15 @@ class PipedriveClient:
         """
         return self._fetch_data(entity_name + 'Fields')
 
+    def get_entity_flow(self, entity_name, entity_id):
+        """
+        Return the entity list of updates loaded from Pipedrive.
+        :param entity_name: The entity name (should be the same as the class name)
+        :param entity_id: The entity id
+        :return: A list of updates.
+        """
+        return self._fetch_data(simple_pluralize(entity_name), '%s/flow' % entity_id)
+
     def get_entity_data(self, entity_name, entity_id, entity_fields=None):
         """
         Return an entity data loaded from Pipedrive.

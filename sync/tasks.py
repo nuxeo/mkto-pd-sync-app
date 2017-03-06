@@ -481,7 +481,9 @@ def compute_deal_in_pipedrive(deal_id):
 
     if deal.id is not None:
         status = 'skipped'
-        if deal.status in ('won', 'lost'):
+        deal_flow = get_pipedrive_client().get_entity_flow('deal', deal.id)
+        deal_change_filtered_flow = [update for update in deal_flow if update['object'] == 'dealChange']
+        if deal_change_filtered_flow and deal_change_filtered_flow[0]['data']['new_value'] in ('won', 'lost'):
             url = app.config['SLACK_WEBHOOK_URL']
             encoded_deal_title = deal.title.encode('utf-8')
             encoded_organization_name = deal.organization.name.encode('utf-8')

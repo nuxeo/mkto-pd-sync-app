@@ -274,3 +274,8 @@ class PipedriveTestCase(unittest.TestCase):
         filtered_data_array = self.pd.get_entity_data('organization', None, {'filter_id': filter_data['id']})
         self.assertEquals(len(filtered_data_array), 1)
         self.assertEquals(filtered_data_array[0]['name'], 'Test company')
+
+    def test_get_deal_flow(self):
+        deal_flow = self.pd.get_entity_flow('deal', 1653)
+        self.assertEquals(deal_flow[len(deal_flow) - 1]['object'], 'dealChange')
+        self.assertEquals(deal_flow[len(deal_flow) - 1]['data']['item_id'], 1653)
