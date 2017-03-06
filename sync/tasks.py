@@ -1,3 +1,4 @@
+import html2text
 import requests
 
 import mappings
@@ -504,31 +505,32 @@ def compute_deal_in_pipedrive(deal_id):
                         'fields': [
                             {
                                 'title': '',
-                                'value': ('Company: {}\n'
-                                          'Value : {} {}\n'
-                                          'Pipeline : {}').format(encoded_organization_name,
-                                                                  deal.currency,
-                                                                  deal.value,
-                                                                  pipedrive
-                                                                  .Pipeline(get_pipedrive_client(), deal.pipeline_id)
-                                                                  .name),
+                                'value': ('*Company*: {}\n'
+                                          '*Value*: {} {}\n'
+                                          '*Pipeline*: {}').format(encoded_organization_name,
+                                                                 deal.currency,
+                                                                 deal.value,
+                                                                 pipedrive
+                                                                 .Pipeline(get_pipedrive_client(), deal.pipeline_id)
+                                                                 .name),
                                 'short': True
                             },
                             {
                                 'title': '',
-                                'value': ('Start Date : {}\n'
-                                          'Duration (month) : {}\n'
-                                          'Won Time : {}').format(deal.contract_start_date,
-                                                                  deal.duration,
-                                                                  deal.won_time),
+                                'value': ('*Start Date*: {}\n'
+                                          '*Duration (month)*: {}\n'
+                                          '*Won Time*: {}').format(deal.contract_start_date,
+                                                                 deal.duration,
+                                                                 deal.won_time),
                                 'short': True
                             },
                             {
                                 'title': 'Comments',
-                                'value': status_comment.content if status_comment else '',
+                                'value': html2text.html2text(status_comment.content) if status_comment else '',
                                 'short': False
                             }
-                        ]
+                        ],
+                        'mrkdwn_in': ['fields']
                     }
                 ]
             }
