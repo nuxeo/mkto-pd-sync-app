@@ -7,6 +7,7 @@ from .entities import Person
 from .entities import Pipeline
 from .entities import User
 from .entities import Activity
+from .entities import Note
 
 # Set default logging handler to avoid "No handler found" warnings.
 try:  # Python 2.7+

@@ -483,36 +483,47 @@ def compute_deal_in_pipedrive(deal_id):
         status = 'skipped'
         if deal.status in ('won', 'lost'):
             url = app.config['SLACK_WEBHOOK_URL']
+            encoded_deal_title = deal.title.encode('utf-8')
+            encoded_organization_name = deal.organization.name.encode('utf-8')
+            status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
             payload = {
                 'attachments': [
                     {
-                        'fallback': 'New Deal {}: <{}/deal/{}|Pipedrive Record>'
-                            .format(deal.status, app.config['PD_APP_URL'], deal.id),
-                        'pretext': 'New Deal {}: <{}/deal/{}|Pipedrive Record>'
-                            .format(deal.status, app.config['PD_APP_URL'], deal.id),
+                        'fallback': 'New Deal {}: <{}/deal/{}|{} for {}>'
+                            .format(deal.status, app.config['PD_APP_URL'], deal.id,
+                                    encoded_deal_title, encoded_organization_name),
+                        'pretext': 'New Deal {}: <{}/deal/{}|{} for {}>'
+                            .format(deal.status, app.config['PD_APP_URL'], deal.id,
+                                    encoded_deal_title, encoded_organization_name),
                         'text': '{} has {} the deal {}'.format(deal.owner.name.encode('utf-8'),
                                                                deal.status,
-                                                               deal.title.encode('utf-8')),
+                                                               encoded_deal_title),
                         'color': 'good' if deal.status == 'won' else 'danger',
                         'fields': [
                             {
-                                'title': 'Details',
-                                'value': ('InternalPO : PO#{}\n'
-                                          'Company: {}\n'
+                                'title': '',
+                                'value': ('Company: {}\n'
                                           'Value : {} {}\n'
-                                          'Start Date : {}\n'
+                                          'Pipeline : {}').format(encoded_organization_name,
+                                                                  deal.currency,
+                                                                  deal.value,
+                                                                  pipedrive
+                                                                  .Pipeline(get_pipedrive_client(), deal.pipeline_id)
+                                                                  .name),
+                                'short': True
+                            },
+                            {
+                                'title': '',
+                                'value': ('Start Date : {}\n'
                                           'Duration (month) : {}\n'
-                                          'Reseller (if any) : {}\n'
-                                          'Won Time : {}\n'
-                                          'Status : {}').format(deal.id,
-                                                                deal.organization.name.encode('utf-8'),
-                                                                deal.currency,
-                                                                deal.value,
-                                                                deal.contract_start_date,
-                                                                deal.duration,
-                                                                '',
-                                                                deal.won_time,
-                                                                deal.status),
+                                          'Won Time : {}').format(deal.contract_start_date,
+                                                                  deal.duration,
+                                                                  deal.won_time),
+                                'short': True
+                            },
+                            {
+                                'title': 'Comments',
+                                'value': status_comment.content if status_comment else '',
                                 'short': False
                             }
                         ]

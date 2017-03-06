@@ -376,3 +376,22 @@ class Pipeline(Entity):
         for field in fields:
             self._field_keys[field] = field
             setattr(self, field, None)  # Initialize field
+
+
+class Note(Entity):
+    def _load(self, id_, id_field):
+        if id_ and id_field in ('user_id', 'deal_id', 'person_id', 'org_id'):
+            try:
+                data = self._client.get_entity_data(self.entity_name, None, {id_field: id_})
+                if data:
+                    # Always load last note
+                    self.init(data[len(data) - 1])
+                else:
+                    self._logger.warning('No data could be loaded for entity=%s for %s=%s',
+                                         self.entity_name, id_field, id_)
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    self._logger.warning('No data could be loaded for entity=%s for %s=%s',
+                                         self.entity_name, id_field, id_)
+                else:
+                    raise e

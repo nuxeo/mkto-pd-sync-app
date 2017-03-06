@@ -261,6 +261,12 @@ class PipedriveTestCase(unittest.TestCase):
         # Delete created deal
         organization.delete()
 
+    def test_load_note(self):
+        note = sync.pipedrive.Note(self.pd, 1653, 'deal_id')
+        self.assertIsNotNone(note)
+        self.assertIsNotNone(note.id)
+        self.assertEqual(note.content, 'Test newest note')
+
     def test_create_and_use_filter(self):
         filter_data = self.pd.get_organization_email_domain_filter('test-company.com')
         self.assertTrue(filter_data)  # Assert not empty
