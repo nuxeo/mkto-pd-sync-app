@@ -485,7 +485,6 @@ def compute_deal_in_pipedrive(deal_id):
         deal_flow = get_pipedrive_client().get_entity_flow('deal', deal.id)
         deal_change_filtered_flow = [update for update in deal_flow if update['object'] == 'dealChange']
         if deal_change_filtered_flow and deal_change_filtered_flow[0]['data']['new_value'] in ('won', 'lost'):
-            url = app.config['SLACK_WEBHOOK_URL']
             encoded_deal_title = deal.title.encode('utf-8')
             encoded_organization_name = deal.organization.name.encode('utf-8')
             status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
@@ -534,10 +533,30 @@ def compute_deal_in_pipedrive(deal_id):
                     }
                 ]
             }
+            status = post_message_on_slack(payload)
 
-            r = requests.post(url, json=payload)
-            r.raise_for_status()
-            status = r.content
+        elif deal_flow and deal_flow[0]['object'] == 'note':
+            encoded_deal_title = deal.title.encode('utf-8')
+            encoded_organization_name = deal.organization.name.encode('utf-8')
+            status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
+            payload = {
+                'attachments': [
+                    {
+                        'fallback': 'New Note Added: <{}/deal/{}|{} for {}>'
+                            .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
+                        'pretext': 'New Note Added: <{}/deal/{}|{} for {}>'
+                            .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
+                        'fields': [
+                            {
+                                'value': html2text.html2text(status_comment.content) if status_comment else '',
+                                'short': False
+                            }
+                        ],
+                        'mrkdwn_in': ['fields']
+                    }
+                ]
+            }
+            status = post_message_on_slack(payload)
 
         response = {
             'status': status
@@ -551,6 +570,13 @@ def compute_deal_in_pipedrive(deal_id):
         }
 
     return response
+
+
+def post_message_on_slack(payload):
+    url = app.config['SLACK_WEBHOOK_URL']
+    r = requests.post(url, json=payload)
+    r.raise_for_status()
+    return r.content
 
 
 def update_field(from_entity, to_entity, to_field, mapping):
