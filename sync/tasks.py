@@ -529,7 +529,8 @@ def compute_deal_in_pipedrive(deal_id):
                             },
                             {
                                 'title': 'Comments',
-                                'value': html2text.html2text(status_comment.content) if status_comment else '',
+                                'value': html2text.html2text(status_comment.content)
+                                if status_comment and status_comment.content else '',
                                 'short': False
                             }
                         ],
@@ -552,7 +553,8 @@ def compute_deal_in_pipedrive(deal_id):
                             .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
                         'fields': [
                             {
-                                'value': html2text.html2text(status_comment.content) if status_comment else '',
+                                'value': html2text.html2text(status_comment.content)
+                                if status_comment and status_comment.content else '',
                                 'short': False
                             }
                         ],
