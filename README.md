@@ -146,6 +146,8 @@ Actually synchronizes data if and only if it is new or it has changed.
 
 - **POST**: `/pipedrive/organization/<int:organization_id>/compute` (or `/pipedrive/organization/compute` for Pipedrive notification usage): to compute organization data in Pipedrive
 
+- **POST**: `/pipedrive/deal/<int:deal_id>/compute` (or `/pipedrive/deal/compute` for Pipedrive notification usage): to compute deal data in Pipedrive
+
 ### Mapping
 
 A mapping file describes how Marketo and Pipedrive entity fields should be matched.
