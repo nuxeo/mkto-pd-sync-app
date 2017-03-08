@@ -476,96 +476,106 @@ def compute_organization_in_pipedrive(organization_id):
     return response
 
 
-def compute_deal_in_pipedrive(deal_id):
+def notify_deal_in_slack_for_status(deal_id):
     app.logger.info('Fetching deal data from Pipedrive with id=%s', str(deal_id))
     deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
 
     if deal.id is not None:
-        status = 'skipped'
-        deal_flow = get_pipedrive_client().get_entity_flow('deal', deal.id)
-        # Deal status change should be the last activity
-        # or the activity before the last in case a comment was supplied
-        if deal_flow and (deal_flow[0]['object'] == 'dealChange'
-                          and deal_flow[0]['data']['new_value'] in ('won', 'lost'))\
-                or (len(deal_flow) > 1 and deal_flow[1]['object'] == 'dealChange'
-                    and deal_flow[1]['data']['new_value'] in ('won', 'lost')):
-            encoded_deal_title = deal.title.encode('utf-8')
-            encoded_organization_name = deal.organization.name.encode('utf-8')
-            status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
-            payload = {
-                'attachments': [
-                    {
-                        'fallback': 'New Deal {}: <{}/deal/{}|{} for {}>'
-                            .format(deal.status, app.config['PD_APP_URL'], deal.id,
-                                    encoded_deal_title, encoded_organization_name),
-                        'pretext': 'New Deal {}: <{}/deal/{}|{} for {}>'
-                            .format(deal.status, app.config['PD_APP_URL'], deal.id,
-                                    encoded_deal_title, encoded_organization_name),
-                        'text': '{} has {} the deal {}'.format(deal.owner.name.encode('utf-8'),
-                                                               deal.status,
-                                                               encoded_deal_title),
-                        'color': 'good' if deal.status == 'won' else 'danger',
-                        'fields': [
-                            {
-                                'title': '',
-                                'value': ('*Company*: {}\n'
-                                          '*Value*: {} {}\n'
-                                          '*Pipeline*: {}').format(encoded_organization_name,
-                                                                 deal.currency,
-                                                                 deal.value,
-                                                                 pipedrive
-                                                                 .Pipeline(get_pipedrive_client(), deal.pipeline_id)
-                                                                 .name),
-                                'short': True
-                            },
-                            {
-                                'title': '',
-                                'value': ('*Start Date*: {}\n'
-                                          '*Duration (month)*: {}\n'
-                                          '*Won Time*: {}').format(deal.contract_start_date,
-                                                                 deal.duration,
-                                                                 deal.won_time),
-                                'short': True
-                            },
-                            {
-                                'title': 'Comments',
-                                'value': html2text.html2text(status_comment.content)
-                                if status_comment and status_comment.content else '',
-                                'short': False
-                            }
-                        ],
-                        'mrkdwn_in': ['fields']
-                    }
-                ]
-            }
-            status = post_message_on_slack(payload)
-
-        elif deal_flow and deal_flow[0]['object'] == 'note':
-            encoded_deal_title = deal.title.encode('utf-8')
-            encoded_organization_name = deal.organization.name.encode('utf-8')
-            status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
-            payload = {
-                'attachments': [
-                    {
-                        'fallback': 'New Note Added: <{}/deal/{}|{} for {}>'
-                            .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
-                        'pretext': 'New Note Added: <{}/deal/{}|{} for {}>'
-                            .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
-                        'fields': [
-                            {
-                                'value': html2text.html2text(status_comment.content)
-                                if status_comment and status_comment.content else '',
-                                'short': False
-                            }
-                        ],
-                        'mrkdwn_in': ['fields']
-                    }
-                ]
-            }
-            status = post_message_on_slack(payload)
+        encoded_deal_title = deal.title.encode('utf-8')
+        encoded_organization_name = deal.organization.name.encode('utf-8')
+        status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
+        payload = {
+            'attachments': [
+                {
+                    'fallback': 'New Deal {}: <{}/deal/{}|{} for {}>'
+                        .format(deal.status, app.config['PD_APP_URL'], deal.id,
+                                encoded_deal_title, encoded_organization_name),
+                    'pretext': 'New Deal {}: <{}/deal/{}|{} for {}>'
+                        .format(deal.status, app.config['PD_APP_URL'], deal.id,
+                                encoded_deal_title, encoded_organization_name),
+                    'text': '{} has {} the deal {}'.format(deal.owner.name.encode('utf-8'),
+                                                           deal.status,
+                                                           encoded_deal_title),
+                    'color': 'good' if deal.status == 'won' else 'danger',
+                    'fields': [
+                        {
+                            'title': '',
+                            'value': ('*Company*: {}\n'
+                                      '*Value*: {} {}\n'
+                                      '*Pipeline*: {}').format(encoded_organization_name,
+                                                             deal.currency,
+                                                             deal.value,
+                                                             pipedrive
+                                                             .Pipeline(get_pipedrive_client(), deal.pipeline_id)
+                                                             .name),
+                            'short': True
+                        },
+                        {
+                            'title': '',
+                            'value': ('*Start Date*: {}\n'
+                                      '*Duration (month)*: {}\n'
+                                      '*Won Time*: {}').format(deal.contract_start_date,
+                                                             deal.duration,
+                                                             deal.won_time),
+                            'short': True
+                        },
+                        {
+                            'title': 'Comments',
+                            'value': html2text.html2text(status_comment.content)
+                            if status_comment and status_comment.content else '',
+                            'short': False
+                        }
+                    ],
+                    'mrkdwn_in': ['fields']
+                }
+            ]
+        }
+        content = post_message_on_slack(payload)
 
         response = {
-            'status': status
+            'content': content
+        }
+
+    else:
+        message = 'No deal found with id %s' % str(deal_id)
+        app.logger.error(message)
+        response = {
+            'error': message
+        }
+
+    return response
+
+
+def notify_deal_in_slack_for_note(deal_id):
+    app.logger.info('Fetching deal data from Pipedrive with id=%s', str(deal_id))
+    deal = pipedrive.Deal(get_pipedrive_client(), deal_id)
+
+    if deal.id is not None:
+        encoded_deal_title = deal.title.encode('utf-8')
+        encoded_organization_name = deal.organization.name.encode('utf-8')
+        status_comment = pipedrive.Note(get_pipedrive_client(), deal.id, 'deal_id')
+        payload = {
+            'attachments': [
+                {
+                    'fallback': 'New Note Added: <{}/deal/{}|{} for {}>'
+                        .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
+                    'pretext': 'New Note Added: <{}/deal/{}|{} for {}>'
+                        .format(app.config['PD_APP_URL'], deal.id, encoded_deal_title, encoded_organization_name),
+                    'fields': [
+                        {
+                            'value': html2text.html2text(status_comment.content)
+                            if status_comment and status_comment.content else '',
+                            'short': False
+                        }
+                    ],
+                    'mrkdwn_in': ['fields']
+                }
+            ]
+        }
+        content = post_message_on_slack(payload)
+
+        response = {
+            'content': content
         }
 
     else:

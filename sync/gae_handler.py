@@ -21,7 +21,7 @@ def handle_internal_server_error(error):
     return response
 
 
-@gae_app.errorhandler(AttributeError)
+@gae_app.errorhandler(Exception)
 def handle_internal_server_attribute_error(error):
     logging.getLogger('sync').error('%s: %s', error.__class__.__name__, error)
     response = jsonify({

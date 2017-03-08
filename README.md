@@ -146,7 +146,7 @@ Actually synchronizes data if and only if it is new or it has changed.
 
 - **POST**: `/pipedrive/organization/<int:organization_id>/compute` (or `/pipedrive/organization/compute` for Pipedrive notification usage): to compute organization data in Pipedrive
 
-- **POST**: `/pipedrive/deal/<int:deal_id>/compute` (or `/pipedrive/deal/compute` for Pipedrive notification usage): to compute deal data in Pipedrive
+- **POST**: `/pipedrive/deal/notify` (for Pipedrive notification usage only): to notify about a deal (status change and note added) in Slack
 
 ### Mapping
 
