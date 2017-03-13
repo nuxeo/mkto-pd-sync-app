@@ -530,7 +530,12 @@ def notify_deal_in_slack_for_status(deal_id):
                 }
             ]
         }
+
         content = post_message_on_slack(payload)
+
+        if deal.value >= 100000:
+            payload['channel'] = '#general'
+            content = post_message_on_slack(payload)
 
         response = {
             'content': content
