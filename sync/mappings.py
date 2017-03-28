@@ -30,10 +30,9 @@ PERSON_TO_LEAD = {
     'phone': {
         'fields': ['phone']
     },
-    'inferred_country': {
-        'fields': ['inferredCountry', 'leadCountry'],
-        'mode': 'choose',
-        'pre_adapter': adapters.country_iso_to_name
+    'lead_country': {
+        'fields': ['leadCountry'],
+        'post_adapter': adapters.country_iso_to_name
     },
     'lead_source': {
         'fields': ['leadSource']
@@ -189,7 +188,7 @@ LEAD_TO_PERSON = {
         'post_adapter': adapters.toggle_boolean
     },
     'leadCountry': {
-        'fields': ['inferred_country']
+        'fields': ['lead_country']
     },
     'pDMarketingSuspended': {
         'fields': ['marketing_suspended'],

@@ -248,11 +248,11 @@
     {
       "id": 9030,
       "key": "fe5bf54e0790d5b29216ec2f18b3efe030db1c2d",
-      "name": "Inferred Country",
+      "name": "Lead Country",
       "order_nr": 13,
       "field_type": "varchar",
       "add_time": null,
-      "update_time": null,
+      "update_time": "2017-03-28 15:30:33",
       "active_flag": true,
       "edit_flag": true,
       "index_visible_flag": true,
@@ -1075,7 +1075,7 @@
       "order_nr": 53,
       "field_type": "enum",
       "add_time": "2016-10-27 20:26:34",
-      "update_time": "2016-10-27 20:26:34",
+      "update_time": "2017-03-10 20:13:08",
       "active_flag": true,
       "edit_flag": true,
       "index_visible_flag": true,
@@ -1087,7 +1087,7 @@
       "options": [
         {
           "id": 187,
-          "label": "New"
+          "label": "Contact"
         },
         {
           "id": 188,
