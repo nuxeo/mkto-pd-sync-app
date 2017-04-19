@@ -54,6 +54,14 @@ class MarketoClient:
         """
         return self._fetch_data(entity_name, 'describe')
 
+    @memoize(method_name='get_activity_types')
+    def get_activity_types(self):
+        """
+        Return the activity available types loaded from Marketo.
+        :return: A list of activity types
+        """
+        return self._fetch_data('activity', 'types')
+
     def get_entity_data(self, entity_name, entity_id, entity_id_field, entity_fields=None):
         """
         Return an entity data loaded from Marketo.
@@ -200,14 +208,64 @@ class MarketoClient:
 
         return data
 
+    def get_lead_activities(self, lead_id, activity_type_ids, start_datetime):
+        """
+        Return a lead latest activities loaded from Marketo
+        of specified types from start date or current date if not specified.
+        :param lead_id: The lead id to retrieve activities of
+        :param activity_type_ids: A list of activity type names
+        :param start_datetime: The date to begin retrieving activities from of format 'YYYY-MM-DD'
+        :return: A list of activities
+        """
+        paging_token = self._get_paging_token(start_datetime)
+
+        result_data = {}
+        if paging_token:
+            url = self._build_url('activity')
+
+            headers = {'Authorization': 'Bearer %s' % self._auth_token}
+
+            payload = {
+                'activityTypeIds': activity_type_ids,
+                'nextPageToken': paging_token,
+                'leadIds': lead_id
+            }
+
+            r = self._session.get(url, headers=headers, params=payload)
+
+            self._logger.info('Called url=%s with headers=%s and parameters=%s', r.url, headers, payload)
+            r.raise_for_status()
+            data = r.json()
+
+            result_data = {}
+            if 'success' in data:
+                if data['success'] and 'result' in data:
+                    result_data = data['result']
+                elif 'errors' in data:
+                    for error in data['errors']:
+                        if error['code'] == '602':
+                            self._logger.debug('Token expired, fetching new token to replay request')
+                            self._auth_token = self._get_auth_token()
+                            result_data = self.get_lead_activities(lead_id, activity_type_ids, start_datetime)
+                        else:
+                            self._logger.error('Error=%s', error['message'])
+
+        return result_data
+
     def get_asset(self, asset_name, asset_id):
+        """
+        Return an asset loaded from Marketo.
+        :param asset_name: The asset name
+        :param asset_id: The asset id
+        :return: A dictionary of field keys mapped against their value for the asset
+        """
         url = '%s/%s/%s/%s/%s.json' % (self._api_endpoint, 'asset', self.API_VERSION, asset_name, str(asset_id))
 
         headers = {'Authorization': 'Bearer %s' % self._auth_token}
 
         r = self._session.get(url, headers=headers)
 
-        self._logger.info('Called url=%s with headers=%s and parameters=%s', r.url, headers)
+        self._logger.info('Called url=%s with headers=%s', r.url, headers)
         r.raise_for_status()
         data = r.json()
 
@@ -295,6 +353,21 @@ class MarketoClient:
                         self._logger.error('Error=%s', error['message'])
 
         return result_data
+
+    def _get_paging_token(self, start_datetime):
+        url = self._build_url('activity', 'pagingtoken')
+        headers = {'Authorization': 'Bearer %s' % self._auth_token}
+        payload = {
+            'sinceDatetime': start_datetime
+        }
+        r = self._session.get(url, headers=headers, params=payload)
+        self._logger.info('Called url=%s with headers=%s and parameters=%s', r.url, headers, payload)
+        r.raise_for_status()
+        data = r.json()
+        paging_token = ''
+        if 'success' in data:
+            paging_token = data['nextPageToken']
+        return paging_token
 
     def _build_url(self, entity_name, action=None):
         url = '%s/%s/%s' % (self._api_endpoint, self.API_VERSION, simple_pluralize(entity_name))

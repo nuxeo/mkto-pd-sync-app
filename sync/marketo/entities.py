@@ -1,5 +1,6 @@
 import logging
 from abc import ABCMeta, abstractproperty
+from datetime import datetime
 
 from sync.common import InitializationError, SavingError
 
@@ -139,6 +140,24 @@ class Lead(Entity):
                 self._id_field = 'id'  # Manually set id field
         else:
             raise InitializationError('Load fields', 'No data returned for entity={}', self.entity_name)
+
+    def get_activities(self, activities, start_date=None):
+        """
+        Return the lead latest activities of specified types from start date or current date if not specified.
+        :param activities: A list of activity type names
+        :param start_date: The date to begin retrieving activities from of format 'YYYY-MM-DD'
+        :return: A list of activities
+        """
+        activity_types = self._client.get_activity_types()
+
+        activity_ids = [type_['id'] for type_ in activity_types if type_['name'] in activities]
+
+        if not start_date:
+            start_datetime = datetime.utcnow()
+        else:
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+
+        return self._client.get_lead_activities(self.id, activity_ids, start_datetime.isoformat())
 
     @property
     def _entity_fields_to_update(self):

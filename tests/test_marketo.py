@@ -368,3 +368,8 @@ class MarketoTestCase(unittest.TestCase):
         # Delete created lead and company
         lead.delete()
         company.delete('externalCompanyId')
+
+    def test_get_lead_activities(self):
+        lead = sync.marketo.Lead(self.mkto, 7591021)
+        activities = lead.get_activities(['Add to List'], '2016-02-03')
+        self.assertEquals(activities[0]['primaryAttributeValue'], 'Lead Data.All Nuxeo Leads')
