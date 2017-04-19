@@ -37,7 +37,10 @@
       "leadCountry": "United Kingdom",
       "contactReason": null,
       "directFollowUp": false,
-      "pDMarketingSuspended": false
+      "pDMarketingSuspended": false,
+      "demographicScore": null,
+      "behavioralScore": null,
+      "acquisitionProgramId": null
     }
   ],
   "success": true

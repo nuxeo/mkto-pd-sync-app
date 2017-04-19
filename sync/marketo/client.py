@@ -200,6 +200,32 @@ class MarketoClient:
 
         return data
 
+    def get_asset(self, asset_name, asset_id):
+        url = '%s/%s/%s/%s/%s.json' % (self._api_endpoint, 'asset', self.API_VERSION, asset_name, str(asset_id))
+
+        headers = {'Authorization': 'Bearer %s' % self._auth_token}
+
+        r = self._session.get(url, headers=headers)
+
+        self._logger.info('Called url=%s with headers=%s and parameters=%s', r.url, headers)
+        r.raise_for_status()
+        data = r.json()
+
+        result_data = {}
+        if 'success' in data:
+            if data['success']:
+                result_data = data['result']
+            else:
+                for error in data['errors']:
+                    if error['code'] == '602':
+                        self._logger.debug('Token expired, fetching new token to replay request')
+                        self._auth_token = self._get_auth_token()
+                        result_data = self.get_asset(asset_name, asset_id)
+                    else:
+                        self._logger.error('Error=%s', error['message'])
+
+        return result_data[0]
+
     def _fetch_data(self, entity_name, id_or_action, filter_type=None, fields=None):
         self._logger.debug('Fetching entity=%s%s%s%s', entity_name,
                            ' (fields=%s)' % fields if fields is not None else '',

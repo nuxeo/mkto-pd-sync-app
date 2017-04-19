@@ -71,6 +71,16 @@ PERSON_TO_LEAD = {
     'marketing_suspended': {
         'fields': ['pDMarketingSuspended'],
         'post_adapter': adapters.boolean_to_boolean_string
+    },
+    'demographic_score': {
+        'fields': ['demographicScore']
+    },
+    'behavioral_score': {
+        'fields': ['behavioralScore']
+    },
+    'acquisition_program': {
+        'fields': ['acquisitionProgramId'],
+        'post_adapter': adapters.program_id_to_name
     }
 }
 

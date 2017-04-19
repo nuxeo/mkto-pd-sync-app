@@ -65,17 +65,21 @@ RESOURCE_MAPPING = {
     '/v1/stages/34':                         {'{}': 'resources/stage34.json'},
     '/v1/activityFields':                    {'{}': 'resources/activityFields.json'},
     '/v1/filters':                           {'{}': 'resources/filters.json'},
-    '/v1/filters/1':                         {'{}': 'resources/filter1.json'}
+    '/v1/filters/1':                         {'{}': 'resources/filter1.json'},
+    '/asset/v1/program/1.json':              {'{}': 'resources/program1.json'}
 }
 
 
 def side_effect_get(*args, **kwargs):
     rv = mock.MagicMock(spec=requests.Response)
-    params = kwargs['params']
-    if 'filterType' in params and 'filterValues' in params:
-        value = "{'filterType': '%s', 'filterValues': '%s'}" % (params['filterType'], params['filterValues'])
+    if 'params' in kwargs:
+        params = kwargs['params']
+        if 'filterType' in params and 'filterValues' in params:
+            value = "{'filterType': '%s', 'filterValues': '%s'}" % (params['filterType'], params['filterValues'])
+        else:
+            value = str(params)
     else:
-        value = str(params)
+        value = '{}'
     endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
     url = RESOURCE_MAPPING[endpoint][value]
     rv.url = '%s -> %s' % (args[0], url)
@@ -265,6 +269,9 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_person.date_sql, '2016-11-16')
         self.assertEquals(synced_person.lead_status, 'Recycled')
         self.assertEquals(synced_person.marketing_suspended, 'Yes')
+        self.assertEquals(synced_person.demographic_score, 10)
+        self.assertEquals(synced_person.behavioral_score, 20)
+        self.assertEquals(synced_person.acquisition_program, 'Program 1')
 
         # Test Organization sync
         synced_organization = saved_instances['organization' + str(synced_person.org_id)]  # Organization has been created
@@ -323,6 +330,9 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_person.date_sql, '2016-11-16')
         self.assertEquals(synced_person.lead_status, 'Prospect')
         self.assertEquals(synced_person.marketing_suspended, 'No')
+        self.assertIsNone(synced_person.demographic_score)
+        self.assertIsNone(synced_person.behavioral_score)
+        self.assertIsNone(synced_person.acquisition_program)
 
         # Test Organization sync
         synced_organization = saved_instances['organization' + str(found_organization.id)]  # Organization has been updated

@@ -171,17 +171,17 @@ MAPPING_NAME = {
 
 Assuming you already have [Python 2.7](https://www.python.org/download/releases/2.7/) installed, you first need to set up a virtual environment containing all the dependencies.
 - Install virtualenv if you have not already:
-```python
+```
 pip install virtualenv
 ```
 - Create and activate the virtual environment.
-```python
+```
 cd mkto-pd-sync-app
 virtualenv venv
 source venv/bin/activate
 ```
 - Install the required packages.
-```python
+```
 pip install -r requirements.txt
 ```
 
@@ -194,11 +194,26 @@ For development, you'll also need [Eclipse](http://www.eclipse.org/downloads/pac
 * Create an `instance` folder in the root folder of the project
 * Copy the `config.py` file to this folder and set `IDENTITY_ENDPOINT`, `CLIENT_ID`, `CLIENT_SECRET`, `API_ENDPOINT` from your Marketo credentials, `PD_API_TOKEN` from your Pipedrive API token and `FLASK_AUTHORIZED_KEYS` with any keys (one for unit testing and the other for production).
 
+## Running
+
+```
+source venv/bin/activate  # Activate the virtual environment to start using it
+dev_appserver.py -A sync-app app.yaml worker.yaml  # Start the local development server
+deactivate  # Deactivate the virtual environment when you are done working with it
+```
+
 ## Testing
 
 Marketo and Pipedrive clients are tested in the `tests` module but should not be continuously run as they actually call Marketo and Pipedrive APIs. 
 
 The application is also tested in this module where calls to the APIs have been mocked (see files in the `resources` folder under `tests`).
+
+Run a test case:
+```
+source venv/bin/activate  # Activate the virtual environment to start using it
+python -m tests.test_sync  # Launch test
+deactivate  # Deactivate the virtual environment when you are done working with it
+```
 
 To run only a single unit test in Eclipse you can use the keybinding **CTRL + F9** while the file open.
 

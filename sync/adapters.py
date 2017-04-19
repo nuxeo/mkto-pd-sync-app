@@ -170,6 +170,10 @@ def boolean_to_boolean_string(boolean):
     return 'Yes' if boolean else 'No'
 
 
+def program_id_to_name(id_):
+    return sync.get_marketo_client().get_asset('program', id_)['name'] if id_ else None
+
+
 def boolean_string_to_boolean(boolean_string):
     return boolean_string == 'Yes'
 

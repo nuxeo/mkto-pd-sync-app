@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "warnings": [],
+  "errors": [],
+  "requestId": "5f7e#15b86ce4ccb",
+  "result": [
+    {
+      "id": 1695,
+      "name": "Program 1",
+      "description": "",
+      "createdAt": "2016-11-03T18:30:52Z+0000",
+      "updatedAt": "2017-04-13T20:51:01Z+0000",
+      "url": "",
+      "type": "Default",
+      "channel": "Online Advertising",
+      "folder": {
+        "type": "Folder",
+        "value": 1,
+        "folderName": "Test"
+      },
+      "status": "",
+      "workspace": "Default",
+      "tags": [],
+      "costs": []
+    }
+  ]
+}
