@@ -1,0 +1,26 @@
+{
+  "requestId": "5d0b#15909074995",
+  "result": [
+    {
+      "id": 1,
+      "name": "Visit Webpage",
+      "description": "User visits a web page",
+      "primaryAttribute": {
+        "name": "Webpage ID",
+        "dataType": "integer"
+      },
+      "attributes": []
+    },
+    {
+      "id": 6,
+      "name": "Send Email",
+      "description": "Send Marketo Email to a person",
+      "primaryAttribute": {
+        "name": "Mailing ID",
+        "dataType": "integer"
+      },
+      "attributes": []
+    }
+  ],
+  "success": true
+}

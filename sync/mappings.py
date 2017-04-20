@@ -146,6 +146,27 @@ ACTIVITY_TO_LEAD = {
     }
 }
 
+ACTIVITY_TO_EMAIL_SENT = {
+    'user_id': {
+        'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
+        'mode': 'join',
+        'post_adapter': adapters.user_name_to_user_id_or_big_bot
+    },
+    'person_id': {
+        'fields': ['pipedriveId']
+    },
+    'type': {
+        'transformer': adapters.activity_type_email
+    },
+    'due_date': {
+        'fields': [],
+        'post_adapter': adapters.today_date
+    },
+    'done': {
+        'transformer': adapters.activity_done
+    },
+}
+
 # To send from Pipedrive to Marketo
 # /!\ If you add a field here don't forget to add it in marketo.Entity._entity_fields_to_update() too
 

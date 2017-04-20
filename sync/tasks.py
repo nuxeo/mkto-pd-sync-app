@@ -446,6 +446,53 @@ def create_activity_in_pipedrive(lead_id):
     return response
 
 
+def create_activity_in_pipedrive_for_email_sent(lead_id):
+    """
+    Create one or several activities for one or several Email sent in Pipedrive.
+    Data to set is defined in mappings.
+    :param lead_id: The lead id to synchronize data from
+    :return: A custom response object containing the synchronized entity statuses and ids
+    """
+    app.logger.info('Fetching lead data from Marketo with id=%s', str(lead_id))
+    lead = marketo.Lead(get_marketo_client(), lead_id)
+
+    if lead.id is not None:
+        mkto_activities = lead.get_activities(['Send Email'])
+        statuses = []
+        ids = []
+        for mkto_activity in mkto_activities:
+            activity = pipedrive.Activity(get_pipedrive_client())
+            app.logger.info('New activity created')
+            statuses.append('created')
+
+            for pd_field in mappings.ACTIVITY_TO_EMAIL_SENT:
+                update_field(lead, activity, pd_field, mappings.ACTIVITY_TO_EMAIL_SENT[pd_field])
+
+            activity.subject = mkto_activity['primaryAttributeValue']
+            email_content = get_marketo_client().get_asset('email', mkto_activity['primaryAttributeValueId'], 'content')
+            if email_content and 'value' in email_content:
+                content_text = [value['value'] for value in email_content['value'] if value['type'] == 'Text']
+                if content_text:
+                    activity.note = content_text[0]
+
+            app.logger.info('Sending lead activities with id=%s to Pipedrive activities', str(lead_id))
+            activity.save()
+            ids.append(activity.id)
+
+        response = {
+            'status': statuses,
+            'id': ids
+        }
+    else:
+        message = 'No lead found in Marketo with id=%s' % str(lead_id)
+        app.logger.error(message)
+        response = {
+            'error': message
+        }
+
+    return response
+
+
 def compute_organization_in_pipedrive(organization_id):
     app.logger.info('Fetching organization data from Pipedrive with id=%s', str(organization_id))
     organization = pipedrive.Organization(get_pipedrive_client(), organization_id)

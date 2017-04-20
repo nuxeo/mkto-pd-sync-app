@@ -142,7 +142,7 @@ Actually synchronizes data if and only if it is new or it has changed.
 
 - **POST**: `/pipedrive/person/<int:pipedrive_marketo_id>/delete` (or `/pipedrive/person/delete` for Pipedrive notification usage): to delete a lead in Marketo (using person marketo id)
 
-- **POST**: `/marketo/lead/<int:lead_id>/activity` : to send an activity to Pipedrive from Marketo lead data
+- **POST**: `/marketo/lead/<int:lead_id>/activity` : to send an activity to Pipedrive from Marketo lead data. It allows a parameter `type` which if set to `email_sent` send activities to Pipedrive from the latest Emails sent the same day in Marketo.
 
 - **POST**: `/pipedrive/organization/<int:organization_id>/compute` (or `/pipedrive/organization/compute` for Pipedrive notification usage): to compute organization data in Pipedrive
 

@@ -3,6 +3,7 @@ from .context import sync
 
 import datetime
 import json
+import logging
 import mock
 import os
 import re
@@ -12,22 +13,22 @@ import unittest
 from google.appengine.ext import ndb, testbed
 
 RESOURCE_MAPPING = {
-    '/v1/leads/describe.json':               {'{}': 'resources/leadFields.json'},
-    '/v1/leads.json':                        {
+    '/v1/leads/describe.json'               : {'{}': 'resources/leadFields.json'},
+    '/v1/leads.json'                        : {
         "{'filterType': 'id', 'filterValues': '10'}": 'resources/lead10.json',
         "{'filterType': 'id', 'filterValues': '20'}": 'resources/lead20.json',
         "{'filterType': 'id', 'filterValues': '30'}": 'resources/lead30.json',
         "{'filterType': 'id', 'filterValues': '40'}": 'resources/lead40.json'
     },
-    '/v1/personFields':                      {'{}': 'resources/personFields.json'},
-    '/v1/persons/10':                        {'{}': 'resources/person10.json'},
-    '/v1/persons/20':                        {'{}': 'resources/person20.json'},
-    '/v1/persons/30':                        {'{}': 'resources/person30.json'},
-    '/v1/userFields':                        {'{}': 'resources/userFields.json'},
-    '/v1/users/find':                        {"{'term': u'Helene Jonin'}": 'resources/userHeleneJonin.json'},
-    '/v1/users/1628545':                     {'{}': 'resources/user1628545.json'},
-    '/v1/companies/describe.json':           {'{}': 'resources/companyFields.json'},
-    '/v1/companies.json':                    {
+    '/v1/personFields'                      : {'{}': 'resources/personFields.json'},
+    '/v1/persons/10'                        : {'{}': 'resources/person10.json'},
+    '/v1/persons/20'                        : {'{}': 'resources/person20.json'},
+    '/v1/persons/30'                        : {'{}': 'resources/person30.json'},
+    '/v1/userFields'                        : {'{}': 'resources/userFields.json'},
+    '/v1/users/find'                        : {"{'term': u'Helene Jonin'}": 'resources/userHeleneJonin.json'},
+    '/v1/users/1628545'                     : {'{}': 'resources/user1628545.json'},
+    '/v1/companies/describe.json'           : {'{}': 'resources/companyFields.json'},
+    '/v1/companies.json'                    : {
         "{'filterType': 'externalCompanyId', 'filterValues': 'testFlaskCompany'}"      : 'resources/company10.json',
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-10'}"    : 'resources/empty.json',
         "{'filterType': 'company', 'filterValues': 'Test Flask Organization'}"         : 'resources/empty.json',
@@ -39,34 +40,40 @@ RESOURCE_MAPPING = {
         "{'filterType': 'externalCompanyId', 'filterValues': 'pd-organization-50'}"    : 'resources/empty.json',
         "{'filterType': 'company', 'filterValues': 'Test Flask Unlinked Organization'}": 'resources/company50.json'
     },
-    '/v1/organizationFields':                {'{}': 'resources/organizationFields.json'},
-    '/v1/organizations/find':                {"{'term': u'Test Flask Company'}": 'resources/emptyPdFind.json'},
-    '/v1/organizations/10':                  {'{}': 'resources/organization10.json'},
-    '/v1/organizations/20':                  {'{}': 'resources/organization20.json'},
-    '/v1/organizations/30':                  {'{}': 'resources/organization30.json'},
-    '/v1/organizations/50':                  {'{}': 'resources/organization50.json'},
-    '/v1/organizations':                     {
-        "{'filter_id': 1}": 'resources/empty.json',
-        "{'filter_id': 2}": 'resources/organization20_filter.json',
-        "{'filter_id': 3}": 'resources/organization30_filter.json'
+    '/v1/organizationFields'                : {'{}': 'resources/organizationFields.json'},
+    '/v1/organizations/find'                : {"{'term': u'Test Flask Company'}": 'resources/emptyPdFind.json'},
+    '/v1/organizations/10'                  : {'{}': 'resources/organization10.json'},
+    '/v1/organizations/20'                  : {'{}': 'resources/organization20.json'},
+    '/v1/organizations/30'                  : {'{}': 'resources/organization30.json'},
+    '/v1/organizations/50'                  : {'{}': 'resources/organization50.json'},
+    '/v1/organizations'                     : {
+        "{'filter_id': 1}"                  : 'resources/empty.json',
+        "{'filter_id': 2}"                  : 'resources/organization20_filter.json',
+        "{'filter_id': 3}"                  : 'resources/organization30_filter.json'
     },
-    '/v1/dealFields':                        {'{}': 'resources/dealFields.json'},
-    '/v1/deals/10':                          {'{}': 'resources/deal10.json'},
-    '/v1/deals/20':                          {'{}': 'resources/deal20.json'},
-    '/v1/deals/30':                          {'{}': 'resources/deal30.json'},
-    '/v1/pipelines/12':                      {'{}': 'resources/pipeline12.json'},
-    '/v1/opportunities/describe.json':       {'{}': 'resources/opportunityFields.json'},
-    '/v1/opportunities/roles/describe.json': {'{}': 'resources/opportunityRoleFields.json'},
-    '/v1/opportunities.json':                {
+    '/v1/dealFields'                        : {'{}': 'resources/dealFields.json'},
+    '/v1/deals/10'                          : {'{}': 'resources/deal10.json'},
+    '/v1/deals/20'                          : {'{}': 'resources/deal20.json'},
+    '/v1/deals/30'                          : {'{}': 'resources/deal30.json'},
+    '/v1/pipelines/12'                      : {'{}': 'resources/pipeline12.json'},
+    '/v1/opportunities/describe.json'       : {'{}': 'resources/opportunityFields.json'},
+    '/v1/opportunities/roles/describe.json' : {'{}': 'resources/opportunityRoleFields.json'},
+    '/v1/opportunities.json'                : {
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-10'}": 'resources/empty.json',
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-20'}": 'resources/opportunity20.json',
         "{'filterType': 'externalOpportunityId', 'filterValues': 'pd-deal-30'}": 'resources/opportunity30.json'
     },
-    '/v1/stages/34':                         {'{}': 'resources/stage34.json'},
-    '/v1/activityFields':                    {'{}': 'resources/activityFields.json'},
-    '/v1/filters':                           {'{}': 'resources/filters.json'},
-    '/v1/filters/1':                         {'{}': 'resources/filter1.json'},
-    '/asset/v1/program/1.json':              {'{}': 'resources/program1.json'}
+    '/v1/stages/34'                         : {'{}': 'resources/stage34.json'},
+    '/v1/activityFields'                    : {'{}': 'resources/activityFields.json'},
+    '/v1/filters'                           : {'{}': 'resources/filters.json'},
+    '/v1/filters/1'                         : {'{}': 'resources/filter1.json'},
+    '/asset/v1/program/1.json'              : {'{}': 'resources/program1.json'},
+    '/v1/activities/types.json'             : {'{}': 'resources/activityTypes.json'},
+    '/v1/activities/pagingtoken.json'       : {
+        "{'sinceDatetime': '" + datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + "'}": 'resources/pagingToken.json'},
+    '/v1/activities.json'                   : {
+        "{'nextPageToken': u'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'activityTypeIds': [6], 'leadIds': 20}": 'resources/activities20.json'},
+    '/asset/v1/email/1/content.json'        : {'{}': 'resources/email1.json'}
 }
 
 
@@ -80,7 +87,11 @@ def side_effect_get(*args, **kwargs):
             value = str(params)
     else:
         value = '{}'
-    endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
+    try:
+        endpoint = [key for key in RESOURCE_MAPPING if re.match('^.*%s$' % key, args[0])][0]
+    except IndexError:
+        logging.error('Missing key for %s in RESOURCE_MAPPING with value=%s', args[0], value)
+        os._exit(1)
     url = RESOURCE_MAPPING[endpoint][value]
     rv.url = '%s -> %s' % (args[0], url)
     with open(os.path.join(os.path.dirname(__file__), url)) as f:
@@ -122,44 +133,58 @@ saved_instances = {}
 
 def mock_save_lead(lead):
     if not lead.id:
-        lead.id = 15
+        mock_save_lead.counter += 1
+        lead.id = mock_save_lead.counter
     saved_instances['lead' + str(lead.id)] = lead
+mock_save_lead.counter = 0
 
 
 def mock_save_company(company):
     if not company.id:
-        company.id = 15
+        mock_save_company.counter += 1
+        company.id = mock_save_company.counter
     saved_instances['company' + str(company.id)] = company
+mock_save_company.counter = 0
 
 
 def mock_save_opportunity(opportunity):
     if not opportunity.id:
-        opportunity.id = 15
+        mock_save_opportunity.counter += 1
+        opportunity.id = mock_save_opportunity.counter
     saved_instances['opportunity' + str(opportunity.id)] = opportunity
+mock_save_opportunity.counter = 0
 
 
 def mock_save_role(role):
     if not role.id:
-        role.id = 15
+        mock_save_role.counter += 1
+        role.id = mock_save_role.counter
     saved_instances['role' + str(role.id)] = role
+mock_save_role.counter = 0
 
 
 def mock_save_person(person):
     if not person.id:
-        person.id = 15
+        mock_save_person.counter += 1
+        person.id = mock_save_person.counter
     saved_instances['person' + str(person.id)] = person
+mock_save_person.counter = 0
 
 
 def mock_save_organization(organization):
     if not organization.id:
-        organization.id = 15
+        mock_save_organization.counter += 1
+        organization.id = mock_save_organization.counter
     saved_instances['organization' + str(organization.id)] = organization
+mock_save_organization.counter = 0
 
 
 def mock_save_activity(activity):
     if not activity.id:
-        activity.id = 15
+        mock_save_activity.counter += 1
+        activity.id = mock_save_activity.counter
     saved_instances['activity' + str(activity.id)] = activity
+mock_save_activity.counter = 0
 
 
 def setup_get_filter_mock(mock_get_filter, filter_id):
@@ -382,7 +407,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_person.name, 'Test Other Flask Lead')
         self.assertEquals(synced_person.email, 'lead2@testflask.com')
 
-        created_company = saved_instances['company15']  # Company has been created
+        created_company = saved_instances['company1']  # Company has been created
         self.assertIsNotNone(created_company.id)
         self.assertIsNotNone(synced_lead.externalCompanyId)  # External company id has been updated
 
@@ -426,7 +451,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_lead.pDMarketingSuspended, True)
 
         # Test Company sync
-        synced_company = saved_instances['company' + str(15)]  # Company has been created
+        synced_company = saved_instances['company1']  # Company has been created
 
         # Test values
         self.assertEquals(synced_company.company, 'Test Flask Organization')
@@ -608,6 +633,39 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(synced_activity.subject, 'Follow up with Test Linked Flask Lead')
         self.assertEquals(synced_activity.note, 'Did something interesting on 12/19/2016')
         self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
+
+    def test_create_activities_in_pipedrive_for_email_sent(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
+        lead_to_sync = sync.marketo.Lead(self.mkto, 20)
+
+        rv = sync.tasks.create_activity_in_pipedrive_for_email_sent(lead_to_sync.id)
+
+        # Activity 1 has been created
+        synced_activity = saved_instances['activity' + str(rv['id'][0])]
+        self.assertIsNotNone(synced_activity.id)
+        self.assertEquals(rv['status'][0], 'created')
+
+        # Test values
+        self.assertEquals(synced_activity.user_id, 1628545)
+        self.assertEquals(synced_activity.person_id, 20)
+        self.assertEquals(synced_activity.type, 'email')
+        self.assertEquals(synced_activity.subject, 'Sent Email 2')
+        self.assertEquals(synced_activity.note, 'Hello World!')
+        self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
+        self.assertTrue(synced_activity.done)
+
+        # Activity 2 has been created
+        synced_activity = saved_instances['activity' + str(rv['id'][1])]
+        self.assertIsNotNone(synced_activity.id)
+        self.assertEquals(rv['status'][1], 'created')
+
+        # Test values
+        self.assertEquals(synced_activity.user_id, 1628545)
+        self.assertEquals(synced_activity.person_id, 20)
+        self.assertEquals(synced_activity.type, 'email')
+        self.assertEquals(synced_activity.subject, 'Sent Email 1')
+        self.assertEquals(synced_activity.note, 'Hello World!')
+        self.assertEquals(synced_activity.due_date, datetime.datetime.now().strftime('%Y-%m-%d'))
+        self.assertTrue(synced_activity.done)
 
     def test_compute_organization_in_pipedrive(self, mock_mkto_get_token, mock_put, mock_post, mock_get):
         organization_to_compute = sync.pipedrive.Organization(self.pd, 10)

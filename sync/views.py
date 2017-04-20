@@ -122,7 +122,12 @@ def sync_deal_with_params():
 @app.route('/marketo/lead/<int:lead_id>/activity', methods=['POST'])
 @authenticate(authorized_keys=app.config['FLASK_AUTHORIZED_KEYS'])
 def sync_lead_activity(lead_id):
-    rv = enqueue_task('create_activity_in_pipedrive', {'id': lead_id})
+    params = request.get_json()
+    if not params:
+        rv = enqueue_task('create_activity_in_pipedrive', {'id': lead_id})
+    else:
+        if params['type'] == 'email_sent':
+            rv = enqueue_task('create_activity_in_pipedrive_for_email_sent', {'id': lead_id})
     return jsonify(**rv)
 
 

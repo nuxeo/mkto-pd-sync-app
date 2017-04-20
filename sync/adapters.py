@@ -104,6 +104,14 @@ def activity_type(lead):
     return activity_type
 
 
+def activity_type_email(lead):
+    return 'email'
+
+
+def activity_done(lead):
+    return True
+
+
 def custom_subject(name):
     return 'Follow up with %s' % name
 

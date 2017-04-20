@@ -252,14 +252,18 @@ class MarketoClient:
 
         return result_data
 
-    def get_asset(self, asset_name, asset_id):
+    def get_asset(self, asset_name, asset_id, more=None):
         """
         Return an asset loaded from Marketo.
         :param asset_name: The asset name
         :param asset_id: The asset id
+        :param more: If there is more to add to the URL
         :return: A dictionary of field keys mapped against their value for the asset
         """
-        url = '%s/%s/%s/%s/%s.json' % (self._api_endpoint, 'asset', self.API_VERSION, asset_name, str(asset_id))
+        url = '%s/%s/%s/%s/%s' % (self._api_endpoint, 'asset', self.API_VERSION, asset_name, str(asset_id))
+        if more:
+            url += '/' + more
+        url += '.json'
 
         headers = {'Authorization': 'Bearer %s' % self._auth_token}
 
@@ -278,9 +282,19 @@ class MarketoClient:
                     if error['code'] == '602':
                         self._logger.debug('Token expired, fetching new token to replay request')
                         self._auth_token = self._get_auth_token()
-                        result_data = self.get_asset(asset_name, asset_id)
+                        result_data = self.get_asset(asset_name, asset_id, more)
                     else:
                         self._logger.error('Error=%s', error['message'])
+
+        data = {}
+        if result_data:
+            if len(result_data) > 1:
+                data_with_value = [result for result in result_data if 'value' in result]
+                if data_with_value:
+                    data = data_with_value[0]
+            else:
+                data = result_data[0]
+        return data
 
         return result_data[0]
 

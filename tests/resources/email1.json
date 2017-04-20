@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "warnings": [],
+  "errors": [],
+  "requestId": "1520a#15b88006d6a",
+  "result": [
+    {
+      "htmlId": "mkto_autogen_id_0",
+      "contentType": "Page"
+    },
+    {
+      "htmlId": "Section 1",
+      "value": [
+        {
+          "type": "HTML",
+          "value": "<p>Hello World in HTML!</p>"
+        },
+        {
+          "type": "Text",
+          "value": "Hello World!"
+        }
+      ],
+      "contentType": "Text"
+    }
+  ]
+}

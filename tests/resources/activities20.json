@@ -1,0 +1,30 @@
+{
+  "requestId": "13382#15b87f66499",
+  "result": [
+    {
+      "id": 1,
+      "marketoGUID": "106247403",
+      "leadId": 20,
+      "activityDate": "2100-01-01T00:01:00Z",
+      "activityTypeId": 7,
+      "campaignId": 10,
+      "primaryAttributeValueId": 1,
+      "primaryAttributeValue": "Sent Email 2",
+      "attributes": []
+    },
+    {
+      "id": 2,
+      "marketoGUID": "106373297",
+      "leadId": 20,
+      "activityDate": "2100-01-01T00:00:00Z",
+      "activityTypeId": 7,
+      "campaignId": 10,
+      "primaryAttributeValueId": 1,
+      "primaryAttributeValue": "Sent Email 1",
+      "attributes": []
+    }
+  ],
+  "success": true,
+  "nextPageToken": "ZC5JTEYAMVQOSDWBQLCDZ3S4Y3MZY676EAP4HRMOG5JUQUUFNXXQ====",
+  "moreResult": false
+}

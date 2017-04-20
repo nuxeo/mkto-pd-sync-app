@@ -153,7 +153,7 @@ class Lead(Entity):
         activity_ids = [type_['id'] for type_ in activity_types if type_['name'] in activities]
 
         if not start_date:
-            start_datetime = datetime.utcnow()
+            start_datetime = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         else:
             start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
 
