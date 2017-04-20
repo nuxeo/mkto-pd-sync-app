@@ -13,5 +13,7 @@ FLASK_AUTHORIZED_KEYS = {
     'prod': ''
 }
 
+DATADOG_API_KEY = ''
+
 DEBUG = False
 TESTING = False

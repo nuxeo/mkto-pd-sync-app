@@ -7,5 +7,7 @@ libraries:
   version: latest
 
 handlers:
+- url: /datadog
+  script: gae_datadog.datadog.app
 - url: /.*
   script: sync_app.application
