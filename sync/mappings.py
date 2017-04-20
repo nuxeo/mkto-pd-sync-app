@@ -148,9 +148,7 @@ ACTIVITY_TO_LEAD = {
 
 ACTIVITY_TO_EMAIL_SENT = {
     'user_id': {
-        'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
-        'mode': 'join',
-        'post_adapter': adapters.user_name_to_user_id_or_big_bot
+        'transformer': adapters.big_bot_id
     },
     'person_id': {
         'fields': ['pipedriveId']

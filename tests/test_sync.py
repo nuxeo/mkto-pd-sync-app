@@ -645,7 +645,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(rv['status'][0], 'created')
 
         # Test values
-        self.assertEquals(synced_activity.user_id, 1628545)
+        self.assertEquals(synced_activity.user_id, 208823)
         self.assertEquals(synced_activity.person_id, 20)
         self.assertEquals(synced_activity.type, 'email')
         self.assertEquals(synced_activity.subject, 'Sent Email 2')
@@ -659,7 +659,7 @@ class SyncTestCase(unittest.TestCase):
         self.assertEquals(rv['status'][1], 'created')
 
         # Test values
-        self.assertEquals(synced_activity.user_id, 1628545)
+        self.assertEquals(synced_activity.user_id, 208823)
         self.assertEquals(synced_activity.person_id, 20)
         self.assertEquals(synced_activity.type, 'email')
         self.assertEquals(synced_activity.subject, 'Sent Email 1')

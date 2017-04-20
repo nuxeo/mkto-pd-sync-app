@@ -104,6 +104,10 @@ def activity_type(lead):
     return activity_type
 
 
+def big_bot_id(lead):
+    return BIG_BOT_ID
+
+
 def activity_type_email(lead):
     return 'email'
 
