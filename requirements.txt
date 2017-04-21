@@ -4,3 +4,4 @@ requests
 requests-toolbelt
 mock
 html2text
+datadog

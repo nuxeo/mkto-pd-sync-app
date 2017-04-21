@@ -8,6 +8,6 @@ libraries:
 
 handlers:
 - url: /datadog
-  script: gae_datadog.datadog.app
+  script: gae_datadog.application
 - url: /.*
   script: sync_app.application

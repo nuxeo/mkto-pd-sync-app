@@ -1,18 +1,15 @@
 # stdlib
 from collections import defaultdict
 from datetime import datetime, timedelta
+from gae_datadog import config, t_stats
+import calendar
 import sync
 import time
 import json
 
 # google api
 from google.appengine.api import app_identity, logservice, memcache, taskqueue
-# choose db or ndb according to what you're using
-try:
-    from google.appengine.ext.db import stats as db_stats
-    from google.appengine.ext.db import to_dict
-except ImportError:
-    from google.appengine.ext.ndb import stats as db_stats
+from google.appengine.ext.ndb import stats as db_stats
 
 # framework
 import webapp2
@@ -21,7 +18,7 @@ import webapp2
 class DatadogStats(webapp2.RequestHandler):
     def get(self):
         api_key = self.request.get('api_key')
-        if api_key != sync.app.config['DATADOG_API_KEY']:
+        if api_key != config['DATADOG_API_KEY']:
             self.abort(403)
 
         FLAVORS = ['requests', 'services', 'all']
@@ -76,13 +73,18 @@ class DatadogStats(webapp2.RequestHandler):
             'project_name': app_identity.get_application_id()
         }
         if flavor == 'services' or flavor == 'all':
-            global_stat = db_stats.GlobalStat.all().get()
+            global_stat = db_stats.GlobalStat.query().get()
             if global_stat is not None:
                 if hasattr(global_stat, "to_dict"):
                     stats['datastore'] = global_stat.to_dict()
                 else:
-                    stats['datastore'] = to_dict(global_stat)
-                stats['datastore']['timestamp'] = str(stats['datastore']['timestamp'])
+                    stats['datastore'] = {}
+                stats['datastore']['timestamp'] = calendar.timegm(global_stat.timestamp.timetuple())
+
+                # Send datastore metrics using the API
+                t_stats.gauge('gae.datastore.bytes', global_stat.bytes, tags=['project:' + app_identity.get_application_id()])
+                t_stats.gauge('gae.datastore.count', global_stat.count, tags=['project:' + app_identity.get_application_id()])
+                t_stats.flush()
 
             stats['memcache'] = memcache.get_stats()
             stats['task_queue'] = get_task_queue_stats(self.request.get('task_queues', None))
