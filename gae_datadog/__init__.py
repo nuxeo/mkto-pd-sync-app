@@ -1,10 +1,7 @@
-import os
-import sys
+from google.appengine.ext import vendor
 
-sys.path.insert(0, os.path.abspath('.'))
-
-activate_this = os.path.join(os.path.abspath('.'), 'venv/bin/activate_this.py')
-execfile(activate_this, dict(__file__=activate_this))
+# Add any libraries installed in the "lib" folder
+vendor.add('lib')
 
 from datadog import initialize, ThreadStats
 import sync

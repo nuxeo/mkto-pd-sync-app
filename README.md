@@ -1,5 +1,7 @@
 # MKTO-PD Sync App
 
+[![Travis](https://travis-ci.org/travis-ci/travis-web.svg?branch=master)](https://travis-ci.org/travis-ci/travis-web)
+
 MKTO-PD Sync App is a Flask application running on a Google App Engine that synchronizes data between marketing software Marketo and CRM Pipedrive.
 
 
@@ -152,7 +154,7 @@ Actually synchronizes data if and only if it is new or it has changed.
 
 A mapping file describes how Marketo and Pipedrive entity fields should be matched.
 
-#### Schema
+#### Structure
 ```
 MAPPING_NAME = {
     to_field_key_1: {
@@ -167,59 +169,56 @@ MAPPING_NAME = {
 }
 ```
 
-## Installation
+## Development
 
-Assuming you already have [Python 2.7](https://www.python.org/download/releases/2.7/) installed, you first need to set up a virtual environment containing all the dependencies.
-- Install virtualenv if you have not already:
+### Requirements
+
+- Install and initialize the [Google Cloud SDK](https://cloud.google.com/sdk/docs/).
+- Create a Google Cloud Platform Console project.
+- Install [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-javascript-and-web-developers/neonr) and import the project.
+- Create a a [path variable](http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Fconcepts%2Fcpathvars.htm) `HOME` that targets the folder where you extracted the SDK (see [also](docs/assets/path_variable.png)).
+
+### Installation
+
+Assuming you already have [Python 2.7](https://www.python.org/download/releases/2.7/) installed:
+- Install the required packages into a `lib/` folder:
 ```
-pip install virtualenv
-```
-- Create and activate the virtual environment.
-```
-cd mkto-pd-sync-app
-virtualenv venv
-source venv/bin/activate
-```
-- Install the required packages.
-```
-pip install -r requirements.txt
+pip install -r requirements.txt -t lib/
 ```
 
-Then you need to create a new Cloud Platform Console project and install and initialize the [Google Cloud SDK](https://cloud.google.com/sdk/docs/).
+### Configuration
 
-For development, you'll also need [Eclipse](http://www.eclipse.org/downloads/packages/eclipse-ide-javascript-and-web-developers/neonr) and a [linked resource](http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.user%2Fconcepts%2Fcpathvars.htm) `HOME` that targets the folder where you extracted the SDK.
+* Create an `instance` folder in the root folder of the project.
+* Copy the `config.py.sample` file to this folder (remove the `.sample` extension) and set `IDENTITY_ENDPOINT`, `CLIENT_ID`, `CLIENT_SECRET`, `API_ENDPOINT` from your Marketo credentials, `PD_API_TOKEN` from your Pipedrive API token and `FLASK_AUTHORIZED_KEYS` with any keys (one for unit testing and the other for production).
 
-## Configuration
-
-* Create an `instance` folder in the root folder of the project
-* Copy the `config.py` file to this folder and set `IDENTITY_ENDPOINT`, `CLIENT_ID`, `CLIENT_SECRET`, `API_ENDPOINT` from your Marketo credentials, `PD_API_TOKEN` from your Pipedrive API token and `FLASK_AUTHORIZED_KEYS` with any keys (one for unit testing and the other for production).
-
-## Running
+### Running
 
 ```
-source venv/bin/activate  # Activate the virtual environment to start using it
 dev_appserver.py -A sync-app app.yaml worker.yaml  # Start the local development server
-deactivate  # Deactivate the virtual environment when you are done working with it
 ```
 
-## Testing
+### Testing
 
 Marketo and Pipedrive clients are tested in the `tests` module but should not be continuously run as they actually call Marketo and Pipedrive APIs. 
 
 The application is also tested in this module where calls to the APIs have been mocked (see files in the `resources` folder under `tests`).
 
-Run a test case:
+Launch the test:
+
 ```
-source venv/bin/activate  # Activate the virtual environment to start using it
-python -m tests.test_sync  # Launch test
-deactivate  # Deactivate the virtual environment when you are done working with it
+export GOOGLE_APP_ENGINE={PATH_TO_YOUR_GOOGLE_SDK}/platform/google_appengine
+python -m tests.test_sync
 ```
 
-To run only a single unit test in Eclipse you can use the keybinding **CTRL + F9** while the file open.
+To run the test in Eclipse, you must change the `Working directory` to `Default` (see [this screenshot](docs/assets/run_config1.png)) and set an environment variable for `GOOGLE_APP_ENGINE` pointing to the directory where you extracted the SDK (see [this other screenshot](docs/assets/run_config2.png)) in your configuration.
+
+To run a single unit test in Eclipse you can use the keybinding **CTRL + F9** while the file open.
 
 ## Deployment
 
-You can [upload](https://cloud.google.com/appengine/docs/python/tools/uploadinganapp) the application running the following command from within the root directory of the project:
+You can [upload](https://cloud.google.com/appengine/docs/python/tools/uploadinganapp) the application running the following command from within the root directory of the project (don't forget the `config.py` file):
 ```
 gcloud app deploy app.yaml worker.yaml queue.yaml [--project [YOUR_PROJECT_ID]]
 ```
+
+Otherwise, this project is continuously delivered (tested and deployed) with Travis and triggered by a push to the master branch of this repository

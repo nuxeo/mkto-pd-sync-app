@@ -5,4 +5,8 @@
 coverage*
 /.idea/
 /instance/*
-/venv/*
+/lib/*
+
+client-secret.json
+config.py
+credentials.tar.gz
