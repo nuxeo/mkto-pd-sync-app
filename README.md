@@ -1,6 +1,6 @@
 # MKTO-PD Sync App
 
-[![Travis](https://travis-ci.org/travis-ci/travis-web.svg?branch=master)](https://travis-ci.org/travis-ci/travis-web)
+[![Travis Build Status](https://travis-ci.org/hjonin/mkto-pd-sync-app.svg?branch=master)](https://travis-ci.org/hjonin/mkto-pd-sync-app)
 
 MKTO-PD Sync App is a Flask application running on a Google App Engine that synchronizes data between marketing software Marketo and CRM Pipedrive.
 
@@ -189,7 +189,13 @@ pip install -r requirements.txt -t lib/
 ### Configuration
 
 * Create an `instance` folder in the root folder of the project.
-* Copy the `config.py.sample` file to this folder (remove the `.sample` extension) and set `IDENTITY_ENDPOINT`, `CLIENT_ID`, `CLIENT_SECRET`, `API_ENDPOINT` from your Marketo credentials, `PD_API_TOKEN` from your Pipedrive API token and `FLASK_AUTHORIZED_KEYS` with any keys (one for unit testing and the other for production).
+* Copy the `config.py.sample` file to this folder (remove the `.sample` extension) and set:
+  * `IDENTITY_ENDPOINT`, `CLIENT_ID`, `CLIENT_SECRET`, `API_ENDPOINT` from your Marketo credentials,
+  * `PD_API_TOKEN` from your Pipedrive API token,
+  * `FLASK_AUTHORIZED_KEYS` with any keys (one for unit testing and the other for production).
+  * `SLACK_WEBHOOK_URL` and `DATADOG_API_KEY`
+
+`DEBUG` and `TESTING` are logging control variables.
 
 ### Running
 
