@@ -3,7 +3,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from gae_datadog import config, t_stats
 import calendar
-import sync
 import time
 import json
 
@@ -73,17 +72,21 @@ class DatadogStats(webapp2.RequestHandler):
             'project_name': app_identity.get_application_id()
         }
         if flavor == 'services' or flavor == 'all':
-            global_stat = db_stats.GlobalStat.query().get()
-            if global_stat is not None:
-                if hasattr(global_stat, "to_dict"):
-                    stats['datastore'] = global_stat.to_dict()
+            kind_stats = db_stats.KindStat.query().fetch()
+            for kind_stat in kind_stats:
+                if hasattr(kind_stat, "to_dict"):
+                    stats['datastore'] = kind_stat.to_dict()
                 else:
                     stats['datastore'] = {}
-                stats['datastore']['timestamp'] = calendar.timegm(global_stat.timestamp.timetuple())
+                stats['datastore']['timestamp'] = calendar.timegm(kind_stat.timestamp.timetuple())
 
                 # Send datastore metrics using the API
-                t_stats.gauge('gae.datastore.bytes', global_stat.bytes, tags=['project:' + app_identity.get_application_id()])
-                t_stats.gauge('gae.datastore.count', global_stat.count, tags=['project:' + app_identity.get_application_id()])
+                t_stats.gauge('gae.datastore.bytes', kind_stat.bytes,
+                              tags=['project:' + app_identity.get_application_id(),
+                                    'entity_kind:' + kind_stat.kind_name])
+                t_stats.gauge('gae.datastore.count', kind_stat.count,
+                              tags=['project:' + app_identity.get_application_id(),
+                                    'entity_kind:' + kind_stat.kind_name])
                 t_stats.flush()
 
             stats['memcache'] = memcache.get_stats()
