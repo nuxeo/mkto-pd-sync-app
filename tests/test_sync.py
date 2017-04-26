@@ -1,11 +1,17 @@
 # coding=UTF-8
+# Load the appropriate libraries on the Python path
+import os
+import sys
+sys.path.insert(1, os.environ['GOOGLE_APP_ENGINE'])
+sys.path.insert(1, os.environ['GOOGLE_APP_ENGINE'] + '/lib/yaml/lib')
+sys.path.insert(1, os.path.abspath('lib'))
+
 from .context import sync
 
 import datetime
 import json
 import logging
 import mock
-import os
 import re
 import requests
 import unittest
