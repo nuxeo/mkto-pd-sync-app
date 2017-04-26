@@ -11,6 +11,3 @@ handlers:
   script: gae_datadog.application
 - url: /.*
   script: sync_app.application
-
-skip_files:
-- ^instance/*
