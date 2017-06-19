@@ -56,7 +56,14 @@ class Entity:
                     try:
                         attr = self._field_options[field_key][int(attr)]
                     except ValueError:  # In case the attribute is not an integer
+                        self._logger.debug('ValueError: attr=%s', attr)
                         pass
+                    except KeyError:
+                        self._logger.debug('KeyError: attr=%s', attr)
+                        pass
+
+                if attr == 0:
+                    attr = None;
 
                 return attr
 

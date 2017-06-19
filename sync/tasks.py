@@ -236,6 +236,7 @@ def create_or_update_company_in_marketo(organization_id):
             status = 'updated'
 
         for mkto_field in mappings.COMPANY_TO_ORGANIZATION:
+            app.logger.debug('mkto_field=%s', mkto_field)
             data_changed = update_field(organization, company, mkto_field, mappings.COMPANY_TO_ORGANIZATION[mkto_field]) \
                            or data_changed
 

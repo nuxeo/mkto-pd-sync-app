@@ -36,6 +36,7 @@ def handle_internal_server_attribute_error(error):
 def sync_handler(task_name):
     # Get task first in case it is deleted in the app while running
     enqueued_task_key = ndb.Key(EnqueuedTask, request.headers.get('X-AppEngine-TaskName'))
+    logging.getLogger('sync').debug('enqueued_task_key: %s', enqueued_task_key)
     enqueued_task = enqueued_task_key.get()
     # Acknowledge the task: set its arrival time
     if enqueued_task:
@@ -43,6 +44,8 @@ def sync_handler(task_name):
         enqueued_task.put()
 
     id_ = int(request.form.get('id'))
+    logging.getLogger('sync').debug('id_: %s', id_)
+    
     import tasks
     rv = getattr(tasks, task_name)(id_)
 
