@@ -114,8 +114,8 @@ class PipedriveClient:
         return result_data
 
     def _push_data(self, entity_name, data, id_or_action=None):
-        self._logger.debug('Pushing entity=%s with data=%s%s', entity_name, data,
-                           ' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
+        self._logger.debug('Pushing entity=%s with data=%s', entity_name, data)
+        self._logger.debug(' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
         url = self._build_url(entity_name, id_or_action)
 
         if not id_or_action:  # Create
@@ -133,12 +133,15 @@ class PipedriveClient:
                 result_data = data['data']
             else:
                 self._logger.error('Error=%s', data['error'])
+        else:
+            self._logger.error(traceback.print_stack())
 
         return result_data
 
     def _push_data_json(self, entity_name, data, id_or_action=None):
-        self._logger.debug('Pushing entity=%s with data=%s%s', entity_name, data,
-                           ' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
+        self._logger.debug('Pushing JSON entity=%s with data=%s', entity_name, data)
+        self._logger.debug(' with id/action=%s' % str(id_or_action) if id_or_action is not None else '')
+        
         url = self._build_url(entity_name, id_or_action)
 
         if not id_or_action:  # Create

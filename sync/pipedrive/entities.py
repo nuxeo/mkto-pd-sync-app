@@ -87,8 +87,14 @@ class Entity:
             data_value = value['value']
         elif type(value) is list:  # In case of a list, keep only primary value and "flatten" field value
             for v in value:
-                if v['primary']:
-                    data_value = v['value']
+                self._logger.debug('_get_data_value - v=%r', v)
+                if v.get('primary', v.get('primary_flag')):
+                    if v.get('value'):
+                        data_value = v['value']
+                    elif v.get('person_id'):
+                        data_value = v['person_id']
+                    else:
+                        raise Exception('Missing valid key for value');
         return data_value
 
     @property

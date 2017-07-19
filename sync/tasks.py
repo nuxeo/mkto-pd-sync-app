@@ -428,6 +428,7 @@ def create_activity_in_pipedrive(lead_id):
         status = 'created'
 
         for pd_field in mappings.ACTIVITY_TO_LEAD:
+            app.logger.debug('Pipedrive field: %s', str(pd_field))
             update_field(lead, activity, pd_field, mappings.ACTIVITY_TO_LEAD[pd_field])
 
         app.logger.info('Sending lead data with id=%s to Pipedrive activity', str(lead_id))
