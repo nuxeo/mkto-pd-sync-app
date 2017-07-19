@@ -87,7 +87,9 @@ class Entity:
             data_value = value['value']
         elif type(value) is list:  # In case of a list, keep only primary value and "flatten" field value
             for v in value:
+                self._logger.debug('_get_data_value - v=%r', v)
                 if v['primary']:
+                    self._logger.debug('_get_data_value - Primary')
                     data_value = v['value']
         return data_value
 
