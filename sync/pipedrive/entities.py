@@ -89,9 +89,9 @@ class Entity:
             for v in value:
                 self._logger.debug('_get_data_value - v=%r', v)
                 if v.get('primary', v.get('primary_flag')):
-                    if v.get('value'):
+                    if v.get('value') is not None:
                         data_value = v['value']
-                    elif v.get('person_id'):
+                    elif v.get('person_id') is not None:
                         data_value = v['person_id']
                     else:
                         raise Exception('Missing valid key for value');
