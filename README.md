@@ -226,5 +226,11 @@ You can [upload](https://cloud.google.com/appengine/docs/python/tools/uploadinga
 ```
 gcloud app deploy app.yaml worker.yaml queue.yaml [--project [YOUR_PROJECT_ID]]
 ```
+or
+```
+gcloud config set project marketo-1041
+gcloud components update
+gcloud app deploy app.yaml worker.yaml queue.yaml
+```
 
 Otherwise, this project is continuously delivered (tested and deployed) with Travis and triggered by a push to the master branch of this repository
