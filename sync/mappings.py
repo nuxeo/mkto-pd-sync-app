@@ -38,7 +38,7 @@ PERSON_TO_LEAD = {
         'fields': ['leadSource']
     },
     'lead_state': {
-        'fields': ['lead_state', 'leadState']
+        'fields': ['leadState']
     },
     'owner_id': {
         'fields': ['conversicaLeadOwnerFirstName', 'conversicaLeadOwnerLastName'],
