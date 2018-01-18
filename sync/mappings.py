@@ -35,7 +35,7 @@ PERSON_TO_LEAD = {
         'post_adapter': adapters.country_iso_to_name
     },
     'lead_rating': {
-        'fields': ['leadRating']
+        'fields': ['rating']
     },
     'lead_source': {
         'fields': ['leadSource']
@@ -196,9 +196,9 @@ LEAD_TO_PERSON = {
     'phone': {
         'fields': ['phone']
     },
-    'leadRating': {
+    'rating': {
         'fields': ['lead_rating'],
-        'post_adapter': adapters.lead_rating_pipedrive_default
+        'post_adapter': adapters.rating_pipedrive_default
     },
     'leadSource': {
         'fields': ['lead_source'],

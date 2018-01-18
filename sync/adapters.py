@@ -149,7 +149,7 @@ def organization_to_external_id(organization):
     return org_external_id
 
 
-def lead_rating_pipedrive_default(lead_rating):
+def rating_pipedrive_default(lead_rating):
     return lead_rating or 'None'
 
 def lead_source_pipedrive_default(lead_source):
