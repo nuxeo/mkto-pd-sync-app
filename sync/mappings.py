@@ -266,7 +266,7 @@ COMPANY_TO_ORGANIZATION = {
     }
 }
 
-PIPELINE_FILTER_NAMES = ['Subscriptions (New and Upsell)', 'Renewals', 'Professional Services']
+PIPELINE_FILTER_NAMES = ['NAM - Commercial', 'NAM - Government', 'EMEA', 'APAC', 'Renewals', 'Professional Services']
 
 OPPORTUNITY_TO_DEAL = {
     'name': {
