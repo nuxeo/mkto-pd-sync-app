@@ -153,7 +153,7 @@ def rating_pipedrive_default(lead_rating):
     return lead_rating or 'None'
 
 def lead_source_pipedrive_default(lead_source):
-    return lead_source or 'Pipedrive'
+    return lead_source or 'Referral'
 
 
 def user_to_email(user):
