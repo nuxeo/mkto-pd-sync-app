@@ -168,12 +168,12 @@ def compute_deal_with_params():
             deal_status = params['current']['status']
             previous_deal_status = params['previous']['status']
             if deal_status != previous_deal_status and deal_status in ('lost', 'won'):
-                # rv = enqueue_task('notify_deal_in_slack_for_status', {'id': deal_id})
+                rv = enqueue_task('notify_deal_in_slack_for_status', {'id': deal_id})
 
             deal_notes_count = params['current']['notes_count']
             previous_deal_notes_count = params['previous']['notes_count']
             if deal_notes_count == previous_deal_notes_count + 1:
-                # rv = enqueue_task('notify_deal_in_slack_for_note', {'id': deal_id})
+                rv = enqueue_task('notify_deal_in_slack_for_note', {'id': deal_id})
 
         except ValueError:
             message = 'Incorrect id=%s' % str(params['current']['id'])
