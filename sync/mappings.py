@@ -202,7 +202,8 @@ LEAD_TO_PERSON = {
     },
     'leadSource': {
         'fields': ['lead_source'],
-        'post_adapter': adapters.lead_source_pipedrive_default
+        'post_adapter': adapters.lead_source_pipedrive_default,
+        'no_clobber': True
     },
     'conversicaLeadOwnerEmail': {
         'fields': ['owner'],

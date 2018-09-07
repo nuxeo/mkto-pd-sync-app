@@ -665,7 +665,9 @@ def update_field(from_entity, to_entity, to_field, mapping):
     updated = False
     if hasattr(to_entity, to_field):
         old_attr = getattr(to_entity, to_field)
-        if new_attr != old_attr and new_attr is not None and new_attr != '':
+        if old_attr is not None and old_attr != '' and 'no_clobber' in mapping and mapping['no_clobber'] is True:
+            app.logger.info('(old=%s) for field=%s no_clobber', old_attr, to_field)
+        elif new_attr != old_attr and new_attr is not None and new_attr != '':
             app.logger.info('(old=%s, new=%s) for field=%s', old_attr, new_attr, to_field)
             setattr(to_entity, to_field, new_attr)
             updated = True
