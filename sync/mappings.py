@@ -87,6 +87,9 @@ PERSON_TO_LEAD = {
     'acquisition_program': {
         'fields': ['acquisitionProgramId'],
         'post_adapter': adapters.program_id_to_name
+    },
+    'linked_in': {
+        'fields': ['linkedInProfileURL']
     }
 }
 
@@ -233,6 +236,9 @@ LEAD_TO_PERSON = {
     'pDMarketingSuspended': {
         'fields': ['marketing_suspended'],
         'post_adapter': adapters.boolean_string_to_boolean
+    },
+    'linkedInProfileURL': {
+        'fields': ['linked_in']
     }
 }
 
@@ -274,10 +280,10 @@ OPPORTUNITY_TO_DEAL = {
         'fields': ['title']
     },
     'type': {
-        'fields': ['type']
+        'fields': ['deal_type']
     },
     'description': {
-        'fields': ['deal_description']
+        'fields': ['why']
     },
     'lastActivityDate': {
         'fields': ['last_activity_date']

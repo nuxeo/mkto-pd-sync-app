@@ -178,7 +178,8 @@ class Lead(Entity):
             'leadScore': None,
             'mKTODateSQL': None,
             'leadCountry': None,
-            'pDMarketingSuspended': False
+            'pDMarketingSuspended': False,
+            'linkedInProfileURL': None
         }
         # Fields that cannot be updated at the same time
         if self.externalCompanyId:
